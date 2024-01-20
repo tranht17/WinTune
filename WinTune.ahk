@@ -1,13 +1,13 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.0.0.0
+;@Ahk2Exe-SetVersion         1.1.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0 32-bit
 #SingleInstance Ignore
 SetRegView 64
-; #Warn
+#Warn
 
-App:={Name: "WinTune", Ver: "1.0.0"}
+App:={Name: "WinTune", Ver: "1.1.0"}
 
 full_command_line := DllCall("GetCommandLine", "str")
 if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
@@ -33,12 +33,13 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
 #Include inc/Util.ahk
 #Include inc/HostEdit.ahk
 #Include inc/CustomFn.ahk
+#Include inc/SaveOptimizeConfig.ahk
 
 LangCode:="en"
 try {
 	LangDataText:=FileRead("Lang\" LangCode ".json","UTF-8")
 } Catch {
-	LangDataText:='{"AUOptions":{"Desc":"Set Notify before download Windows Updates","Name":"AUOptions"},"AutoEndTasks":{"Desc":"Close frozen processes to avoid system crash","Name":"Auto End Tasks"},"BtnClearStartMenu":{"Name":"Clear StartMenu"},"BtnDeselectAll":{"Name":"Deselect All"},"BtnHostEdit":{"Name":"Host Edit"},"BtnRestartExplorer":{"Name":"Restart Explorer"},"BtnSelectAll":{"Name":"Select All"},"BtnSys_Close":{"Desc":"Close"},"BtnSys_Language":{"Desc":"Language"},"BtnSys_LoadOptimizeConfig":{"Desc":"Load optimize configurations file"},"BtnSys_Minimize":{"Desc":"Minimize"},"BtnSys_SaveOptimizeConfigAll":{"Desc":"Save all optimization configurations to file"},"BtnSys_SaveOptimizeConfigTab":{"Desc":"Save this tab only optimization configuration to file"},"BtnSys_Setting":{"Desc":"Setting"},"BtnSys_Theme":{"Desc":"Theme"},"ClassicContextMenu":{"Name":"Classic Context Menu"},"DiagnosticDataOff":{"Name":"Diagnostic Data Off"},"DisableAdsOnLockScreen":{"Name":"Disable Ads On Lock Screen"},"DisableAeDebug":{"Desc":"Disable the debugger to speed up error processing","Name":"Disable AeDebug"},"DisableAnimationEffectMaxMin":{"Desc":"Close animation effect when maximizing or minimizing a window to speed up the window response","Name":"Disable Animation Effect Max Min"},"DisableAppendCompletion":{"Desc":"Disable inline Auto-Complete (Append completion or Auto-fill)","Name":"Disable Append Completion"},"DisableAutoDefragIde":{"Desc":"Disable auto defrag when ide to increase working life of SSD","Name":"Disable Auto Defrag Ide"},"DisableAutoInstallationApps":{"Name":"Disable Auto Installation Apps"},"DisableAutoplay":{"Desc":"Disable the “Autoplay” feature on drives to avoid virus infection","Name":"Disable Autoplay"},"DisableAutoSuggest":{"Desc":"Disable Auto-Suggest (Auto-complete drop-down)","Name":"Disable Auto-Suggest"},"DisableAutoWindowsUpdates":{"Desc":"Disable Automatic Updates","Name":"Disable Auto Windows Updates"},"DisableBackgroundApps":{"Name":"Disable Background Apps"},"DisableBingSearchStartMenu":{"Name":"Disable BingSearch Start Menu"},"DisableBootOptimize":{"Desc":"Disable defrag system drive on boot to increase working life of SSD","Name":"Disable Boot Optimize"},"DisableCortana":{"Name":"Disable Cortana"},"DisableCortanaWindowsSearch":{"Desc":"Stops Cortana from being used as part of your Windows Search Function","Name":"Disable Cortana Windows Search"},"DisableCrashAutoReboot":{"Desc":"Disable automatical reboot when system encounters blue screen of death","Name":"Disable Crash Auto Reboot"},"DisableDiagTrack":{"Name":"Disable DiagTrack"},"DisabledVBSCodeIntegrity":{"Desc":"Disable virtualization-based protection of code integrity","Name":"Disabled VBS Code Integrity"},"DisableErrorReporting":{"Desc":"Disable screen error reporting to improve system performance","Name":"Disable Error Reporting"},"DisableFrequentFolders":{"Name":"Disable FrequentFolders"},"DisableGameBar":{"Desc":"The Game DVR feature allows you to record your gameplay in the background.\nIt is located on the Game Bar – which offers buttons to record gameplay & take screenshots using the Game DVR feature.\nBut it can slow your gaming performance by recording video in the background.","Name":"Disable Game Bar & Game DVR"},"DisableGoogleUpdateTask":{"Name":"Disable GoogleUpdateTask"},"DisableHibernate":{"Name":"Disable Hibernate"},"DisableHybridSleep":{"Name":"Disable Hybrid Sleep"},"DisableLockScreen":{"Name":"Disable Lock Screen"},"DisableLowDiskSpaceChecks":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Disable Low Disk Space Checks"},"Disablememorypagination":{"Desc":"Disable memory pagination and reduce disk I/O to improve application performance.\n(Option may be ignored if physical memory is <1 GB)","Name":"Disable memory pagination"},"DisableMenuShowDelay":{"Desc":"Optimized response speed of system display","Name":"Disable Menu Show Delay"},"DisableMicrosoftEdgeUpdateTask":{"Name":"Disable MicrosoftEdgeUpdateTask"},"DisableMSDefender":{"Desc":"To disable Microsoft Defender Antivirus you need to do 2 steps:\n\n- Check Disable Microsoft Defender.\n- Enter Safe Mode and check it again.\n\nTo turn Microsoft Defender back on, you just need to do the opposite.\n\n(If you enter Safe Mode using this program, you need to use this program to exit Safe Mode\n  or you can use the command line `'bcdedit /deletevalue \"{current}\" safeboot`')","Name":"Disable Microsoft Defender"},"DisableOfferSuggestions":{"Name":"Disable Offer Suggestions"},"DisablePersonalizedAdsStoreApps":{"Name":"Disable PersonalizedAds StoreApps"},"DisablePrefetchParameters":{"Desc":"Disable prefetch parameters to increase SSD working life","Name":"Disable Prefetch Parameters"},"DisablePrintSpooler":{"Name":"Disable Print Spooler"},"DisableRecentFiles":{"Name":"Disable RecentFiles"},"DisableRemoteRegAccess":{"Desc":"Disable registry modification from a remote computer","Name":"Disable Remote Reg Access"},"DisableScheduledDefrag":{"Name":"Disable Scheduled Defrag"},"DisableSettingsAppSuggestions":{"Name":"Disable Settings App Suggestions"},"DisableShortcutText":{"Name":"Disable Shortcut Text"},"DisableSleep":{"Name":"Disable Sleep"},"DisableSyncProviderNotifications":{"Name":"Disable Sync Provider Notifications"},"DisableSystemRestore":{"Name":"Disable System Restore"},"DisableTailoredExperiences":{"Name":"Disable Tailored Experiences"},"DisableTipsAndSuggestions":{"Name":"Disable Tips And Suggestions"},"DisableTurnOffDisplay":{"Name":"Disable Turn Off Display"},"DisableVisualStudioTelemetry":{"Name":"Disable VisualStudio Telemetry"},"DisableWCE":{"Desc":"Disable Windows Customer Experience Improvement\n\n- Proxy: This task collects and uploads autochk SQM data if opted-in to the Microsoft Customer Experience Improvement Program.\n- Microsoft Compatibility Appraiser: Collects program telemetry information if opted-in to the Microsoft Customer Experience Improvement Program.","Name":"Disable WCE Improvement"},"DisableWebSearch":{"Name":"Disable Web Search"},"DisableWebSearchStartMenu":{"Desc":"Disables Web Search in Start Menu","Name":"Disable WebSearch Start Menu"},"DisableWindowsFeedback":{"Name":"Disable Windows Feedback"},"DisableWindowsSearch":{"Name":"Disable Windows Search"},"EnableDarkMode":{"Name":"Enable Dark Mode"},"HostEdit_BtnImportFromFile":{"Name":"Import From Files"},"HostEdit_BtnImportFromLink":{"Name":"Import From Link"},"HostEdit_BtnInsertLink":{"Desc":"Insert link for Import to host","Name":"Insert Link"},"HostEdit_BtnReload":{"Name":"Reload host file"},"HostEdit_BtnResetDefault":{"Name":"Reset Default"},"HostEdit_BtnSave":{"Name":"Save"},"HostEdit_BtnSaveAs":{"Name":"Save As"},"IncreaseIconCache":{"Desc":"Increase system icon cache and speed up desktop display","Name":"Increase Icon Cache"},"IoPageLockLimit":{"Desc":"Optimize the defauit settings of memory to improve system performance","Name":"Io Page Lock Limit"},"LinkResolveIgnoreLinkInfo":{"Desc":"Do not track Shell shortcuts during roaming","Name":"Link Resolve Ignore LinkInfo"},"MouseHoverTime":{"Desc":"Speed up display speed of Taskbar Window Previews","Name":"Mouse Hover Time"},"NoInternetOpenWith":{"Desc":"Turn off Internet File Association service","Name":"No Internet OpenWith"},"NoResolveSearch":{"Desc":"Do not use the search-based method when resolving shell shortcuts","Name":"No Resolve Search"},"NumLockonStartup":{"Name":"Num Lock on Startup"},"OpenFileExplorerThisPC":{"Name":"Open File Explorer ThisPC"},"OptimizeNetworkTransfer":{"Desc":"Optimize network settings to improve transfer performance","Name":"Optimize Network Transfer"},"Optimizeprocessorperformance":{"Desc":"Optimize processor performance to make applications, games, etc. run more smoothly.","Name":"Optimize processor performance"},"OptimizeRefreshPolicy":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Optimize Refresh Policy"},"Optional":{"Name":"Optional"},"Privacy":{"Name":"Privacy"},"ShowExtensions":{"Name":"Show Extensions"},"ShowHidden":{"Name":"Show Hidden"},"ShowHiddenSystem":{"Name":"Show Hidden System"},"ShowThisPC":{"Name":"Show ThisPC"},"ShutdownAcceleration":{"Desc":"Reduce application idleness at shutdown to improve the shutdown process","Name":"Shutdown Acceleration"},"SnippingPrintScreen":{"Name":"Snipping PrintScreen"},"System":{"Name":"System"},"UninstallOneDrive":{"Name":"Uninstall OneDrive"},"UnpinChat":{"Name":"Chat"},"UnpinCopilot":{"Name":"Copilot"},"UnpinCortana":{"Name":"Cortana"},"UnpinEdge":{"Name":"Edge"},"UnpinFileExplorer":{"Name":"File Explorer"},"UnpinMail":{"Name":"Mail"},"UnpinNewsandInterests":{"Name":"News and Interests"},"UnpinSearch":{"Name":"Search"},"UnpinStore":{"Name":"Store"},"UnpinTaskbar":{"Name":"Unpin Taskbar"},"UnpinTaskView":{"Name":"TaskView"},"UnpinWidgets":{"Name":"Widgets"}}'
+	LangDataText:='{"AUOptions":{"Desc":"Set Notify before download Windows Updates","Name":"AUOptions"},"AutoEndTasks":{"Desc":"Close frozen processes to avoid system crash","Name":"Auto End Tasks"},"BtnClearStartMenu":{"Name":"Clear StartMenu"},"BtnDeselectAll":{"Name":"Deselect All"},"BtnHostEdit":{"Name":"Host Edit"},"BtnRestartExplorer":{"Name":"Restart Explorer"},"BtnSelectAll":{"Name":"Select All"},"BtnSys_Close":{"Desc":"Close"},"BtnSys_Language":{"Desc":"Language"},"BtnSys_LoadOptimizeConfig":{"Desc":"Load optimization configurations file"},"BtnSys_Minimize":{"Desc":"Minimize"},"BtnSys_SaveOptimizeConfigAll":{"Desc":"Save all optimization configurations to file"},"BtnSys_SaveOptimizeConfigTab":{"Desc":"Save this tab only optimization configuration to file"},"BtnSys_Setting":{"Desc":"Setting"},"BtnSys_Theme":{"Desc":"Theme"},"ClassicContextMenu":{"Name":"Classic Context Menu"},"DiagnosticDataOff":{"Name":"Diagnostic Data Off"},"DisableAdsOnLockScreen":{"Name":"Disable Ads On Lock Screen"},"DisableAeDebug":{"Desc":"Disable the debugger to speed up error processing","Name":"Disable AeDebug"},"DisableAnimationEffectMaxMin":{"Desc":"Close animation effect when maximizing or minimizing a window to speed up the window response","Name":"Disable Animation Effect Max Min"},"DisableAppendCompletion":{"Desc":"Disable inline Auto-Complete (Append completion or Auto-fill)","Name":"Disable Append Completion"},"DisableAutoDefragIde":{"Desc":"Disable auto defrag when ide to increase working life of SSD","Name":"Disable Auto Defrag Ide"},"DisableAutoInstallationApps":{"Name":"Disable Auto Installation Apps"},"DisableAutoplay":{"Desc":"Disable the “Autoplay” feature on drives to avoid virus infection","Name":"Disable Autoplay"},"DisableAutoSuggest":{"Desc":"Disable Auto-Suggest (Auto-complete drop-down)","Name":"Disable Auto-Suggest"},"DisableAutoWindowsUpdates":{"Desc":"Disable Automatic Updates","Name":"Disable Auto Windows Updates"},"DisableBackgroundApps":{"Name":"Disable Background Apps"},"DisableBingSearchStartMenu":{"Name":"Disable BingSearch Start Menu"},"DisableBootOptimize":{"Desc":"Disable defrag system drive on boot to increase working life of SSD","Name":"Disable Boot Optimize"},"DisableCortana":{"Name":"Disable Cortana"},"DisableCortanaWindowsSearch":{"Desc":"Stops Cortana from being used as part of your Windows Search Function","Name":"Disable Cortana Windows Search"},"DisableCrashAutoReboot":{"Desc":"Disable automatical reboot when system encounters blue screen of death","Name":"Disable Crash Auto Reboot"},"DisableDiagTrack":{"Name":"Disable DiagTrack"},"DisabledVBSCodeIntegrity":{"Desc":"Disable virtualization-based protection of code integrity","Name":"Disabled VBS Code Integrity"},"DisableErrorReporting":{"Desc":"Disable screen error reporting to improve system performance","Name":"Disable Error Reporting"},"DisableFrequentFolders":{"Name":"Disable FrequentFolders"},"DisableGameBar":{"Desc":"The Game DVR feature allows you to record your gameplay in the background.\nIt is located on the Game Bar – which offers buttons to record gameplay & take screenshots using the Game DVR feature.\nBut it can slow your gaming performance by recording video in the background.","Name":"Disable Game Bar & Game DVR"},"DisableGoogleUpdateTask":{"Name":"Disable GoogleUpdateTask"},"DisableHibernate":{"Name":"Disable Hibernate"},"DisableHybridSleep":{"Name":"Disable Hybrid Sleep"},"DisableLockScreen":{"Name":"Disable Lock Screen"},"DisableLowDiskSpaceChecks":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Disable Low Disk Space Checks"},"Disablememorypagination":{"Desc":"Disable memory pagination and reduce disk I/O to improve application performance.\n(Option may be ignored if physical memory is <1 GB)","Name":"Disable memory pagination"},"DisableMenuShowDelay":{"Desc":"Optimized response speed of system display","Name":"Disable Menu Show Delay"},"DisableMicrosoftEdgeUpdateTask":{"Name":"Disable MicrosoftEdgeUpdateTask"},"DisableMSDefender":{"Desc":"To disable Microsoft Defender Antivirus you need to do 2 steps:\n\n- Check Disable Microsoft Defender.\n- Enter Safe Mode and check it again.\n\nTo turn Microsoft Defender back on, you just need to do the opposite.\n\n(If you enter Safe Mode using this program, you need to use this program to exit Safe Mode\n  or you can use the command line `'bcdedit /deletevalue \"{current}\" safeboot`')","Name":"Disable Microsoft Defender"},"DisableOfferSuggestions":{"Name":"Disable Offer Suggestions"},"DisablePersonalizedAdsStoreApps":{"Name":"Disable PersonalizedAds StoreApps"},"DisablePrefetchParameters":{"Desc":"Disable prefetch parameters to increase SSD working life","Name":"Disable Prefetch Parameters"},"DisablePrintSpooler":{"Name":"Disable Print Spooler"},"DisableRecentFiles":{"Name":"Disable RecentFiles"},"DisableRemoteRegAccess":{"Desc":"Disable registry modification from a remote computer","Name":"Disable Remote Reg Access"},"DisableScheduledDefrag":{"Name":"Disable Scheduled Defrag"},"DisableSettingsAppSuggestions":{"Name":"Disable Settings App Suggestions"},"DisableShortcutText":{"Name":"Disable Shortcut Text"},"DisableSleep":{"Name":"Disable Sleep"},"DisableSyncProviderNotifications":{"Name":"Disable Sync Provider Notifications"},"DisableSystemRestore":{"Name":"Disable System Restore"},"DisableTailoredExperiences":{"Name":"Disable Tailored Experiences"},"DisableTipsAndSuggestions":{"Name":"Disable Tips And Suggestions"},"DisableTurnOffDisplay":{"Name":"Disable Turn Off Display"},"DisableVisualStudioTelemetry":{"Name":"Disable VisualStudio Telemetry"},"DisableWCE":{"Desc":"Disable Windows Customer Experience Improvement\n\n- Proxy: This task collects and uploads autochk SQM data if opted-in to the Microsoft Customer Experience Improvement Program.\n- Microsoft Compatibility Appraiser: Collects program telemetry information if opted-in to the Microsoft Customer Experience Improvement Program.","Name":"Disable WCE Improvement"},"DisableWebSearch":{"Name":"Disable Web Search"},"DisableWebSearchStartMenu":{"Desc":"Disables Web Search in Start Menu","Name":"Disable WebSearch Start Menu"},"DisableWindowsFeedback":{"Name":"Disable Windows Feedback"},"DisableWindowsSearch":{"Name":"Disable Windows Search"},"EnableDarkMode":{"Name":"Enable Dark Mode"},"HostEdit_BtnImportFromFile":{"Name":"Import From Files"},"HostEdit_BtnImportFromLink":{"Name":"Import From Link"},"HostEdit_BtnInsertLink":{"Desc":"Insert link for Import to host","Name":"Insert Link"},"HostEdit_BtnReload":{"Name":"Reload host file"},"HostEdit_BtnResetDefault":{"Name":"Reset Default"},"HostEdit_BtnSave":{"Name":"Save"},"HostEdit_BtnSaveAs":{"Name":"Save As"},"IncreaseIconCache":{"Desc":"Increase system icon cache and speed up desktop display","Name":"Increase Icon Cache"},"IoPageLockLimit":{"Desc":"Optimize the defauit settings of memory to improve system performance","Name":"Io Page Lock Limit"},"LinkResolveIgnoreLinkInfo":{"Desc":"Do not track Shell shortcuts during roaming","Name":"Link Resolve Ignore LinkInfo"},"MouseHoverTime":{"Desc":"Speed up display speed of Taskbar Window Previews","Name":"Mouse Hover Time"},"NoInternetOpenWith":{"Desc":"Turn off Internet File Association service","Name":"No Internet OpenWith"},"NoResolveSearch":{"Desc":"Do not use the search-based method when resolving shell shortcuts","Name":"No Resolve Search"},"NumLockonStartup":{"Name":"Num Lock on Startup"},"OpenFileExplorerThisPC":{"Name":"Open File Explorer ThisPC"},"OptimizeNetworkTransfer":{"Desc":"Optimize network settings to improve transfer performance","Name":"Optimize Network Transfer"},"Optimizeprocessorperformance":{"Desc":"Optimize processor performance to make applications, games, etc. run more smoothly.","Name":"Optimize processor performance"},"OptimizeRefreshPolicy":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Optimize Refresh Policy"},"Optional":{"Name":"Optional"},"Privacy":{"Name":"Privacy"},"ShowExtensions":{"Name":"Show Extensions"},"ShowHidden":{"Name":"Show Hidden"},"ShowHiddenSystem":{"Name":"Show Hidden System"},"ShowThisPC":{"Name":"Show ThisPC"},"ShutdownAcceleration":{"Desc":"Reduce application idleness at shutdown to improve the shutdown process","Name":"Shutdown Acceleration"},"SnippingPrintScreen":{"Name":"Snipping PrintScreen"},"System":{"Name":"System"},"UninstallOneDrive":{"Name":"Uninstall OneDrive"},"UnpinChat":{"Name":"Chat"},"UnpinCopilot":{"Name":"Copilot"},"UnpinCortana":{"Name":"Cortana"},"UnpinEdge":{"Name":"Edge"},"UnpinFileExplorer":{"Name":"File Explorer"},"UnpinMail":{"Name":"Mail"},"UnpinNewsandInterests":{"Name":"News and Interests"},"UnpinSearch":{"Name":"Search"},"UnpinStore":{"Name":"Store"},"UnpinTaskbar":{"Name":"Unpin Taskbar"},"UnpinTaskView":{"Name":"TaskView"},"UnpinWidgets":{"Name":"Widgets"}}'
 }
 Lang:=JSON.parse(LangDataText,,False)
 
@@ -60,6 +61,23 @@ CreateGui() {
 	
 	IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
 	IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
+	
+	BtnSysX:=PanelX
+
+	BtnSys_SaveOptimizeConfigTab:=g.AddText('vBtnSys_SaveOptimizeConfigTab x' BtnSysX ' ym w30 h20 0x200 Center Border',Chr(0xE74E))
+	BtnSys_SaveOptimizeConfigTab.SetFont("s11",IconFont)
+	BtnSys_SaveOptimizeConfigTab.Opt("-Border")
+	BtnSys_SaveOptimizeConfigTab.OnEvent("Click",BtnSys_SaveOptimizeConfigTab_Click)
+
+	BtnSys_SaveOptimizeConfigAll:=g.AddText('vBtnSys_SaveOptimizeConfigAll x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xEA35))
+	BtnSys_SaveOptimizeConfigAll.SetFont("s11",IconFont)
+	BtnSys_SaveOptimizeConfigAll.Opt("-Border")
+	BtnSys_SaveOptimizeConfigAll.OnEvent("Click",BtnSys_SaveOptimizeConfigAll_Click)
+
+	BtnSys_LoadOptimizeConfig:=g.AddText('vBtnSys_LoadOptimizeConfig x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE838))
+	BtnSys_LoadOptimizeConfig.SetFont("s11",IconFont)
+	BtnSys_LoadOptimizeConfig.Opt("-Border")
+	BtnSys_LoadOptimizeConfig.OnEvent("Click",BtnSys_LoadOptimizeConfig_Click)
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
 	BtnSys_Minimize.SetFont("s11",IconFont)
@@ -141,7 +159,7 @@ BtnSelectAll_Click(Ctr, ID, HREF) {
 	Loop CurrentTabCtrls.Length {
 		If g[CurrentTabCtrls[A_Index]].Type="PicSwitch" && g[CurrentTabCtrls[A_Index]].Value!=ID {
 			g[CurrentTabCtrls[A_Index]].Value:=ID
-			ProgNow(g[CurrentTabCtrls[A_Index]],Data.%CurrentTabCtrls[A_Index]%,1)
+			ProgNowCtr(g[CurrentTabCtrls[A_Index]],Data.%CurrentTabCtrls[A_Index]%,1)
 		}
 	}
 	DestroyDlg(g,g2)
@@ -150,8 +168,8 @@ BtnSelectAll_Click(Ctr, ID, HREF) {
 CB_Click(Ctr,Info) {
 	g:=Ctr.Gui
 	g2:=CreateWaitDlg(g)
-	ProgNow(Ctr,Data.%Ctr.Name%)
-	DestroyDlg(g,g2) 
+	ProgNowCtr(Ctr,Data.%Ctr.Name%)
+	DestroyDlg(g,g2)
 }
 CurrentTabCtrlArray(CtrlArray?) {
 	Static CurrentTabCtrlArray:=Array()
@@ -182,6 +200,7 @@ OptimizeTab(g, NavIndex) {
 
 	g["BtnSelectAll"].Visible:=True
 	g["HRLine"].Visible:=True
+	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
 	
 	x:=sXCBT
 	y:=sYCBT
@@ -401,56 +420,65 @@ CheckStatusItem(ItemFunc, DataItem) {
 	Return s
 }
 
-ProgNow(Ctr,d,silent:=0) {
-	Loop d.Act.Length {
-		If d.Act[A_Index].HasOwnProp("Check") && d.Act[A_Index].Check
-			Continue
-		If d.Act[A_Index].Type="Custom"
-			%Ctr.Name%(Ctr.Value, d.Act[A_Index],silent)
-		Else If d.Act[A_Index].Type="RunTerminal"
-			RunTerminal(d.Act[A_Index].Value%Ctr.Value%)
-		Else
-			Prog%d.Act[A_Index].Type%(Ctr.Value,d.Act[A_Index],silent)
+ProgNowCtr(Ctr, ItemData,silent:=0) {
+	ProgNow(Ctr.Name, Ctr.Value, ItemData, silent:=0)
+}
+
+ProgNow(ItemId, ItemValue, ItemData, silent:=0) {
+	Try {
+		Loop ItemData.Act.Length {
+			If ItemData.Act[A_Index].HasOwnProp("Check") && ItemData.Act[A_Index].Check
+				Continue
+			If ItemData.Act[A_Index].Type="Custom"
+				%ItemId%(ItemValue, ItemData.Act[A_Index],silent)
+			Else If ItemData.Act[A_Index].Type="RunTerminal"
+				RunTerminal(ItemData.Act[A_Index].Value%ItemValue%)
+			Else
+				Prog%ItemData.Act[A_Index].Type%(ItemValue,ItemData.Act[A_Index],silent)
+		}
+	} Catch as err {
+		FileAppend Format("`n" A_Now
+				"`nFunc: {1}`nMessage:`n{2}`nStack:`n{3}", ItemId, err.Message, err.Stack), "error.txt"
 	}
 }
 
-ProgReg(s,d,silent) {
-	If (s && d.Type="RegDel") || (!s && d.Type="RegAdd") {
-		If d.HasOwnProp("LvlKeyDel") && d.LvlKeyDel {
-			sKey:=StrSplit(HKCU2HCU(d.RegKey), "\")
+ProgReg(s, ItemData, silent) {
+	If (s && ItemData.Type="RegDel") || (!s && ItemData.Type="RegAdd") {
+		If ItemData.HasOwnProp("LvlKeyDel") && ItemData.LvlKeyDel {
+			sKey:=StrSplit(HKCU2HCU(ItemData.RegKey), "\")
 			cKey:=""
-			Loop (sKey.Length-d.LvlKeyDel+1)
+			Loop (sKey.Length-ItemData.LvlKeyDel+1)
 				cKey.=(A_Index=1?"":"\") sKey[A_Index]
 			RegDeleteKey cKey
 		}
 		Else
-			RegDelete HKCU2HCU(d.RegKey), d.RegValueName
+			RegDelete HKCU2HCU(ItemData.RegKey), ItemData.RegValueName
 	}
-	Else If !d.HasOwnProp("RegValueName") && d.HasOwnProp("RegValue" s)
-		RegWrite d.RegValue%s%, d.RegType, HKCU2HCU(d.RegKey)
-	Else If !d.HasOwnProp("RegValueName")
-		RegCreateKey HKCU2HCU(d.RegKey)
+	Else If !ItemData.HasOwnProp("RegValueName") && ItemData.HasOwnProp("RegValue" s)
+		RegWrite ItemData.RegValue%s%, ItemData.RegType, HKCU2HCU(ItemData.RegKey)
+	Else If !ItemData.HasOwnProp("RegValueName")
+		RegCreateKey HKCU2HCU(ItemData.RegKey)
 	Else
-		RegWrite d.RegValue%s%, d.RegType, HKCU2HCU(d.RegKey), d.RegValueName
+		RegWrite ItemData.RegValue%s%, ItemData.RegType, HKCU2HCU(ItemData.RegKey), ItemData.RegValueName
 }
-ProgRegAdd(s,d,silent) {
-	ProgReg(s,d,silent)
+ProgRegAdd(s, ItemData, silent) {
+	ProgReg(s, ItemData, silent)
 }
-ProgRegChange(s,d,silent) {
-	ProgReg(s,d,silent)
+ProgRegChange(s, ItemData, silent) {
+	ProgReg(s, ItemData, silent)
 }
-ProgRegDel(s,d,silent) {
-	ProgReg(s,d,silent)
+ProgRegDel(s, ItemData, silent) {
+	ProgReg(s, ItemData, silent)
 }
 
-ProgService(s,d,silent) {
-	If d.HasOwnProp("StartType" s)
-		Service_Change_StartType(d.Name, d.StartType%s%)
-	If d.HasOwnProp("State" s) {
-		If d.State%s%=1
-			Service_Stop(d.Name)
-		Else d.State%s%=4
-			Service_Start(d.Name)
+ProgService(s, ItemData, silent) {
+	If ItemData.HasOwnProp("StartType" s)
+		Service_Change_StartType(ItemData.Name, ItemData.StartType%s%)
+	If ItemData.HasOwnProp("State" s) {
+		If ItemData.State%s%=1
+			Service_Stop(ItemData.Name)
+		Else ItemData.State%s%=4
+			Service_Start(ItemData.Name)
 	}
 }
 
@@ -459,30 +487,30 @@ ScheduleServiceConnect() {
 	service.Connect()
 	Return service
 }
-CheckScheduleService(d) {
+CheckScheduleService(ItemData) {
 	; SafeBootMode:=SysGet(67)
 	If SysGet(67) {
 		Return -1
 	}
 	Try {
 		service:=ScheduleServiceConnect()
-		r:=!service.GetFolder(d.Location).GetTask(d.TaskName).Enabled
+		r:=!service.GetFolder(ItemData.Location).GetTask(ItemData.TaskName).Enabled
 		Return r
 	} Catch {
 		Return -1
 	}
 }
-ProgScheduleService(s,d,silent) {
+ProgScheduleService(s, ItemData, silent) {
 	Try {
 		service:=ScheduleServiceConnect()
-		service.GetFolder(d.Location).GetTask(d.TaskName).Enabled:=!s
+		service.GetFolder(ItemData.Location).GetTask(ItemData.TaskName).Enabled:=!s
 	} Catch {
 		Return -1
 	}
 }
 
-ProgPower(s,d,silent) {
-	Set%d.Name%(d.Value%s%)
+ProgPower(s, ItemData, silent) {
+	Set%ItemData.Name%(ItemData.Value%s%)
 }
 
 OnMessage(0x0200, On_WM_MOUSEMOVE)
