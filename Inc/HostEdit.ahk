@@ -2,6 +2,7 @@ BtnHostEdit_Click(g,*) {
 	CurrentTabCtrls:=Array()
 	g["BtnSelectAll"].Visible:=False
 	g["HRLine"].Visible:=False
+	g["BtnSys_SaveOptimizeConfigTab"].Visible:=False
 	Host:=FileRead(A_WinDir "\System32\drivers\etc\hosts")
 	CurrentTabCtrls:=[	"HostEdit" ,
 						"HostEdit_BtnImportFromFile",
