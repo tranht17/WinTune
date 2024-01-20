@@ -31,6 +31,8 @@
 
 ![](Img/5.png)
 
+- Save/Load optimization configuration JSON
+
 ## Compatibility
 
 - Windows 10 or higher
