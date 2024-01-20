@@ -94,7 +94,7 @@
 "BtnSys_Language": {"Desc": "Language"},
 "BtnSys_SaveOptimizeConfigTab": {"Desc": "Save this tab only optimization configuration to file"},
 "BtnSys_SaveOptimizeConfigAll": {"Desc": "Save all optimization configurations to file"},
-"BtnSys_LoadOptimizeConfig": {"Desc": "Load optimize configurations file"},
+"BtnSys_LoadOptimizeConfig": {"Desc": "Load optimization configurations file"},
 "BtnRestartExplorer": {"Name": "Restart Explorer"},
 "BtnSelectAll": {"Name": "Select All"},
 "BtnDeselectAll": {"Name": "Deselect All"},
