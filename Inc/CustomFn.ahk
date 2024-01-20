@@ -1,10 +1,13 @@
 CheckUninstallOneDrive() => !FileExist(UserLocalAppData "\Microsoft\OneDrive\onedrive.exe")
 UninstallOneDrive(s,d,silent) {
 	OneDriveSetup:=A_WinDir "\System32\OneDriveSetup.exe"
-	If !FileExist(OneDriveSetup) {
+	If !FileExist(OneDriveSetup) {	
 		OneDriveSetup:=A_WinDir "\SysWOW64\OneDriveSetup.exe"
-		If !FileExist(OneDriveSetup)
-			Return -1
+		If !FileExist(OneDriveSetup) {
+			OneDriveSetup:=A_WinDir "\Sysnative\OneDriveSetup.exe"
+			If !FileExist(OneDriveSetup)
+				Return -1
+		}
 	}
 	If s {
 		ProcessClose "OneDrive.exe"
