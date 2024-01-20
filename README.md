@@ -31,7 +31,7 @@
 
 ![](Img/5.png)
 
-- Save/Load optimization configuration JSON
+- Save/Load optimization configuration JSON file
 
 ## Compatibility
 
