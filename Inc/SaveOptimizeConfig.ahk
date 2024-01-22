@@ -58,3 +58,16 @@ BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
 		DestroyDlg(g,g2)
 	}
 }
+BtnSys_SaveImage_Click(Ctr, *) {
+	SelectedFile := FileSelect("s16" , A_WorkingDir "\" App.Name "_" A_Now ".png", "Save Image", "Image File (*.png)")
+	if SelectedFile {
+		g:=Ctr.Gui
+		g.GetPos(&x, &y, &w, &h)
+		pToken := Gdip_Startup()
+		Sleep 200
+		snap := Gdip_BitmapFromScreen(x+1 "|" y+1 "|" w-2 "|" h-2)
+		Gdip_SaveBitmapToFile(snap, SelectedFile)
+		Gdip_DisposeImage(snap)
+		Gdip_Shutdown(pToken)
+	}
+}
