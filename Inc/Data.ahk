@@ -16,12 +16,11 @@
 	; SERVICE_NO_CHANGE:=0xFFFFFFFF
 Data:={
 DisableAutoSuggest: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_DWORD",RegValue1: "no",RegValueName: "AutoSuggest"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueName: "AutoSuggest"}
 ]},
 DisableAppendCompletion: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_DWORD",RegValue1: "no",RegValueName: "Append Completion"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueName: "Append Completion"}
 ]},
-
 DisableCortana: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Personalization\Settings",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "AcceptedPrivacyPolicy"},
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\InputPersonalization",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "RestrictImplicitTextCollection"},
@@ -305,7 +304,6 @@ Layout:=[
 "DisableScheduledDefrag",
 "DisableShortcutText",
 "DisableWCE",
-"IncreaseIconCache",
 "IoPageLockLimit",
 "LinkResolveIgnoreLinkInfo",
 "MouseHoverTime",
@@ -313,14 +311,9 @@ Layout:=[
 "NoResolveSearch",
 "NoResolveTrack",
 "NumLockonStartup",
-"OpenFileExplorerThisPC",
 "OptimizeNetworkTransfer",
 "Optimizeprocessorperformance",
 "OptimizeRefreshPolicy",
-"ShowExtensions",
-"ShowHidden",
-"ShowHiddenSystem",
-"ShowThisPC",
 "ShutdownAcceleration",
 "SnippingPrintScreen"]},
 {ID: "Privacy",Icon: "*icon185 imageres.dll",Fn: "OptimizeTab",Items: [
@@ -331,19 +324,28 @@ Layout:=[
 "DisableBingSearchStartMenu",
 "DisableCortanaWindowsSearch",
 "DisabledVBSCodeIntegrity",
-"DisableFrequentFolders",
 "DisableOfferSuggestions",
 "DisablePersonalizedAdsStoreApps",
-"DisableRecentFiles",
 "DisableRemoteRegAccess",
 "DisableSettingsAppSuggestions",
-"DisableSyncProviderNotifications",
 "DisableTailoredExperiences",
 "DisableTipsAndSuggestions",
 "DisableVisualStudioTelemetry",
-"DisableWebSearch",
 "DisableWebSearchStartMenu",
 "DisableWindowsFeedback"]},
+{ID: "Explorer",Icon: "*icon266 imageres.dll",Icon10: "*icon265 imageres.dll",Fn: "OptimizeTab",Items: [
+"DisableAutoSuggest",
+"DisableAppendCompletion",
+"ShowExtensions",
+"ShowHidden",
+"ShowHiddenSystem",
+"ShowThisPC",
+"OpenFileExplorerThisPC",
+"IncreaseIconCache",
+"DisableRecentFiles",
+"DisableFrequentFolders",
+"DisableWebSearch",
+"DisableSyncProviderNotifications"]},
 ; {ID: "UnpinTaskbar",Icon: "*icon295 imageres.dll",Fn: "OptimizeTab",Items: [
 ; "UnpinFileExplorer",
 ; "UnpinEdge",
@@ -373,7 +375,7 @@ Layout:=[
 {ID: ""},
 {ID: "BtnHostEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostEdit_Click"},
 {ID: "BtnClearStartMenu",Icon: "*icon190 imageres.dll",Fn: "BtnClearStartMenu_Click",NotSelected:1},
-{ID: "BtnRestartExplorer",Icon: "*icon266 imageres.dll",Icon10: "*icon265 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}
+{ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}
 ]
 
 Themes:={
