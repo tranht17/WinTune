@@ -1,13 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.1.0.0
+;@Ahk2Exe-SetVersion         1.2.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
-; SetRegView 64
 #Warn
 
-App:={Name: "WinTune", Ver: "1.1.0"}
+App:={Name: "WinTune", Ver: "1.2.0"}
 
 full_command_line := DllCall("GetCommandLine", "str")
 if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
@@ -34,6 +33,7 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
 #Include inc/HostEdit.ahk
 #Include inc/CustomFn.ahk
 #Include inc/SaveOptimizeConfig.ahk
+#Include inc/Theme.ahk
 
 LangCode:="en"
 try {
@@ -43,7 +43,9 @@ try {
 }
 Lang:=JSON.parse(LangDataText,,False)
 
-ThemeSelected:="dark"
+ThemeSelected:=IniRead("config.ini", "Theme", "ThemeSelected", "")
+If !ThemeSelected
+	ThemeSelected:="Dark"
 
 CreateGui()
 
@@ -74,17 +76,22 @@ CreateGui() {
 	BtnSys_SaveOptimizeConfigAll.Opt("-Border")
 	BtnSys_SaveOptimizeConfigAll.OnEvent("Click",BtnSys_SaveOptimizeConfigAll_Click)
 
-	BtnSys_LoadOptimizeConfig:=g.AddText('vBtnSys_LoadOptimizeConfig x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE838))
+	BtnSys_LoadOptimizeConfig:=g.AddText('vBtnSys_LoadOptimizeConfig x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xED25)) ;0xED25 0xE838
 	BtnSys_LoadOptimizeConfig.SetFont("s11",IconFont)
 	BtnSys_LoadOptimizeConfig.Opt("-Border")
 	BtnSys_LoadOptimizeConfig.OnEvent("Click",BtnSys_LoadOptimizeConfig_Click)
 	
-	g.AddText("x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
+	g.AddText("vHRLine2 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
 	
 	BtnSys_SaveImage:=g.AddText('vBtnSys_SaveImage x' (BtnSysX+=10) ' ym w30 h20 0x200 Center Border',Chr(0xE114))
 	BtnSys_SaveImage.SetFont("s11",IconFont)
 	BtnSys_SaveImage.Opt("-Border")
 	BtnSys_SaveImage.OnEvent("Click",BtnSys_SaveImage_Click)
+	
+	BtnSys_SaveImage:=g.AddText('vBtnSys_Theme x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE2B1)) ;0xE771
+	BtnSys_SaveImage.SetFont("s11",IconFont)
+	BtnSys_SaveImage.Opt("-Border")
+	BtnSys_SaveImage.OnEvent("Click",CreatePopupTheme)
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
 	BtnSys_Minimize.SetFont("s11",IconFont)
@@ -152,6 +159,7 @@ NavItem_Click(g, NavIndex, *) {
 			g[CurrentTabCtrls[A_Index]].Visible:=False
 		}
 	}
+	
 	CurrentTabCtrls:=%Layout[NavIndex].Fn%(g, NavIndex)
 	CurrentTabCtrlArray(CurrentTabCtrls)
 	g["NavBGActive"].Move(x, y)
@@ -188,8 +196,12 @@ CurrentTabCtrlArray(CtrlArray?) {
 OptimizeTab(g, NavIndex) {
 	WICB:=20,SpaceItem:=16,C:=3
 	Static sWCBT,sXCBT,sYCBT
+	
+	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
+	
 	try {
-		g["BtnSelectAll"]
+		g["BtnSelectAll"].Visible:=True
+		g["HRLine1"].Visible:=True
 	} Catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW)
 		BtnSelectAll:=g.Add("Link","vBtnSelectAll Hidden w160 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12) " Background" Themes.%ThemeSelected%.BackColorPanelRGB, 
@@ -197,18 +209,14 @@ OptimizeTab(g, NavIndex) {
 		BtnSelectAll.SetFont("s11")
 		LinkUseDefaultColor(BtnSelectAll)
 		BtnSelectAll.OnEvent("Click",BtnSelectAll_Click)
-		g.AddText("vHRLine x" sXCBT+(PanelW-400)/2 " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
+		g.AddText("vHRLine1 x" sXCBT+(PanelW-400)/2 " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
 		sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 		sXCBT+=SpaceItem
 		sYCBT+=SpaceItem
 	}
-
+	
 	CurrentTabCtrls:=Array()
 
-	g["BtnSelectAll"].Visible:=True
-	g["HRLine"].Visible:=True
-	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
-	
 	x:=sXCBT
 	y:=sYCBT
 	i:=0,CtrlCreated:=1
@@ -239,6 +247,11 @@ OptimizeTab(g, NavIndex) {
 			}
 		}
 	}
+	
+	CurrentTabCtrls.Push "BtnSelectAll"
+	CurrentTabCtrls.Push "HRLine1"
+	CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
+	
 	Return CurrentTabCtrls
 }
 
@@ -263,63 +276,6 @@ CreateCB(g,ItemId, W) {
 	g[ItemId].SPic.OnEvent("Click",(*)=>CB_Click(g[ItemId],""))
 	g[ItemId].Value:=s
 	Return 1
-}
-SetBGNavSelect(g, W:=0, H:=0, R:=6) {
-	Static PathX2:=W,PathY2:=H,Rounded:=R
-	If W>0
-		PathX2:=W
-	If H>0
-		PathY2:=H
-	If PathX2<=0 || PathY2<=0
-		Return
-	
-	pBitmap := Gdip_CreateBitmap(PathX2, PathY2)
-	pGraphics := Gdip_GraphicsFromImage(pBitmap)
-	Gdip_SetSmoothing(pGraphics)
-
-	PathX := PathY := 0
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, "0x" Themes.%ThemeSelected%.BackColorNavSelect)
-	
-	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	g["NavBGHover"].Value:="HBITMAP:" hBitmap
-	DeleteObject(hBitmap)
-	
-	PathX := 0, PathX2 := 3, Rounded := 2
-	PathY := PathY2/4
-	PathY2 := PathY+PathY2/2
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, 0xFF4CC2FF)
-
-	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	g["NavBGActive"].Value:="HBITMAP:" hBitmap
-	DeleteObject(hBitmap), Gdip_DeleteGraphics(pGraphics), Gdip_DisposeImage(pBitmap)
-}
-SetBGPanel(g, W:=0, H:=0, R:=6, BW:=1) {
-	Static PathX2:=W,PathY2:=H,Rounded:=R,BorderWidth:=BW
-	If W>0
-		PathX2:=W
-	If H>0
-		PathY2:=H
-	If PathX2<=0 || PathY2<=0
-		Return
-	
-	pBitmap := Gdip_CreateBitmap(PathX2, PathY2)
-	pGraphics := Gdip_GraphicsFromImage(pBitmap)
-	Gdip_SetSmoothing(pGraphics)
-	
-	DllCall("Gdiplus.dll\GdipGraphicsClear", "Ptr", pGraphics, "UInt", "0xFF" Themes.%ThemeSelected%.BackColor)
-	
-	PathX := PathY := 0
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, "0x" Themes.%ThemeSelected%.BorderColorPanel)
-	
-	PathX := PathY := BorderWidth, PathX2 -= BorderWidth, PathY2 -= BorderWidth, Rounded -= BorderWidth
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, "0x" Themes.%ThemeSelected%.BackColorPanel)
-
-	DllCall("gdiplus\GdipBitmapGetPixel", "UPtr", pBitmap, "Int", 10, "Int", 10, "uint*", &ARGB:=0)
-
-	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	g["BGPanel"].Value:="HBITMAP:" hBitmap
-	DeleteObject(hBitmap), Gdip_DeleteGraphics(pGraphics), Gdip_DisposeImage(pBitmap)
-	Themes.%ThemeSelected%.BackColorPanelRGB:=Format("{:X}", ARGB & 0x00FFFFFF)
 }
 
 CheckRequires(DataItem) {
