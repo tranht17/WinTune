@@ -385,3 +385,10 @@ Purple: {BackColor: "7F3FBF", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF
 Red: {BackColor: "720001", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "30720001", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "A50002"},
 Green: {BackColor: "2D7226", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "302D7226", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "48A73D"}
 }
+
+
+LanguageTag:={
+	en: "en",
+	en_us:"🇺🇸",
+	zh_cn:"🇨🇳",
+}
