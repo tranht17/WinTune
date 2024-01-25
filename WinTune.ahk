@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.2.0.0
+;@Ahk2Exe-SetVersion         1.3.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "1.2.0"}
+App:={Name: "WinTune", Ver: "1.3.0"}
 
 full_command_line := DllCall("GetCommandLine", "str")
 if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
@@ -34,18 +34,11 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
 #Include inc/CustomFn.ahk
 #Include inc/SaveOptimizeConfig.ahk
 #Include inc/Theme.ahk
+#Include inc/LangData.ahk
+#Include inc/Language.ahk
 
-LangCode:="en"
-try {
-	LangDataText:=FileRead("Lang\" LangCode ".json","UTF-8")
-} Catch {
-	LangDataText:='{"AUOptions":{"Desc":"Set Notify before download Windows Updates","Name":"AUOptions"},"AutoEndTasks":{"Desc":"Close frozen processes to avoid system crash","Name":"Auto End Tasks"},"BtnClearStartMenu":{"Name":"Clear StartMenu"},"BtnDeselectAll":{"Name":"Deselect All"},"BtnHostEdit":{"Name":"Host Edit"},"BtnRestartExplorer":{"Name":"Restart Explorer"},"BtnSelectAll":{"Name":"Select All"},"BtnSys_Close":{"Desc":"Close"},"BtnSys_Language":{"Desc":"Language"},"BtnSys_LoadOptimizeConfig":{"Desc":"Load optimization configurations file"},"BtnSys_Minimize":{"Desc":"Minimize"},"BtnSys_SaveImage":{"Desc":"Self-Capture and Save to Image"},"BtnSys_SaveOptimizeConfigAll":{"Desc":"Save all optimization configurations to file"},"BtnSys_SaveOptimizeConfigTab":{"Desc":"Save this tab only optimization configuration to file"},"BtnSys_Setting":{"Desc":"Setting"},"BtnSys_Theme":{"Desc":"Theme"},"ClassicContextMenu":{"Name":"Classic Context Menu"},"DiagnosticDataOff":{"Name":"Diagnostic Data Off"},"DisableAdsOnLockScreen":{"Name":"Disable Ads On Lock Screen"},"DisableAeDebug":{"Desc":"Disable the debugger to speed up error processing","Name":"Disable AeDebug"},"DisableAnimationEffectMaxMin":{"Desc":"Close animation effect when maximizing or minimizing a window to speed up the window response","Name":"Disable Animation Effect Max Min"},"DisableAppendCompletion":{"Desc":"Disable inline Auto-Complete (Append completion or Auto-fill)","Name":"Disable Append Completion"},"DisableAutoDefragIde":{"Desc":"Disable auto defrag when ide to increase working life of SSD","Name":"Disable Auto Defrag Ide"},"DisableAutoInstallationApps":{"Name":"Disable Auto Installation Apps"},"DisableAutoplay":{"Desc":"Disable the “Autoplay” feature on drives to avoid virus infection","Name":"Disable Autoplay"},"DisableAutoSuggest":{"Desc":"Disable Auto-Suggest (Auto-complete drop-down)","Name":"Disable Auto-Suggest"},"DisableAutoWindowsUpdates":{"Desc":"Disable Automatic Updates","Name":"Disable Auto Windows Updates"},"DisableBackgroundApps":{"Name":"Disable Background Apps"},"DisableBingSearchStartMenu":{"Name":"Disable BingSearch Start Menu"},"DisableBootOptimize":{"Desc":"Disable defrag system drive on boot to increase working life of SSD","Name":"Disable Boot Optimize"},"DisableCortana":{"Name":"Disable Cortana"},"DisableCortanaWindowsSearch":{"Desc":"Stops Cortana from being used as part of your Windows Search Function","Name":"Disable Cortana Windows Search"},"DisableCrashAutoReboot":{"Desc":"Disable automatical reboot when system encounters blue screen of death","Name":"Disable Crash Auto Reboot"},"DisableDiagTrack":{"Name":"Disable DiagTrack"},"DisabledVBSCodeIntegrity":{"Desc":"Disable virtualization-based protection of code integrity","Name":"Disabled VBS Code Integrity"},"DisableErrorReporting":{"Desc":"Disable screen error reporting to improve system performance","Name":"Disable Error Reporting"},"DisableFrequentFolders":{"Name":"Disable FrequentFolders"},"DisableGameBar":{"Desc":"The Game DVR feature allows you to record your gameplay in the background.\nIt is located on the Game Bar – which offers buttons to record gameplay & take screenshots using the Game DVR feature.\nBut it can slow your gaming performance by recording video in the background.","Name":"Disable Game Bar & Game DVR"},"DisableGoogleUpdateTask":{"Name":"Disable GoogleUpdateTask"},"DisableHibernate":{"Name":"Disable Hibernate"},"DisableHybridSleep":{"Name":"Disable Hybrid Sleep"},"DisableLockScreen":{"Name":"Disable Lock Screen"},"DisableLowDiskSpaceChecks":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Disable Low Disk Space Checks"},"Disablememorypagination":{"Desc":"Disable memory pagination and reduce disk I/O to improve application performance.\n(Option may be ignored if physical memory is <1 GB)","Name":"Disable memory pagination"},"DisableMenuShowDelay":{"Desc":"Optimized response speed of system display","Name":"Disable Menu Show Delay"},"DisableMicrosoftEdgeUpdateTask":{"Name":"Disable MicrosoftEdgeUpdateTask"},"DisableMSDefender":{"Desc":"To disable Microsoft Defender Antivirus you need to do 2 steps:\n\n- Check Disable Microsoft Defender.\n- Enter Safe Mode and check it again.\n\nTo turn Microsoft Defender back on, you just need to do the opposite.\n\n(If you enter Safe Mode using this program, you need to use this program to exit Safe Mode\n  or you can use the command line `'bcdedit /deletevalue \"{current}\" safeboot`')","Name":"Disable Microsoft Defender"},"DisableOfferSuggestions":{"Name":"Disable Offer Suggestions"},"DisablePersonalizedAdsStoreApps":{"Name":"Disable PersonalizedAds StoreApps"},"DisablePrefetchParameters":{"Desc":"Disable prefetch parameters to increase SSD working life","Name":"Disable Prefetch Parameters"},"DisablePrintSpooler":{"Name":"Disable Print Spooler"},"DisableRecentFiles":{"Name":"Disable RecentFiles"},"DisableRemoteRegAccess":{"Desc":"Disable registry modification from a remote computer","Name":"Disable Remote Reg Access"},"DisableScheduledDefrag":{"Name":"Disable Scheduled Defrag"},"DisableSettingsAppSuggestions":{"Name":"Disable Settings App Suggestions"},"DisableShortcutText":{"Name":"Disable Shortcut Text"},"DisableSleep":{"Name":"Disable Sleep"},"DisableSyncProviderNotifications":{"Name":"Disable Sync Provider Notifications"},"DisableSystemRestore":{"Name":"Disable System Restore"},"DisableTailoredExperiences":{"Name":"Disable Tailored Experiences"},"DisableTipsAndSuggestions":{"Name":"Disable Tips And Suggestions"},"DisableTurnOffDisplay":{"Name":"Disable Turn Off Display"},"DisableVisualStudioTelemetry":{"Name":"Disable VisualStudio Telemetry"},"DisableWCE":{"Desc":"Disable Windows Customer Experience Improvement\n\n- Proxy: This task collects and uploads autochk SQM data if opted-in to the Microsoft Customer Experience Improvement Program.\n- Microsoft Compatibility Appraiser: Collects program telemetry information if opted-in to the Microsoft Customer Experience Improvement Program.","Name":"Disable WCE Improvement"},"DisableWebSearch":{"Name":"Disable Web Search"},"DisableWebSearchStartMenu":{"Desc":"Disables Web Search in Start Menu","Name":"Disable WebSearch Start Menu"},"DisableWindowsFeedback":{"Name":"Disable Windows Feedback"},"DisableWindowsSearch":{"Name":"Disable Windows Search"},"EnableDarkMode":{"Name":"Enable Dark Mode"},"HostEdit_BtnImportFromFile":{"Name":"Import From Files"},"HostEdit_BtnImportFromLink":{"Name":"Import From Link"},"HostEdit_BtnInsertLink":{"Desc":"Insert link for Import to host","Name":"Insert Link"},"HostEdit_BtnReload":{"Name":"Reload host file"},"HostEdit_BtnResetDefault":{"Name":"Reset Default"},"HostEdit_BtnSave":{"Name":"Save"},"HostEdit_BtnSaveAs":{"Name":"Save As"},"IncreaseIconCache":{"Desc":"Increase system icon cache and speed up desktop display","Name":"Increase Icon Cache"},"IoPageLockLimit":{"Desc":"Optimize the defauit settings of memory to improve system performance","Name":"Io Page Lock Limit"},"LinkResolveIgnoreLinkInfo":{"Desc":"Do not track Shell shortcuts during roaming","Name":"Link Resolve Ignore LinkInfo"},"MouseHoverTime":{"Desc":"Speed up display speed of Taskbar Window Previews","Name":"Mouse Hover Time"},"NoInternetOpenWith":{"Desc":"Turn off Internet File Association service","Name":"No Internet OpenWith"},"NoResolveSearch":{"Desc":"Do not use the search-based method when resolving shell shortcuts","Name":"No Resolve Search"},"NumLockonStartup":{"Name":"Num Lock on Startup"},"OpenFileExplorerThisPC":{"Name":"Open File Explorer ThisPC"},"OptimizeNetworkTransfer":{"Desc":"Optimize network settings to improve transfer performance","Name":"Optimize Network Transfer"},"Optimizeprocessorperformance":{"Desc":"Optimize processor performance to make applications, games, etc. run more smoothly.","Name":"Optimize processor performance"},"OptimizeRefreshPolicy":{"Desc":"Optimize disk I/O subsystem to improve system performance","Name":"Optimize Refresh Policy"},"Optional":{"Name":"Optional"},"Privacy":{"Name":"Privacy"},"ShowExtensions":{"Name":"Show Extensions"},"ShowHidden":{"Name":"Show Hidden"},"ShowHiddenSystem":{"Name":"Show Hidden System"},"ShowThisPC":{"Name":"Show ThisPC"},"ShutdownAcceleration":{"Desc":"Reduce application idleness at shutdown to improve the shutdown process","Name":"Shutdown Acceleration"},"SnippingPrintScreen":{"Name":"Snipping PrintScreen"},"System":{"Name":"System"},"UninstallOneDrive":{"Name":"Uninstall OneDrive"},"UnpinChat":{"Name":"Chat"},"UnpinCopilot":{"Name":"Copilot"},"UnpinCortana":{"Name":"Cortana"},"UnpinEdge":{"Name":"Edge"},"UnpinFileExplorer":{"Name":"File Explorer"},"UnpinMail":{"Name":"Mail"},"UnpinNewsandInterests":{"Name":"News and Interests"},"UnpinSearch":{"Name":"Search"},"UnpinStore":{"Name":"Store"},"UnpinTaskbar":{"Name":"Unpin Taskbar"},"UnpinTaskView":{"Name":"TaskView"},"UnpinWidgets":{"Name":"Widgets"}}'
-}
-Lang:=JSON.parse(LangDataText,,False)
-
-ThemeSelected:=IniRead("config.ini", "Theme", "ThemeSelected", "")
-If !ThemeSelected
-	ThemeSelected:="Dark"
+ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
+LangSelected:=IniRead("config.ini", "General", "Language", "en")
 
 CreateGui()
 
@@ -88,10 +81,17 @@ CreateGui() {
 	BtnSys_SaveImage.Opt("-Border")
 	BtnSys_SaveImage.OnEvent("Click",BtnSys_SaveImage_Click)
 	
-	BtnSys_SaveImage:=g.AddText('vBtnSys_Theme x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE2B1)) ;0xE771
-	BtnSys_SaveImage.SetFont("s11",IconFont)
-	BtnSys_SaveImage.Opt("-Border")
-	BtnSys_SaveImage.OnEvent("Click",CreatePopupTheme)
+	BtnSys_Theme:=g.AddText('vBtnSys_Theme x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE2B1))
+	BtnSys_Theme.SetFont("s11",IconFont)
+	BtnSys_Theme.Opt("-Border")
+	BtnSys_Theme.OnEvent("Click",CreatePopupTheme)
+	
+	pToken:=Gdip_Startup()
+	
+	hFlag:=Gdip_CreateARGBHBITMAPFromBase64(LangData.%LangSelected%.Flag)
+	BtnSys_Language:=g.AddPic("BackgroundTrans ym h20 w20 vBtnSys_Language x" (BtnSysX+=35), "HBITMAP:" hFlag)
+	DeleteObject(hFlag)
+	BtnSys_Language.OnEvent("Click",CreatePopupLang)
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
 	BtnSys_Minimize.SetFont("s11",IconFont)
@@ -107,7 +107,6 @@ CreateGui() {
 	g.AddPic("vNavBGActive Hidden xm y" PanelY)
 	g.AddPic('vBGPanel w' PanelW ' h' PanelH ' x' PanelX ' y' PanelY)
 	
-	pToken:=Gdip_Startup()
 	SetBGNavSelect(g,NavSelectW,NavSelectH)
 	SetBGPanel(g,PanelW,PanelH)
 	hLogo:=Gdip_CreateARGBHBITMAPFromBase64('iVBORw0KGgoAAAANSUhEUgAAAKAAAABLCAYAAAD3TIxsAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGU2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4xLWMwMDEgNzkuMTQ2Mjg5OSwgMjAyMy8wNi8yNS0yMDowMTo1NSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI1LjMgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyNC0wMS0xNVQwOTo0ODowMyswNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wMS0xNVQwOTo0ODowMyswNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjQtMDEtMTVUMDk6NDg6MDMrMDc6MDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MWIwOGU0ODktYmU3YS05YTRkLWI1ODItYzBhZGY3MzQxMmYwIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6YmFkYWJjNzYtYTBhOC0wMzRmLWJiZDEtYWMyY2YzZGI1ZDQ5IiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6YTE4NGQxNGMtNjY4Yy05NDQ0LTg1ZDgtYWU2NGYzZDdmMjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6YTE4NGQxNGMtNjY4Yy05NDQ0LTg1ZDgtYWU2NGYzZDdmMjAwIiBzdEV2dDp3aGVuPSIyMDI0LTAxLTE1VDA5OjQ4OjAzKzA3OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjUuMyAoV2luZG93cykiLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjFiMDhlNDg5LWJlN2EtOWE0ZC1iNTgyLWMwYWRmNzM0MTJmMCIgc3RFdnQ6d2hlbj0iMjAyNC0wMS0xNVQwOTo0ODowMyswNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI1LjMgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8cGhvdG9zaG9wOlRleHRMYXllcnM+IDxyZGY6QmFnPiA8cmRmOmxpIHBob3Rvc2hvcDpMYXllck5hbWU9IldpblR1bmUiIHBob3Rvc2hvcDpMYXllclRleHQ9IldpblR1bmUiLz4gPC9yZGY6QmFnPiA8L3Bob3Rvc2hvcDpUZXh0TGF5ZXJzPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Plb4la8AABa1SURBVHja7Z13fJRVvsbZez931+td3VX3ruvuulaKIIICoijNhIQQmpQAoRcBpaVPeu+VVBICoYQkkISSQhJCQJEiJYTQU0kBpKSBWNjV3eee35l5YyaZ886sGdQr7x/PZ5j3PKe955vT3vMOPQD0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')
@@ -209,6 +208,8 @@ OptimizeTab(g, NavIndex) {
 		BtnSelectAll.SetFont("s11")
 		LinkUseDefaultColor(BtnSelectAll)
 		BtnSelectAll.OnEvent("Click",BtnSelectAll_Click)
+		BtnSelectAll.Visible:=True
+		
 		g.AddText("vHRLine1 x" sXCBT+(PanelW-400)/2 " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
 		sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 		sXCBT+=SpaceItem
@@ -281,10 +282,9 @@ CreateCB(g,ItemId, W) {
 CheckRequires(DataItem) {
 	; RequiresWinInstallationType: "Client,Server"
 	If DataItem.HasOwnProp("RequiresWinInstallationType") && DataItem.RequiresWinInstallationType {
-		InstallationType:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType")
 		IsPassed:=0
 		Loop Parse, DataItem.RequiresWinInstallationType, "," {
-			If A_LoopField=InstallationType {
+			If A_LoopField=SystemInfo.InstallationType {
 				IsPassed:=1
 				Break
 			}	
@@ -295,10 +295,9 @@ CheckRequires(DataItem) {
 	
 	; RequiresWinEditionID: "Professional"
 	If DataItem.HasOwnProp("RequiresWinEditionID") && DataItem.RequiresWinEditionID {
-		EditionID:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID")
 		IsPassed:=0
 		Loop Parse, DataItem.RequiresWinEditionID, "," {
-			If A_LoopField=EditionID {
+			If A_LoopField=SystemInfo.EditionID {
 				IsPassed:=1
 				Break
 			}	
@@ -481,65 +480,74 @@ On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 	static PrevHwnd:=0,HoveredBtn:=""
 	CurrControl := GuiCtrlFromHwnd(Hwnd)
 	
-	if (Hwnd != PrevHwnd) {
-		ToolTip()
-		If currControl {
-			thisGui := currControl.Gui
-			If HoveredBtn!=currControl.Name {
-				If HoveredBtn {
-					If InStr(HoveredBtn, "BtnSys_")=1{
-						thisGui[HoveredBtn].SetFont("c" Themes.%ThemeSelected%.TextColor)
-						thisGui[HoveredBtn].Opt("-Border")
-						HoveredBtn:=""
-					} Else If InStr(HoveredBtn, "NavItem_")=1{
-						thisGui["NavBGHover"].Visible := false
-						HoveredBtn:=""
+	try {
+		if (Hwnd != PrevHwnd) {
+			ToolTip()
+			If currControl {
+				thisGui := currControl.Gui
+				If HoveredBtn!=currControl.Name {
+					If HoveredBtn {
+						If InStr(HoveredBtn, "BtnSys_")=1{
+							If thisGui[HoveredBtn].Type="Text"
+								thisGui[HoveredBtn].SetFont("c" Themes.%ThemeSelected%.TextColor)
+							thisGui[HoveredBtn].Opt("-Border")
+							HoveredBtn:=""
+						} Else If InStr(HoveredBtn, "NavItem_")=1{
+							thisGui["NavBGHover"].Visible := false
+							HoveredBtn:=""
+						}
+					}
+						
+					If InStr(currControl.Name, "BtnSys_")=1 {
+						If currControl.Type="Text"
+							currControl.SetFont("cRed")
+						currControl.Opt("+Border")
+						HoveredBtn:=currControl.Name
+					} Else If InStr(currControl.Name, "NavItem_")=1 {
+						currControl.GetPos(&x, &y)
+						thisGui["NavBGHover"].Move(x, y)
+						thisGui["NavBGHover"].Visible := true
+						HoveredBtn:=currControl.Name
+					}
+					Lang:=LangData.%LangSelected%
+					If !currControl.Name || !GetLangDesc(currControl.Name) {
+						PrevHwnd := Hwnd
+						Return
+					}
+					ToolTipOptions.SetTitle(InStr(currControl.Name, "BtnSys_")=1?"":GetLangName(currControl.Name))
+					SetTimer(CheckHoverControl, 50)
+					SetTimer(DisplayToolTip, -600)
+				}
+			} else {
+				thisGui := GuiFromHwnd(Hwnd)
+				if (isObject(thisGui)) {			
+					If HoveredBtn {
+						If InStr(HoveredBtn, "BtnSys_")=1 {
+							If thisGui[HoveredBtn].Type="Text"
+								thisGui[HoveredBtn].SetFont("c" Themes.%ThemeSelected%.TextColor)
+							thisGui[HoveredBtn].Opt("-Border")
+							HoveredBtn:=""
+						} Else If InStr(HoveredBtn, "NavItem_")=1 {
+							thisGui["NavBGHover"].Visible := false
+							HoveredBtn:=""
+						}
 					}
 				}
-					
-				If InStr(currControl.Name, "BtnSys_")=1 {
-					currControl.SetFont("cRed")
-					currControl.Opt("+Border")
-					HoveredBtn:=currControl.Name
-				} Else If InStr(currControl.Name, "NavItem_")=1 {
-					currControl.GetPos(&x, &y)
-					thisGui["NavBGHover"].Move(x, y)
-					thisGui["NavBGHover"].Visible := true
-					HoveredBtn:=currControl.Name
-				}
-				
-				If !currControl.Name || !Lang.HasOwnProp(currControl.Name) || !Lang.%currControl.Name%.HasOwnProp("Desc") || !Lang.%currControl.Name%.Desc
-					return
-				ToolTipOptions.SetTitle(InStr(currControl.Name, "BtnSys_")=1?"":GetLangName(currControl.Name))
-				SetTimer(CheckHoverControl, 50)
-				SetTimer(DisplayToolTip, -600)
 			}
-		} else {
-			thisGui := GuiFromHwnd(Hwnd)
-			if (isObject(thisGui)) {			
-				If HoveredBtn {
-					If InStr(HoveredBtn, "BtnSys_")=1 {
-						thisGui[HoveredBtn].SetFont("c" Themes.%ThemeSelected%.TextColor)
-						thisGui[HoveredBtn].Opt("-Border")
-						HoveredBtn:=""
-					} Else If InStr(HoveredBtn, "NavItem_")=1 {
-						thisGui["NavBGHover"].Visible := false
-						HoveredBtn:=""
-					}
-				}
-			}
+			PrevHwnd := Hwnd
 		}
-		PrevHwnd := Hwnd
-	}
 
-	CheckHoverControl(){
-		If hwnd != prevHwnd {
-			SetTimer(DisplayToolTip, 0), SetTimer(CheckHoverControl, 0)
+		CheckHoverControl(){
+			If hwnd != prevHwnd {
+				SetTimer(DisplayToolTip, 0), SetTimer(CheckHoverControl, 0)
+			}
 		}
-	}
-	DisplayToolTip(){
-		ToolTip(Lang.%currControl.Name%.Desc)
-		SetTimer(CheckHoverControl, 0)
+		DisplayToolTip(){
+			ToolTip(GetLangDesc(currControl.Name))
+			SetTimer(CheckHoverControl, 0)
+		}
+	} Catch {
+		PrevHwnd := Hwnd
 	}
 }
 
@@ -554,7 +562,7 @@ CreateWaitDlg(g) {
 	g.GetPos(&X, &Y, &W, &H)
 	g2:=CreateDlg(g)
 	tWidth:=300,tHeight:=20
-	g2.Add("Text","Center 0x200 h" tHeight " w" tWidth,"Please wait...").SetFont("s10")
+	g2.AddText("Center 0x200 h" tHeight " w" tWidth,GetLangText("Message_WaitDlg")).SetFont("s10")
 	g2.Show("x" X+(W-tWidth)/2 " y" Y+(H-tHeight)/2)
 	Return g2
 }
@@ -572,10 +580,4 @@ DestroyDlg(g,g2,TurnOnDisabled:=True) {
 	If TurnOnDisabled
 		g.Opt("-Disabled")
 	g2.Destroy()
-}
-
-GetLangName(ItemId) {
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.Name
-		ItemId:=Lang.%ItemId%.Name
-	Return ItemId
 }
