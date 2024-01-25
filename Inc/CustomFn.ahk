@@ -99,7 +99,7 @@ DisableMSDefender(s,d,silent){
 		location.GetTask("Windows Defender Verification").Enabled:=!s
 		Sleep 1000
 		If !silent {
-			Result := MsgBox("You need go to Safe Mode and " (s?"":"Un") "Check it again.`nWould you like go to Safe Mode?", App.Name, "YesNo Icon?")
+			Result := MsgBox(GetLangText("Message_DisableMSDefender_GoSafeMode" s), App.Name, "YesNo Icon?")
 			if Result = "Yes" {
 				RunWait "bcdedit /set {current} safeboot minimal"
 				Run "shutdown.exe /r /f /t 00"
@@ -129,7 +129,7 @@ DisableMSDefender(s,d,silent){
 			RegWrite '2', "REG_DWORD", regpath "WinDefend", "Start"
 		}
 		If !silent {
-			Result := MsgBox("Would you like exit Safe Mode?", App.Name, "YesNo Icon?")
+			Result := MsgBox(GetLangText("Message_DisableMSDefender_ExitSafeMode") s, App.Name, "YesNo Icon?")
 			if Result = "Yes" {
 				RunWait "bcdedit /deletevalue {current} safeboot"
 				Run "shutdown.exe /r /f /t 00"
@@ -154,7 +154,7 @@ BtnClearStartMenu_Click(Ctr, *) {
 			}	
 			PID:=ProcessClose("StartMenuExperienceHost.exe")
 			If !ProcessWaitClose(PID , 5000)
-				TrayTip "Clear StartMenu Done!", App.Name
+				TrayTip GetLangText("Message_ClearStartMenu_Done"), App.Name
 		} Else
 			MsgBox "Not supported Windows " A_OSVersion, App.Name, "Iconx"
 	} Else If VerCompare(A_OSVersion,"10.0.16299")>=0 {

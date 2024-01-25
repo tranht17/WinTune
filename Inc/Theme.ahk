@@ -31,7 +31,7 @@ CreatePopupTheme(Ctr, *) {
 		PrevCtr.SetFont("s20")
 		Ctr.Text:=Chr(0xEC61)
 		Ctr.SetFont("s22")
-		IniWrite ThemeSelected, "config.ini", "Theme", "ThemeSelected"
+		IniWrite ThemeSelected, "config.ini", "General", "Theme"
 	}
 	tX:=xG+xCtr-(x-wCtr)/2
 	tY:=yG+yCtr+hCtr+6
@@ -68,7 +68,9 @@ SetBGNavSelect(g, W:=0, H:=0, R:=6) {
 		sPathY:=H
 	If sPathX<=0 || sPathY<=0
 		Return
-	; MsgBox sPathX "|" sPathY
+	CreateBGNavSelect(g["NavBGHover"], g["NavBGActive"], sPathX, sPathY ,sRounded)
+}
+CreateBGNavSelect(NavBGHover, NavBGActive, sPathX, sPathY ,sRounded) {
 	pBitmap := Gdip_CreateBitmap(sPathX, sPathY)
 	pGraphics := Gdip_GraphicsFromImage(pBitmap)
 	Gdip_SetSmoothing(pGraphics)
@@ -77,7 +79,7 @@ SetBGNavSelect(g, W:=0, H:=0, R:=6) {
 	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, sPathX, sPathY, sRounded, "0x" Themes.%ThemeSelected%.BackColorNavSelect)
 	
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	g["NavBGHover"].Value:="HBITMAP:" hBitmap
+	NavBGHover.Value:="HBITMAP:" hBitmap
 	DeleteObject(hBitmap)
 	
 	PathX := 0, PathX2 := 3, Rounded := 2
@@ -86,7 +88,7 @@ SetBGNavSelect(g, W:=0, H:=0, R:=6) {
 	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, 0xFF4CC2FF)
 
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-	g["NavBGActive"].Value:="HBITMAP:" hBitmap
+	NavBGActive.Value:="HBITMAP:" hBitmap
 	DeleteObject(hBitmap), Gdip_DeleteGraphics(pGraphics), Gdip_DisposeImage(pBitmap)
 }
 SetBGPanel(g, W:=0, H:=0, R:=6, BW:=1) {

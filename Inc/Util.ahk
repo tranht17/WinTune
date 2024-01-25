@@ -1,7 +1,8 @@
 UserSID:=GetCurrentUserSID()
 UserLocalAppData:=RegRead("HKU\" UserSID "\Volatile Environment", "LOCALAPPDATA")
+SystemInfo:=GetSystemInfo()
 
-SystemInfo() {
+GetSystemInfo() {
 	SI:={}
 	SI.InstallationType:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType")
 	SI.EditionID:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID")
