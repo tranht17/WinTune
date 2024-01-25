@@ -4,7 +4,7 @@
   </a>
 </p>
 
-<h3 align=center>Tweak & optimize your Windows system</h3>
+<h3 align=center>Tweak & optimize your Windows System</h3>
 <br>
 
 ## Features
@@ -17,21 +17,31 @@
 
  ![](Img/2.png)
 
-- Optional optimization:
+- Explorer optimization:
 
 ![](Img/3.png)
 
-- Host edit
+- Optional optimization:
 
 ![](Img/4.png)
+
+- Host edit
+
+![](Img/5.png)
 
 - Clear StartMenu
 
 - There are tooltips describing functions for easier use
 
-![](Img/5.png)
+![](Img/6.png)
 
 - Save/Load optimization configuration JSON file
+
+- Self-Capture and Save to Image
+
+- Multiple Themes support
+
+- Multilingual support
 
 ## Compatibility
 
@@ -41,3 +51,7 @@
 ## Requirements
 
 - Administrator privileges
+
+## Translations
+
+- Chinese (Simplified) | Jvcon
