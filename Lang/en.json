@@ -1,4 +1,6 @@
 {
+"Name": "English",
+"Translator": "",
 "System": {"Name": "System"},
 "Privacy": {"Name": "Privacy"},
 "UnpinTaskbar": {"Name": "Unpin Taskbar"},
@@ -107,5 +109,10 @@
 "HostEdit_BtnImportFromFile": {"Name": "Import From Files"},
 "HostEdit_BtnImportFromLink": {"Name": "Import From Link"},
 "HostEdit_BtnReload": {"Name": "Reload host file"},
-"HostEdit_BtnInsertLink": {"Name": "Insert Link", "Desc": "Insert link for Import to host"}
+"HostEdit_BtnInsertLink": {"Desc": "Insert link for Import to host"},
+"Message_WaitDlg": "Please wait...",
+"Message_ClearStartMenu_Done": "Clear StartMenu Done!",
+"Message_DisableMSDefender_GoSafeMode1": "You need go to Safe Mode and Check it again.`nWould you like go to Safe Mode?",
+"Message_DisableMSDefender_GoSafeMode0": "You need go to Safe Mode and Uncheck it again.`nWould you like go to Safe Mode?",
+"Message_DisableMSDefender_ExitSafeMode": "Would you like exit Safe Mode?"
 }
