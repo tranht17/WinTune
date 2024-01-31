@@ -11,7 +11,6 @@
 "DisableAutoWindowsUpdates": {"Name": "禁用自动Windows更新", "Desc": "禁用自动更新"},
 "DisableHibernate": {"Name": "禁用休眠"},
 "DisableHybridSleep": {"Name": "禁用混合休眠"},
-"DisableMSDefender": {"Name": "禁用Microsoft Defender", "Desc": "要禁用Microsoft Defender防病毒，你需要做两步：\n\n- 勾选禁用Microsoft Defender。\n- 进入安全模式并再次检查。\n\n要打开Microsoft Defender，你只需要做相反的操作。\n\n（如果你使用此程序进入安全模式，你需要使用此程序退出安全模式\n  或者你可以使用命令行 'bcdedit /deletevalue \"{current}\" safeboot'）"},
 "DisableGameBar": {"Name": "禁用游戏栏和游戏DVR", "Desc": "游戏DVR功能允许你在后台记录你的游戏。它位于游戏栏上 - 提供了使用游戏DVR功能记录游戏和截图的按钮。但是，通过在后台录制视频，它可能会降低你的游戏性能。"},
 "DisablePrintSpooler": {"Name": "禁用打印服务"},
 "DisableSleep": {"Name": "禁用睡眠"},
