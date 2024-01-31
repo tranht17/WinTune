@@ -9,31 +9,27 @@
 
 ## Features
 
-- System optimization:
-
 ![](Img/1.png)
-	
-- Privacy optimization:
 
- ![](Img/2.png)
+- System optimization
 
-- Explorer optimization:
+- Privacy optimization
 
-![](Img/3.png)
+- Explorer optimization
 
-- Optional optimization:
+- Optional optimization
 
-![](Img/4.png)
+- Startup manager
+
+![](Img/StartupManager.png)
 
 - Host edit
 
-![](Img/5.png)
+![](Img/HostEdit.png)
 
 - Clear StartMenu
 
 - There are tooltips describing functions for easier use
-
-![](Img/6.png)
 
 - Save/Load optimization configuration JSON file
 
