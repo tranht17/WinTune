@@ -282,7 +282,7 @@ DisableTurnOffDisplay: {Act: [{Type: "Power",Name: "DisplayIdleTimeout", Value1:
 }
 
 Layout:=[
-{ID: "System",Icon: "*icon106 imageres.dll",Fn: "OptimizeTab",Items: [
+{ID: "System",Icon: "*icon106 imageres.dll",Fn: "OptimizeTab", hr:"Text_HR_Optimize",Items: [
 "DisableGameBar",
 "AutoEndTasks",
 "DisableAeDebug",
@@ -372,7 +372,7 @@ Layout:=[
 "DisableWindowsSearch",
 "UninstallOneDrive",
 "DisableMSDefender"]},
-{ID: ""},
+{ID: "BtnStartupManager",Icon: "*icon281 imageres.dll",Icon10: "*icon280 imageres.dll",Fn: "BtnStartupManager_Click", hr:"Text_HR_Tools"},
 {ID: "BtnHostEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostEdit_Click"},
 {ID: "BtnClearStartMenu",Icon: "*icon190 imageres.dll",Fn: "BtnClearStartMenu_Click",NotSelected:1},
 {ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}

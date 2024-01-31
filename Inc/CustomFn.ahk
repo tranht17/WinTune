@@ -19,6 +19,7 @@ UninstallOneDrive(s,d,silent) {
 	Else 
 		RunWait OneDriveSetup
 }
+
 CheckDisableVisualStudioTelemetry() {
 	If FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft Visual Studio\Installer\vswhere.exe")	
 		Return RegRead("HKU\" UserSID "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
@@ -32,6 +33,7 @@ DisableVisualStudioTelemetry(s,d,silent) {
 	RegWrite !s, "REG_DWORD", "HKLM\Software\WOW6432Node\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
 	RegWrite !s, "REG_DWORD", "HKU\" UserSID "\Software\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
 }
+
 CheckDisableSystemRestore() {
 	Return !RegRead("HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore", "RPSessionInterval",0)
 }
@@ -50,6 +52,7 @@ DisableSystemRestore(s,d,silent) {
 		RegWrite Trim(SubPat[0]) ":" DriveGetLabel(SubStr(A_WinDir, 1, 2)) "(" SubStr(A_WinDir, 1, 1) "%3A)", "REG_MULTI_SZ", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SPP\Clients", "{09F7EDC5-294E-4180-AF6A-FB0E6A0E9513}"
 	}
 }
+
 CheckDisableMSDefender(*) {
 	; SafeBootMode:=SysGet(67)
 	If !SysGet(67) {
@@ -87,53 +90,77 @@ CheckDisableMSDefender(*) {
 		Return -1
 	}
 }
-DisableMSDefender(s,d,silent){
-	; SafeBootMode:=SysGet(67)
-	If !SysGet(67) {
-		service:= ComObject("Schedule.Service")
-		service.Connect()
-		location:=service.GetFolder("\Microsoft\Windows\Windows Defender")
-		location.GetTask("Windows Defender Cache Maintenance").Enabled:=!s
-		location.GetTask("Windows Defender Cleanup").Enabled:=!s
-		location.GetTask("Windows Defender Scheduled Scan").Enabled:=!s
-		location.GetTask("Windows Defender Verification").Enabled:=!s
+for , param in A_Args {
+	If InStr(param, "/DisableMSDefenderService=")=1 {
+		sparam:=SubStr(param,-1)
+		DisableMSDefenderService(sparam)
 		Sleep 1000
-		If !silent {
-			Result := MsgBox(GetLangText("Message_DisableMSDefender_GoSafeMode" s), App.Name, "YesNo Icon?")
-			if Result = "Yes" {
-				RunWait "bcdedit /set {current} safeboot minimal"
-				Run "shutdown.exe /r /f /t 00"
-			}
+		ExitSafeboot()
+		Return
+	} Else If InStr(param, "/DisableMSDefenderScheduleTask=")=1 {
+		sparam:=SubStr(param,-1)
+		DisableMSDefenderScheduleTask(sparam)
+		Return
+	}
+}
+DisableMSDefenderScheduleTask(s) {
+	service:= ComObject("Schedule.Service")
+	service.Connect()
+	location:=service.GetFolder("\Microsoft\Windows\Windows Defender")
+	location.GetTask("Windows Defender Cache Maintenance").Enabled:=!s
+	location.GetTask("Windows Defender Cleanup").Enabled:=!s
+	location.GetTask("Windows Defender Scheduled Scan").Enabled:=!s
+	location.GetTask("Windows Defender Verification").Enabled:=!s
+}
+DisableMSDefenderService(s) {
+	regpath:='HKLM\SYSTEM\CurrentControlSet\Services\'
+	If s {
+		try {
+			RegRead(regpath "Sense", "Start")
+			RegWrite '4', "REG_DWORD", regpath "Sense", "Start"
 		}
+		RegWrite '4', "REG_DWORD", regpath "WdBoot", "Start"
+		RegWrite '4', "REG_DWORD", regpath "WdFilter", "Start"
+		RegWrite '4', "REG_DWORD", regpath "WdNisDrv", "Start"
+		RegWrite '4', "REG_DWORD", regpath "WdNisSvc", "Start"
+		RegWrite '4', "REG_DWORD", regpath "WinDefend", "Start"
 	} Else {
-		regpath:='HKLM\SYSTEM\CurrentControlSet\Services\'
-		If s {
-			try {
-				RegRead(regpath "\Sense", "Start")
-				RegWrite '4', "REG_DWORD", regpath "Sense", "Start"
-			}
-			RegWrite '4', "REG_DWORD", regpath "WdBoot", "Start"
-			RegWrite '4', "REG_DWORD", regpath "WdFilter", "Start"
-			RegWrite '4', "REG_DWORD", regpath "WdNisDrv", "Start"
-			RegWrite '4', "REG_DWORD", regpath "WdNisSvc", "Start"
-			RegWrite '4', "REG_DWORD", regpath "WinDefend", "Start"
-		} Else {
-			try {
-				RegRead(regpath "\Sense", "Start")
-				RegWrite '3', "REG_DWORD", regpath "Sense", "Start"
-			}
-			RegWrite '0', "REG_DWORD", regpath "WdBoot", "Start"
-			RegWrite '0', "REG_DWORD", regpath "WdFilter", "Start"
-			RegWrite '3', "REG_DWORD", regpath "WdNisDrv", "Start"
-			RegWrite '3', "REG_DWORD", regpath "WdNisSvc", "Start"
-			RegWrite '2', "REG_DWORD", regpath "WinDefend", "Start"
+		try {
+			RegRead(regpath "Sense", "Start")
+			RegWrite '3', "REG_DWORD", regpath "Sense", "Start"
 		}
-		If !silent {
-			Result := MsgBox(GetLangText("Message_DisableMSDefender_ExitSafeMode") s, App.Name, "YesNo Icon?")
-			if Result = "Yes" {
-				RunWait "bcdedit /deletevalue {current} safeboot"
-				Run "shutdown.exe /r /f /t 00"
-			}
+		RegWrite '0', "REG_DWORD", regpath "WdBoot", "Start"
+		RegWrite '0', "REG_DWORD", regpath "WdFilter", "Start"
+		RegWrite '3', "REG_DWORD", regpath "WdNisDrv", "Start"
+		RegWrite '3', "REG_DWORD", regpath "WdNisSvc", "Start"
+		RegWrite '2', "REG_DWORD", regpath "WinDefend", "Start"
+	}
+	
+}
+RunDisableMSDefender(s) {
+	DisableMSDefenderScheduleTask(s)
+	RegWrite A_ScriptFullPath ' /DisableMSDefenderService=' s, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce", "*DisableMSDefenderService"
+	Sleep 1000
+	GoSafeboot()
+}
+RunDisableMSDefenderSafeMode(s) {
+	DisableMSDefenderService(s)
+	RegWrite A_ScriptFullPath ' /DisableMSDefenderScheduleTask=' s, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce", "*DisableMSDefenderScheduleTask"
+	Sleep 1000
+	ExitSafeboot()
+}
+DisableMSDefender(s,d,silent){
+	SafeBootMode:=SysGet(67)
+	n:=SafeBootMode?"SafeMode":""
+	If silent {
+		RunDisableMSDefender%n%(s)
+	} Else {
+		SetTimer () => ToolTip(), -500
+		Result := MsgBox(GetLangText("Text_DisableMSDefender" s), App.Name, "YesNo Icon?")
+		if Result = "Yes" {
+			RunDisableMSDefender%n%(s)
+		} Else {
+			Return !s
 		}
 	}
 }
@@ -154,7 +181,7 @@ BtnClearStartMenu_Click(Ctr, *) {
 			}	
 			PID:=ProcessClose("StartMenuExperienceHost.exe")
 			If !ProcessWaitClose(PID , 5000)
-				TrayTip GetLangText("Message_ClearStartMenu_Done"), App.Name
+				TrayTip GetLangText("Text_ClearStartMenu_Done"), App.Name
 		} Else
 			MsgBox "Not supported Windows " A_OSVersion, App.Name, "Iconx"
 	} Else If VerCompare(A_OSVersion,"10.0.16299")>=0 {

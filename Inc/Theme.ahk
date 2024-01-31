@@ -48,15 +48,19 @@ SetTheme(g, Theme) {
 	SetBGNavSelect(g)
 	SetBGPanel(g)
 	Gdip_Shutdown(pToken)
-	g["BtnSelectAll"].Opt("Redraw Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
-	g["HRLine1"].Opt("Background" Theme.HrColor)
-	g["HRLine2"].Opt("Background" Theme.HrColor)
+	SetMenuTheme()
 	For Hwnd, GuiCtrlObj in g {
 		If GuiCtrlObj.Type="Button" || GuiCtrlObj.Type="Edit" {
 			SetWindowTheme(GuiCtrlObj)
 			GuiCtrlObj.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
-		} Else If GuiCtrlObj.Type="Text" || GuiCtrlObj.Type="PicSwitch"
+		} Else If GuiCtrlObj.Type="Text" && InStr(GuiCtrlObj.Name, "HRText_")=1
+			GuiCtrlObj.Opt("c" Theme.HrColor)
+		Else If GuiCtrlObj.Type="Text" && InStr(GuiCtrlObj.Name, "HRLine_")=1
+			GuiCtrlObj.Opt("Background" Theme.HrColor)
+		Else If GuiCtrlObj.Type="Text" || GuiCtrlObj.Type="PicSwitch"
 			GuiCtrlObj.SetFont("c" Theme.TextColor)
+		Else If GuiCtrlObj.Type="ListView" || GuiCtrlObj.Type="Link"
+			GuiCtrlObj.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
 	}
 }
 
@@ -178,4 +182,13 @@ LinkUseDefaultColor(CtrlObj, Use := True) {
    While DllCall("SendMessage", "Ptr", CtrlObj.Hwnd, "UInt", 0x0702, "Ptr", 0, "Ptr", LITEM, "UInt") ; LM_SETITEM
       NumPut("Int", A_Index, LITEM, 4)
    CtrlObj.Opt("+Redraw")
+}
+
+SetMenuTheme() {
+	; "Default": 0, "AllowDark": 1, "ForceDark": 2, "ForceLight": 3, "Max": 4
+	uxtheme := DllCall("kernel32\GetModuleHandle", "Str", "uxtheme", "Ptr")
+	SetPreferredAppMode := DllCall("kernel32\GetProcAddress", "Ptr", uxtheme, "Ptr", 135, "Ptr")
+	FlushMenuThemes     := DllCall("kernel32\GetProcAddress", "Ptr", uxtheme, "Ptr", 136, "Ptr")
+	DllCall(SetPreferredAppMode, "Int", Themes.%ThemeSelected%.CtrDark)
+	DllCall(FlushMenuThemes)
 }

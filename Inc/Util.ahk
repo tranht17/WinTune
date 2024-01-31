@@ -40,12 +40,10 @@ HKCU2HCU(KeyName) {
 		KeyName := StrReplace(KeyName, "HKCU", "HKU\" UserSID,,,1)
 	Return KeyName
 }
-
 GetCurrentUserSID()  {
-	PID := WinGetPID("A")
+	PID := ProcessExist()
 	static PROCESS_QUERY_INFORMATION := 0x400, TOKEN_QUERY := 0x8
 		, TokenUser := 1, TokenOwner := 4
-	
 	if !hProcess := DllCall("OpenProcess", "UInt", PROCESS_QUERY_INFORMATION, "UInt", false, "UInt", PID, "Ptr")
 		Return Error("OpenProcess")
 	if !DllCall("Advapi32\OpenProcessToken", "Ptr", hProcess, "UInt", TOKEN_QUERY, "PtrP", &hToken:=0)
@@ -54,12 +52,9 @@ GetCurrentUserSID()  {
 	DllCall("Advapi32\GetTokenInformation", "Ptr", hToken, "Int", tokenType, "Ptr", 0, "Int", 0, "UIntP", &bites:=0)
 	buff:=Buffer(bites)
 	if !DllCall("Advapi32\GetTokenInformation", "Ptr", hToken, "Int", tokenType, "Ptr", buff, "Int", bites, "UIntP", &bites)
-	  Return Error("GetTokenInformation", hProcess, hToken)
-		
+	  Return Error("GetTokenInformation", hToken)
 	DllCall("CloseHandle", "Ptr", hProcess), DllCall("CloseHandle", "Ptr", hToken)
-	
 	DllCall("advapi32\ConvertSidToStringSid", "Ptr", NumGet(buff, "Ptr"), "UPtrP", &pString:=0)
-	
 	Return StrGet(pString)
 }
 
@@ -71,4 +66,16 @@ WinHttp(link) {
 	c:=whr.responseText
 	whr:=""
 	Return c
+}
+
+GoSafeboot() {
+	RunWait "bcdedit /set {current} safeboot minimal"
+	Restart()
+}
+ExitSafeboot() {
+	RunWait "bcdedit /deletevalue {current} safeboot"
+	Restart()
+}
+Restart() {
+	Run "shutdown.exe /r /f /t 00"
 }
