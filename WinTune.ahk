@@ -1,20 +1,31 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.3.0.0
+;@Ahk2Exe-SetVersion         1.4.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "1.3.0"}
+App:={Name: "WinTune", Ver: "1.4.0"}
 
+Loop 2
+    DllCall( "ChangeWindowMessageFilter", "uInt", "0x" (A_Index=1?49:233), "uint", 1)
 full_command_line := DllCall("GetCommandLine", "str")
-if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
-    try {
+if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!S)"))
+{
+    try
+    {
+		params:=""
+		Loop A_Args.Length {
+			If InStr(A_Args[A_Index], " ")
+				params .= A_Space '"' A_Args[A_Index] '"'
+			Else
+				params .= A_Space A_Args[A_Index]
+		}
         if A_IsCompiled
-            Run '*RunAs "' A_ScriptFullPath '" /restart'
+            Run '*RunAs "' A_ScriptFullPath '" /restart' params
         else
-            Run '*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"'
+            Run '*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"' params
     }
     ExitApp
 }
@@ -36,6 +47,7 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")) {
 #Include inc/Theme.ahk
 #Include inc/LangData.ahk
 #Include inc/Language.ahk
+#Include inc/StartupManager.ahk
 
 ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
 LangSelected:=IniRead("config.ini", "General", "Language", "en")
@@ -50,6 +62,7 @@ CreateGui() {
 	ToolTipOptions.Init()
 	ToolTipOptions.SetMargins(5, 5, 5, 5)
 	ToolTipOptions.SetColors("0x" Themes.%ThemeSelected%.BackColor, "0x" Themes.%ThemeSelected%.TextColor)
+	SetMenuTheme()
 	
 	NavSelectW:=200, NavSelectH:=36
 	PanelX:=NavSelectW+24, PanelY:=36, PanelW:=760, PanelH:=456
@@ -74,7 +87,7 @@ CreateGui() {
 	BtnSys_LoadOptimizeConfig.Opt("-Border")
 	BtnSys_LoadOptimizeConfig.OnEvent("Click",BtnSys_LoadOptimizeConfig_Click)
 	
-	g.AddText("vHRLine2 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
+	g.AddText("vHRLine_2 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
 	
 	BtnSys_SaveImage:=g.AddText('vBtnSys_SaveImage x' (BtnSysX+=10) ' ym w30 h20 0x200 Center Border',Chr(0xE114))
 	BtnSys_SaveImage.SetFont("s11",IconFont)
@@ -92,6 +105,13 @@ CreateGui() {
 	BtnSys_Language:=g.AddPic("BackgroundTrans ym h20 w20 vBtnSys_Language x" (BtnSysX+=35), "HBITMAP:" hFlag)
 	DeleteObject(hFlag)
 	BtnSys_Language.OnEvent("Click",CreatePopupLang)
+	
+	g.AddText("vHRLine_3 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
+	
+	BtnSys_Theme:=g.AddText('vBtnSys_ReloadTab x' (BtnSysX+=10) ' ym w30 h20 0x200 0x100 Center Border',Chr(0xE117))
+	BtnSys_Theme.SetFont("s11",IconFont)
+	BtnSys_Theme.Opt("-Border")
+	BtnSys_Theme.OnEvent("Click",(*)=>NavItem_Click(g))
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
 	BtnSys_Minimize.SetFont("s11",IconFont)
@@ -101,9 +121,13 @@ CreateGui() {
 	BtnSys_Close:=g.AddText('vBtnSys_Close x' PanelX+PanelW-30 ' ym w30 h20 0x200 Center Border',Chr(0xE10A))
 	BtnSys_Close.SetFont("s11",IconFont)
 	BtnSys_Close.Opt("-Border")
-	BtnSys_Close.OnEvent("Click",(*) => ExitApp() )
-	
-	g.AddPic("Hidden vNavBGHover xm y" PanelY)
+	BtnSys_Close.OnEvent("Click",Gui_Close)
+	Gui_Close(*) {
+		ToolTip()
+		IniWrite g.NavSelected, "config.ini", "General", "LastTab"
+		ExitApp
+	}
+	g.AddPic("vNavBGHover Hidden xm y" PanelY)
 	g.AddPic("vNavBGActive Hidden xm y" PanelY)
 	g.AddPic('vBGPanel w' PanelW ' h' PanelH ' x' PanelX ' y' PanelY)
 	
@@ -118,16 +142,20 @@ CreateGui() {
 	
 	g.AddText('xm95 ym422 BackgroundTrans',"v" App.Ver)
 	
-	SpaceName:="              "
+	SpaceName:="            "
+	y:=18
 	Loop Layout.Length {
 		ItemID:=Layout[A_Index].ID
 		If (ItemID = "")
 			Continue
-		y:=(A_Index-1)*40+24
-		aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" y+13)
+		If Layout[A_Index].HasOwnProp("hr") && Layout[A_Index].hr {
+			g.AddText("vHRText_" A_Index " center w" NavSelectW " xm ym" y " c" Themes.%ThemeSelected%.HrColor, GetLangText(Layout[A_Index].hr))
+			y+=24
+		}
+		aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" (y+8))
 		aIcon.Value:=(!IsWin11 && Layout[A_Index].HasOwnProp("Icon10") && Layout[A_Index].Icon10)?Layout[A_Index].Icon10:Layout[A_Index].Icon
-		NavItem:=g.AddText("BackgroundTrans 0x200 0x100 h" NavSelectH " w" NavSelectW " xm ym" y+6 " vNavItem_" A_Index, SpaceName GetLangName(ItemId))
-		
+		NavItem:=g.AddText("BackgroundTrans 0x200 0x100 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index, SpaceName GetLangName(ItemId))
+		y+=(NavSelectH+4)
 		If Layout[A_Index].HasOwnProp("Fn") && Layout[A_Index].Fn {
 			Fn:=Layout[A_Index].Fn
 			If Layout[A_Index].HasOwnProp("NotSelected") && Layout[A_Index].NotSelected
@@ -138,32 +166,40 @@ CreateGui() {
 		}
 	}
 	g.SetFont("s9")
-	NavItem_Click(g, 1)
+	NavItem_Click(g, IniRead("config.ini", "General", "LastTab", 1))
 	g.Show
 	FrameShadow(g.hWnd)
 	Return g
 }
 
-NavItem_Click(g, NavIndex, *) {
-	Ctr:=g["NavItem_" NavIndex]
-	Ctr.GetPos(&x, &y)
-	g["NavBGActive"].GetPos(&xA, &yA)
-	If x=xA && y=yA
-		Return
-	g["NavBGHover"].Visible:=False
-	g["NavBGActive"].Visible:=False
-	CurrentTabCtrls:=CurrentTabCtrlArray()
-	If Type(CurrentTabCtrls)="Array" && CurrentTabCtrls.Length {
-		Loop CurrentTabCtrls.Length {
-			g[CurrentTabCtrls[A_Index]].Visible:=False
+NavItem_Click(g, NavIndex:=0, *) {
+	If NavIndex {
+		Ctr:=g["NavItem_" NavIndex]
+		Ctr.GetPos(&x, &y)
+		If g["NavBGActive"].Visible {
+			g["NavBGActive"].GetPos(&xA, &yA)
+			If x=xA && y=yA
+				Return
+			g["NavBGHover"].Visible:=False
+			g["NavBGActive"].Visible:=False
+		}
+		CurrentTabCtrls:=CurrentTabCtrlArray()
+		If Type(CurrentTabCtrls)="Array" && CurrentTabCtrls.Length {
+			Loop CurrentTabCtrls.Length {
+				g[CurrentTabCtrls[A_Index]].Visible:=False
+			}
 		}
 	}
-	
-	CurrentTabCtrls:=%Layout[NavIndex].Fn%(g, NavIndex)
+	NavIndex2:=NavIndex?NavIndex:g.NavSelected
+	CurrentTabCtrls:=%Layout[NavIndex2].Fn%(g, NavIndex2)
 	CurrentTabCtrlArray(CurrentTabCtrls)
-	g["NavBGActive"].Move(x, y)
-	g["NavBGActive"].Visible:=True
-	Ctr.Focus()
+	If NavIndex {
+		g["NavBGActive"].Move(x, y)
+		g["NavBGActive"].Visible:=True
+		g.NavSelected:=NavIndex
+		; Ctr.Focus()
+	}
+	
 }
 
 BtnSelectAll_Click(Ctr, ID, HREF) {
@@ -177,6 +213,7 @@ BtnSelectAll_Click(Ctr, ID, HREF) {
 		}
 	}
 	DestroyDlg(g,g2)
+	SendMessage 0x8, 0, 0,Ctr,"A"
 }
 
 CB_Click(Ctr,Info) {
@@ -200,7 +237,7 @@ OptimizeTab(g, NavIndex) {
 	
 	try {
 		g["BtnSelectAll"].Visible:=True
-		g["HRLine1"].Visible:=True
+		g["HRLine_1"].Visible:=True
 	} Catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW)
 		BtnSelectAll:=g.Add("Link","vBtnSelectAll Hidden w160 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12) " Background" Themes.%ThemeSelected%.BackColorPanelRGB, 
@@ -210,7 +247,8 @@ OptimizeTab(g, NavIndex) {
 		BtnSelectAll.OnEvent("Click",BtnSelectAll_Click)
 		BtnSelectAll.Visible:=True
 		
-		g.AddText("vHRLine1 x" sXCBT+(PanelW-400)/2 " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
+		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
+
 		sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 		sXCBT+=SpaceItem
 		sYCBT+=SpaceItem
@@ -250,7 +288,7 @@ OptimizeTab(g, NavIndex) {
 	}
 	
 	CurrentTabCtrls.Push "BtnSelectAll"
-	CurrentTabCtrls.Push "HRLine1"
+	CurrentTabCtrls.Push "HRLine_1"
 	CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
 	
 	Return CurrentTabCtrls
@@ -383,17 +421,19 @@ CheckStatusItem(ItemFunc, DataItem) {
 }
 
 ProgNowCtr(Ctr, ItemData,silent:=0) {
-	ProgNow(Ctr.Name, Ctr.Value, ItemData, silent)
+	ProgNow(Ctr.Name, Ctr.Value, ItemData, silent, Ctr)
 }
 
-ProgNow(ItemId, ItemValue, ItemData, silent:=0) {
+ProgNow(ItemId, ItemValue, ItemData, silent:=0, Ctr:="") {
 	Try {
 		Loop ItemData.Act.Length {
 			If ItemData.Act[A_Index].HasOwnProp("Check") && ItemData.Act[A_Index].Check
 				Continue
-			If ItemData.Act[A_Index].Type="Custom"
-				%ItemId%(ItemValue, ItemData.Act[A_Index],silent)
-			Else If ItemData.Act[A_Index].Type="RunTerminal"
+			If ItemData.Act[A_Index].Type="Custom" {
+				r:=%ItemId%(ItemValue, ItemData.Act[A_Index],silent)
+				If Ctr && (r=0 || r=1)
+					Ctr.Value:=r
+			} Else If ItemData.Act[A_Index].Type="RunTerminal"
 				RunTerminal(ItemData.Act[A_Index].Value%ItemValue%)
 			Else
 				Prog%ItemData.Act[A_Index].Type%(ItemValue,ItemData.Act[A_Index],silent)
@@ -479,7 +519,6 @@ OnMessage(0x0200, On_WM_MOUSEMOVE)
 On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 	static PrevHwnd:=0,HoveredBtn:=""
 	CurrControl := GuiCtrlFromHwnd(Hwnd)
-	
 	try {
 		if (Hwnd != PrevHwnd) {
 			ToolTip()
@@ -488,6 +527,7 @@ On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 				If HoveredBtn!=currControl.Name {
 					If HoveredBtn {
 						If InStr(HoveredBtn, "BtnSys_")=1{
+							
 							If thisGui[HoveredBtn].Type="Text"
 								thisGui[HoveredBtn].SetFont("c" Themes.%ThemeSelected%.TextColor)
 							thisGui[HoveredBtn].Opt("-Border")
@@ -514,7 +554,7 @@ On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 						PrevHwnd := Hwnd
 						Return
 					}
-					ToolTipOptions.SetTitle(InStr(currControl.Name, "BtnSys_")=1?"":GetLangName(currControl.Name))
+					ToolTipOptions.SetTitle((Title:=GetLangName(currControl.Name))!=currControl.Name?Title:"")
 					SetTimer(CheckHoverControl, 50)
 					SetTimer(DisplayToolTip, -600)
 				}
@@ -538,8 +578,10 @@ On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 		}
 
 		CheckHoverControl(){
+			; OutputDebug "CheckHoverControl"
 			If hwnd != prevHwnd {
 				SetTimer(DisplayToolTip, 0), SetTimer(CheckHoverControl, 0)
+				; ToolTip()
 			}
 		}
 		DisplayToolTip(){
@@ -550,7 +592,6 @@ On_WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 		PrevHwnd := Hwnd
 	}
 }
-
 OnMessage 0x0201, WM_LBUTTONDOWN
 WM_LBUTTONDOWN(wParam,lParam,msg,hwnd) {
     thisGui := GuiFromHwnd(hwnd)
@@ -562,7 +603,7 @@ CreateWaitDlg(g) {
 	g.GetPos(&X, &Y, &W, &H)
 	g2:=CreateDlg(g)
 	tWidth:=300,tHeight:=20
-	g2.AddText("Center 0x200 h" tHeight " w" tWidth,GetLangText("Message_WaitDlg")).SetFont("s10")
+	g2.AddText("Center 0x200 h" tHeight " w" tWidth,GetLangText("Text_WaitDlg")).SetFont("s10")
 	g2.Show("x" X+(W-tWidth)/2 " y" Y+(H-tHeight)/2)
 	Return g2
 }
