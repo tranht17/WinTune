@@ -79,3 +79,6 @@ ExitSafeboot() {
 Restart() {
 	Run "shutdown.exe /r /f /t 00"
 }
+HideToolTip() {
+	SetTimer () => ToolTip(), -500
+}

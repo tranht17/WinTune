@@ -155,7 +155,7 @@ DisableMSDefender(s,d,silent){
 	If silent {
 		RunDisableMSDefender%n%(s)
 	} Else {
-		SetTimer () => ToolTip(), -500
+		HideToolTip()
 		Result := MsgBox(GetLangText("Text_DisableMSDefender" s), App.Name, "YesNo Icon?")
 		if Result = "Yes" {
 			RunDisableMSDefender%n%(s)

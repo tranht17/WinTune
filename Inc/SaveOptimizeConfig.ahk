@@ -1,8 +1,10 @@
 BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
+	g:=Ctr.Gui
+	g.Opt("+Disabled")
+	HideToolTip()
 	SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
 	If SelectedFile {
 		Config:={}
-		g:=Ctr.Gui
 		CurrentTabCtrls:=CurrentTabCtrlArray()
 		Loop CurrentTabCtrls.Length {
 			ItemID:=CurrentTabCtrls[A_Index]
@@ -13,8 +15,12 @@ BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 			FileDelete SelectedFile
 		FileAppend JSON.stringify(Config), SelectedFile
 	}
+	g.Opt("-Disabled")
 }
-BtnSys_SaveOptimizeConfigAll_Click(*) {
+BtnSys_SaveOptimizeConfigAll_Click(Ctr, *) {
+	g:=Ctr.Gui
+	g.Opt("+Disabled")
+	HideToolTip()
 	SelectedFile := FileSelect("S16", App.Name "_OptimizeConfig_" A_Now ".json", "Save a file")
 	If SelectedFile {
 		Config:={}
@@ -34,11 +40,14 @@ BtnSys_SaveOptimizeConfigAll_Click(*) {
 			FileDelete SelectedFile
 		FileAppend JSON.stringify(Config), SelectedFile
 	}
+	g.Opt("-Disabled")
 }
 BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
+	g:=Ctr.Gui
+	g.Opt("+Disabled")
+	HideToolTip()
 	SelectedFile := FileSelect(3, , "Open a file", "Optimize Config File (*.json)")
 	If SelectedFile {
-		g:=Ctr.Gui
 		g2:=CreateWaitDlg(g)
 		ConfigText:=FileRead(SelectedFile)
 		Config:=JSON.parse(ConfigText,,False)
@@ -57,11 +66,14 @@ BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
 		}
 		DestroyDlg(g,g2)
 	}
+	g.Opt("-Disabled")
 }
 BtnSys_SaveImage_Click(Ctr, *) {
+	g:=Ctr.Gui
+	g.Opt("+Disabled")
+	HideToolTip()
 	SelectedFile := FileSelect("s16" , A_WorkingDir "\" App.Name "_" A_Now ".png", "Save Image", "Image File (*.png)")
 	if SelectedFile {
-		g:=Ctr.Gui
 		g.GetPos(&x, &y, &w, &h)
 		pToken := Gdip_Startup()
 		Sleep 200
@@ -70,4 +82,5 @@ BtnSys_SaveImage_Click(Ctr, *) {
 		Gdip_DisposeImage(snap)
 		Gdip_Shutdown(pToken)
 	}
+	g.Opt("-Disabled")
 }
