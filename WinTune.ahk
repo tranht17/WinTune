@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.4.0.0
+;@Ahk2Exe-SetVersion         1.4.2.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "1.4.0"}
+App:={Name: "WinTune", Ver: "1.4.2"}
 
 Loop 2
     DllCall( "ChangeWindowMessageFilter", "uInt", "0x" (A_Index=1?49:233), "uint", 1)
