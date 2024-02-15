@@ -1,3 +1,6 @@
+; Class ToolTipOptions - 2023-09-10
+; just me
+; https://www.autohotkey.com/boards/viewtopic.php?f=83&t=113308
 ; ======================================================================================================================
 ; ToolTipOptions        -  additional options for ToolTips
 ;
@@ -191,7 +194,7 @@ Class ToolTipOptions {
    ; -------------------------------------------------------------------------------------------------------------------
    Static _WNDPROC_(hWnd, uMsg, wParam, lParam) {
       ; WNDPROC -> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
-      Switch uMsg {
+	  Switch uMsg {
          Case 0x0411: ; TTM_TRACKACTIVATE - just handle the first message after the control has been created
             If This.ToolTips.Has(hWnd) && (This.ToolTips[hWnd] = 0) {
                If (This.BkgColor != "")
@@ -210,9 +213,13 @@ Class ToolTipOptions {
             DllCall("UxTheme.dll\SetWindowTheme", "Ptr", hWnd, "Ptr", 0, "Ptr", StrPtr(""))
             This.ToolTips[hWnd] := 0
          Case 0x0002: ; WM_DESTROY
-            This.ToolTips.Delete(hWnd)
+			If This.ToolTips.Has(hWnd)
+				This.ToolTips.Delete(hWnd)
       }
-      Return DllCall(This.OWP, "Ptr", hWnd, "UInt", uMsg, "Ptr", wParam, "Ptr", lParam, "UInt")
+	  r:=0
+	  If This.OWP
+		r:=DllCall(This.OWP, "Ptr", hWnd, "UInt", uMsg, "Ptr", wParam, "Ptr", lParam, "UInt")
+      Return r
    }
    ; -------------------------------------------------------------------------------------------------------------------
    Static _EXIT_(*) {

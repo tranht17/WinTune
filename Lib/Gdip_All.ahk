@@ -378,9 +378,15 @@ Gdip_CreateARGBHBITMAPFromBitmap(&pBitmap) {
 
 	return hbm
 }
-
-Gdip_CreateHICONFromBitmap(pBitmap)
-{
+Gdip_CreateHICONFromBitmap(pBitmap) {
 	DllCall("gdiplus\GdipCreateHICONFromBitmap", "UPtr", pBitmap, "UPtr*", &hIcon:=0)
 	return hIcon
+}
+Gdip_CreateTextureBrush(pBitmap, WrapMode:=1, x:=0, y:=0, w:="", h:="") {
+	if !(w && h) {
+		DllCall("gdiplus\GdipCreateTexture", "UPtr", pBitmap, "Int", WrapMode, "UPtr*", &pBrush:=0)
+	} else {
+		DllCall("gdiplus\GdipCreateTexture2", "UPtr", pBitmap, "Int", WrapMode, "Float", x, "Float", y, "Float", w, "Float", h, "UPtr*", &pBrush:=0)
+	}
+	return pBrush
 }

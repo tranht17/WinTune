@@ -1,27 +1,19 @@
-;ServiceName:="DiagTrack"
-;Service_Info(ServiceName)
-;MsgBox Service_State(ServiceName, true)
-;Service_Change_StartType(ServiceName, 2)
-; Service_Start(ServiceName)
-;Service_Stop(ServiceName)
-;MsgBox Service_State(ServiceName, true)
-;a:=Service_List(State:="Inactive")
-;MsgBox a.Count
-;MsgBox a["DiagTrack"]["svcType"]
-
-;Service_Info(ServiceName)
-
-/*
-        *** Service State codes: ***
-
-SERVICE_STOPPED (1) : The service is not running.
-SERVICE_START_PENDING (2) : The service is starting.
-SERVICE_STOP_PENDING (3) : The service is stopping.
-SERVICE_RUNNING (4) : The service is running.
-SERVICE_CONTINUE_PENDING (5) : The service continue is pending.
-SERVICE_PAUSE_PENDING (6) : The service pause is pending.
-SERVICE_PAUSED (7) : The service is paused.
-*/
+; ============ Service ================
+; State
+	; 1:Stopped
+	; 2:Start Pending
+	; 3:Stop Pending
+	; 4:Running
+	; 5:Continue Pending
+	; 6:Pause Pending
+	; 7:Paused
+; StartType
+	; SERVICE_BOOT_START:=0x00000000
+	; SERVICE_SYSTEM_START:=0x00000001
+	; SERVICE_AUTO_START:=0x00000002
+	; SERVICE_DEMAND_START:=0x00000003
+	; SERVICE_DISABLED:=0x00000004
+	; SERVICE_NO_CHANGE:=0xFFFFFFFF
 Service_State(ServiceName, textResult:=false) { ; Return Values			  
 	SCM_HANDLE := OpenSCManager(0x1)
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x4)
