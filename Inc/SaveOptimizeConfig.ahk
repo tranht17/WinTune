@@ -1,6 +1,6 @@
 BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 	g:=Ctr.Gui
-	g.Opt("+Disabled")
+	g.Opt("+OwnDialogs")
 	HideToolTip()
 	SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
 	If SelectedFile {
@@ -15,36 +15,39 @@ BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 			FileDelete SelectedFile
 		FileAppend JSON.stringify(Config), SelectedFile
 	}
-	g.Opt("-Disabled")
+	g.Opt("-OwnDialogs")
 }
 BtnSys_SaveOptimizeConfigAll_Click(Ctr, *) {
 	g:=Ctr.Gui
-	g.Opt("+Disabled")
+	g.Opt("+OwnDialogs")
 	HideToolTip()
 	SelectedFile := FileSelect("S16", App.Name "_OptimizeConfig_" A_Now ".json", "Save a file")
 	If SelectedFile {
-		Config:={}
-		Loop Layout.Length {
-			If (Layout[A_Index].ID = "" || !Layout[A_Index].HasOwnProp("Items"))
-				Continue
-			ItemList:=Layout[A_Index].Items
-			Loop ItemList.Length {
-				ItemId:=ItemList[A_Index]
-				s:=CheckStatusItem(ItemId, Data.%ItemId%)
-				If s<=-1
-					Continue
-				Config.%ItemID%:=s
-			}
-		}	
-		try
-			FileDelete SelectedFile
-		FileAppend JSON.stringify(Config), SelectedFile
+		SaveOptimizeConfigAll(SelectedFile)
 	}
-	g.Opt("-Disabled")
+	g.Opt("-OwnDialogs")
+}
+SaveOptimizeConfigAll(SelectedFile) {
+	Config:={}
+	Loop Layout.Length {
+		If (Layout[A_Index].ID = "" || !Layout[A_Index].HasOwnProp("Items"))
+			Continue
+		ItemList:=Layout[A_Index].Items
+		Loop ItemList.Length {
+			ItemId:=ItemList[A_Index]
+			s:=CheckStatusItem(ItemId, Data.%ItemId%)
+			If s<=-1
+				Continue
+			Config.%ItemID%:=s
+		}
+	}	
+	try
+		FileDelete SelectedFile
+	FileAppend JSON.stringify(Config), SelectedFile
 }
 BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
 	g:=Ctr.Gui
-	g.Opt("+Disabled")
+	g.Opt("+OwnDialogs")
 	HideToolTip()
 	SelectedFile := FileSelect(3, , "Open a file", "Optimize Config File (*.json)")
 	If SelectedFile {
@@ -66,11 +69,11 @@ BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
 		}
 		DestroyDlg(g,g2)
 	}
-	g.Opt("-Disabled")
+	g.Opt("-OwnDialogs")
 }
 BtnSys_SaveImage_Click(Ctr, *) {
 	g:=Ctr.Gui
-	g.Opt("+Disabled")
+	g.Opt("+OwnDialogs")
 	HideToolTip()
 	SelectedFile := FileSelect("s16" , A_WorkingDir "\" App.Name "_" A_Now ".png", "Save Image", "Image File (*.png)")
 	if SelectedFile {
@@ -82,5 +85,5 @@ BtnSys_SaveImage_Click(Ctr, *) {
 		Gdip_DisposeImage(snap)
 		Gdip_Shutdown(pToken)
 	}
-	g.Opt("-Disabled")
+	g.Opt("-OwnDialogs")
 }

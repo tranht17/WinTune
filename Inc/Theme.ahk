@@ -1,15 +1,10 @@
 CreatePopupTheme(Ctr, *) {
+	If WinExist(App.Name "_Popup")
+		WinClose
 	Ctr.GetPos(&xCtr,&yCtr,&wCtr,&hCtr)
 	g:=Ctr.Gui
 	g.GetPos(&xG,&yG)
-	
-	g2:=Gui("-Caption" ,"Popup")
-	FrameShadow(g2.hWnd)
-	g2.SetFont("c" Themes.%ThemeSelected%.TextColor, "Segoe UI Semibold")
-	g2.BackColor:="00A7EB"
-	
-	IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
-	IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
+	g2:=CreateDlg(g, 0, "00A7EB")
 	
 	x:=8
 	For k,v In Themes.OwnProps() {
@@ -53,13 +48,13 @@ SetTheme(g, Theme) {
 		If GuiCtrlObj.Type="Button" || GuiCtrlObj.Type="Edit" {
 			SetWindowTheme(GuiCtrlObj)
 			GuiCtrlObj.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
-		} Else If GuiCtrlObj.Type="Text" && InStr(GuiCtrlObj.Name, "HRText_")=1
+		} Else If GuiCtrlObj.Type="Text" && (InStr(GuiCtrlObj.Name, "HRText_")=1)
 			GuiCtrlObj.Opt("c" Theme.HrColor)
-		Else If GuiCtrlObj.Type="Text" && InStr(GuiCtrlObj.Name, "HRLine_")=1
+		Else If GuiCtrlObj.Type="Text" && (InStr(GuiCtrlObj.Name, "HRLine_")=1)
 			GuiCtrlObj.Opt("Background" Theme.HrColor)
 		Else If GuiCtrlObj.Type="Text" || GuiCtrlObj.Type="PicSwitch"
 			GuiCtrlObj.SetFont("c" Theme.TextColor)
-		Else If GuiCtrlObj.Type="ListView" || GuiCtrlObj.Type="Link"
+		Else If GuiCtrlObj.Type="ListView" || GuiCtrlObj.Type="Link" || GuiCtrlObj.Type="Radio" || GuiCtrlObj.Type="CheckBox"
 			GuiCtrlObj.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
 	}
 }

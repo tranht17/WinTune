@@ -14,8 +14,6 @@ BtnStartupManager_Click(g, NavIndex) {
 		}	
 	} Catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
-		IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
-		IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
 		a:=g.AddButton("vStartupManager_BtnDisable w110 Background" Themes.%ThemeSelected%.BackColorPanelRGB " Disabled x" sXCBT+6 " y" sYCBT+6,Chr(0xF140) " " GetLangText("Text_Disable"))
 		a.SetFont("s11",IconFont)
 		SetWindowTheme(a)

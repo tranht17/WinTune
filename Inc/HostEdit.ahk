@@ -16,7 +16,8 @@ BtnHostEdit_Click(g,*) {
 			g[CurrentTabCtrls[A_Index]].Visible:=True
 		}
 	} catch {
-		HostEdit:=g.AddEdit("h442 w450 -wrap 0x100 xm216 ym36 Background" Themes.%ThemeSelected%.BackColorPanelRGB " v" CurrentTabCtrls[1],Host)
+		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
+		HostEdit:=g.AddEdit("h" PanelH-12 " w450 -wrap 0x100 x" sXCBT+6 " y" sYCBT+6 " Background" Themes.%ThemeSelected%.BackColorPanelRGB " v" CurrentTabCtrls[1],Host)
 		
 		SetWindowTheme(HostEdit)
 		HostEdit.OnEvent("Change",HostEdit_Change)

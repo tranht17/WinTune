@@ -1,12 +1,10 @@
 CreatePopupLang(Ctr, *) {
+	If WinExist(App.Name "_Popup")
+		WinClose
 	Ctr.GetPos(&xCtr,&yCtr,&wCtr,&hCtr)
 	g:=Ctr.Gui
 	g.GetPos(&xG,&yG)
-
-	g2:=Gui("-Caption" ,"Popup")
-	FrameShadow(g2.hWnd)
-	g2.SetFont("c" Themes.%ThemeSelected%.TextColor, "Segoe UI Semibold")
-	g2.BackColor:=Themes.%ThemeSelected%.BackColor
+	g2:=CreateDlg(g, 0)
 	
 	NavSelectW:=200, NavSelectH:=30
 	
@@ -14,10 +12,7 @@ CreatePopupLang(Ctr, *) {
 	g2.AddPic("vNavBGActive Hidden xm")
 	pToken:=Gdip_Startup()
 	CreateBGNavSelect(g2["NavBGHover"], g2["NavBGActive"], NavSelectW, NavSelectH ,6)
-	
-    IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
-	IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
-	
+
 	SpaceName:="            "
     for k,v in LangData.OwnProps() {
 		y:=(A_Index-1)*34
@@ -42,14 +37,13 @@ CreatePopupLang(Ctr, *) {
 		}
 		LangSelected:=LangClicked
 		Lang:=LangData.%LangSelected%
-		SpaceName:="              "
 		For , GuiCtrlObj in g {
 			If GuiCtrlObj.Name="BtnSelectAll" {
 				vis:=GuiCtrlObj.Visible
 				GuiCtrlObj.Text:='<a id="1">' GetLangName("BtnSelectAll") '</a>   <a id="0">' GetLangName("BtnDeselectAll") '</a>'
 				LinkUseDefaultColor(GuiCtrlObj)
 				GuiCtrlObj.Visible:=vis
-			} Else If InStr(GuiCtrlObj.Name,"NavItem_") {
+			} Else If InStr(GuiCtrlObj.Name,"NavItem_") && GuiCtrlObj.Name!= "NavItem_UserName" {
 				NavItemID:=SubStr(GuiCtrlObj.Name,9)
 				GuiCtrlObj.Text:=SpaceName GetLangName(Layout[NavItemID].ID)
 			} Else If GuiCtrlObj.Name && Lang.HasOwnProp(GuiCtrlObj.Name) 
