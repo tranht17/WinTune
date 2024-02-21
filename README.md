@@ -48,6 +48,30 @@
 
 - Administrator privileges
 
+## Command Line
+
+- /User: Swich users
+
+	`WinTune /User=YourUserName`
+	
+- /SaveConfig: Save all optimization configurations to file
+
+	`WinTune /SaveConfig`
+	
+	`WinTune /SaveConfig=YourConfig.json`
+	
+	`WinTune /SaveConfig="d:\Path\Your Config.json"`
+	
+	`WinTune /User=YourUserName /SaveConfig`
+	
+- /LoadConfig: Load optimization configurations file
+
+	`WinTune /LoadConfig=YourConfig.json`
+	
+	`WinTune /LoadConfig="d:\Path\Your Config.json"`
+	
+	`WinTune /User=YourUserName /LoadConfig=YourConfig.json`
+
 ## Translations
 
 - Chinese (Simplified) | Jvcon
