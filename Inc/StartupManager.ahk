@@ -60,9 +60,9 @@ BtnStartupManager_Click(g, NavIndex) {
 	LVStartupManager.ModifyCol(6, 0)
 	
 	LVStartupManager.Delete()
-	LV_RegLoad(LVStartupManager, "HKCU|Run", "HKCU\Software\Microsoft\Windows\CurrentVersion\Run", "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
+	LV_RegLoad(LVStartupManager, "HKCU|Run", HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
 	LV_RegLoad(LVStartupManager, "HKLM|Run", "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
-	LV_FolderLoad(LVStartupManager, A_Startup, "Folder|Startup", "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder")
+	LV_FolderLoad(LVStartupManager, EnvGet2("Startup"), "Folder|Startup", HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder")
 	LV_FolderLoad(LVStartupManager, A_StartupCommon, "Folder|StartupCommon", "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder")
 	Return CurrentTabCtrls
 	
@@ -252,11 +252,11 @@ BtnStartupManager_Click(g, NavIndex) {
 			}
 			t:=LV.GetText(i , 5)
 			If t="HKCU|Run" {
-				Key:="HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
+				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
 			} Else If t="HKLM|Run" {
 				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
 			} Else If t="Folder|Startup" {
-				Key:="HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
+				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
 			} Else If t="Folder|StartupCommon" {
 				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
 			}
@@ -269,13 +269,13 @@ BtnStartupManager_Click(g, NavIndex) {
 			RunKey:=""
 			StartupApprovedKey:=""
 			If t="HKCU|Run" {
-				RunKey:="HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+				RunKey:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Run"
 				StartupApprovedKey:="HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
 			} Else If t="HKLM|Run" {
 				RunKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Run"
 				StartupApprovedKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
 			} Else If t="Folder|Startup" {
-				StartupApprovedKey:="HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
+				StartupApprovedKey:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
 				FileDelete A_Startup "\" LV.GetText(i , 1)
 			} Else If t="Folder|StartupCommon" {
 				StartupApprovedKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
@@ -296,7 +296,7 @@ BtnStartupManager_Click(g, NavIndex) {
 			Key:=""
 			t:=LV.GetText(i, 5)
 			If InStr(t,"HKCU|Run")=1 {
-				Key:="HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Run"
 			} Else If InStr(t,"HKLM|Run")=1 {
 				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Run"
 			}

@@ -38,11 +38,12 @@ CreatePopupUser(Ctr, *) {
 			g2.Destroy()
 			Return
 		}
-		Global HKCU,USERPROFILE
+		Global HKCU,CurrentUser
 		UserSID:=UserClicked
-		HKCU:=GetHKCU(&USERPROFILE)
+		HKCU:=GetHKCU()
+		CurrentUser:=LookupAccountSid(UserSID).Name
 		SpaceName:="            "
-		g["NavItem_UserName"].Text:=SpaceName LookupAccountSid(UserSID).Name
+		g["NavItem_UserName"].Text:=SpaceName CurrentUser
 		pToken:=Gdip_Startup()
 		SetUserPic(g["UserPic"], UserSID)
 		Gdip_Shutdown(pToken)
@@ -83,10 +84,8 @@ LookupAccountName(UserName) {
 	pDomain:=Buffer(nSizeDomain)
 	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "Ptr", SID, "PtrP", &nSizeSID, "Ptr", pDomain, "PtrP", &nSizeDomain, "PtrP", &eUser:=0)
 	DllCall("advapi32\ConvertSidToStringSid", "Ptr", SID, "UPtrP", &pString:=0)
-	If !pString {
-		MsgBox("User '" UserName "' does not exist","Error","Iconx")
-		ExitApp
-	}
+	If !pString
+		MsgBoxError("User '" UserName "' does not exist", 1)
 	Return StrGet(pString)
 }
 LookupAccountSid(SID) {

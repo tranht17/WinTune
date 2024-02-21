@@ -1,10 +1,20 @@
+Init() {
+	Global CurrentUser
+	If !CurrentUser
+		CurrentUser:=GetActiveUser()
+	Global UserSID:=LookupAccountName(CurrentUser)
+	Global HKCU:=GetHKCU()
+	Global SystemInfo:=GetSystemInfo()
+	Global LangSelected:=IniRead("config.ini", "General", "Language", "en")
+}
+
 GetSystemInfo() {
 	SI:={}
 	SI.InstallationType:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType")
 	SI.EditionID:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID")
-	SI.ProductName:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName")
-	SI.DisplayVersion:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "DisplayVersion")
-	SI.RegisteredOwner:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "RegisteredOwner")
+	; SI.ProductName:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "ProductName")
+	; SI.DisplayVersion:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "DisplayVersion")
+	; SI.RegisteredOwner:=RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "RegisteredOwner")
 	Return SI
 }
 
@@ -38,37 +48,46 @@ HKCU2HCU(KeyName) {
 		KeyName := StrReplace(KeyName, "HKCU", HKCU,,,1)
 	Return KeyName
 }
-GetHKCU(&ProfileImagePath:="") {
-	If RegKeyExist("HKU\WinTune_Hive_tmp")
-		RegUnLoadKey("WinTune_Hive_tmp")
+GetHKCU() {
+	UnLoadHive()
 	rHKCU:="HKU\" UserSID
 	ProfileImagePath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" UserSID, "ProfileImagePath", "")
-	If !ProfileImagePath {
-		MsgBox("'" UserSID "' does not exist","Error","Iconx")
-		ExitApp
-	}
+	If !ProfileImagePath
+		MsgBoxError("'" UserSID "' does not exist", 1)
 	If !RegKeyExist(rHKCU) {
 		HiveFile:=ProfileImagePath "\NTUSER.DAT"
-		If !FileExist(HiveFile) {
-			MsgBox("'" HiveFile "' does not exist","Error","Iconx")
-			ExitApp
-		}
-		If !RegLoadKey(HiveFile, "WinTune_Hive_tmp") {
-			rHKCU:="HKU\WinTune_Hive_tmp"
-		}
+		If !FileExist(HiveFile)
+			MsgBoxError("'" HiveFile "' does not exist", 1)
+		RegLoadKey(HiveFile)
+		rHKCU:="HKU\WinTune_Hive_tmp"
 	}
+	Global USERPROFILE:=ProfileImagePath
 	Return rHKCU
 }
-RegLoadKey(HiveFile, HiveName, RootKey:="HKU") {
+UnLoadHive() {
+	If RegKeyExist("HKU\WinTune_Hive_tmp")
+		RegUnLoadKey()
+}
+RegLoadKey(HiveFile, HiveName:="WinTune_Hive_tmp", RootKey:="HKU") {
 	EnablePrivilege("SeRestorePrivilege")
 	EnablePrivilege("SeBackupPrivilege")
 	If r:=DllCall("Advapi32.dll\RegLoadKey", "int", NumHK(RootKey), "str", HiveName, "str", HiveFile)
-		Debug("RegLoadKey|Error: " r)
+		MsgBoxError("(" r ")RegLoadKey: '" HiveFile "'", 1)
 	Return r
 }
-RegUnLoadKey(HiveName, RootKey:="HKU") {
-	If r:=DllCall("Advapi32.dll\RegUnLoadKey", "int", NumHK(RootKey), "Str", HiveName)
-		Debug("RegUnLoadKey|Error: " r)
+RegUnLoadKey(HiveName:="WinTune_Hive_tmp", RootKey:="HKU") {
+	If r:=DllCall("Advapi32.dll\RegUnLoadKey", "int", NumHK(RootKey), "Str", HiveName) {
+		If r==5 {
+			If ProcessExist("regedit.exe") {
+				ProcessClose "regedit.exe"
+				RegUnLoadKey(HiveName, RootKey)
+			} Else {
+				MsgBoxError('The key "' RootKey '\' HiveName '" is being opened by another application.`nPlease close those applications and click "OK"')
+				RegUnLoadKey(HiveName, RootKey)
+			}
+		} Else
+			Debug("RegUnLoadKey|Error: " r)
+	}
 	Return r
 }
 EnablePrivilege(Privilege) {
@@ -143,14 +162,19 @@ RunAsAdmin() {
 	}
 	Return 0
 }
+MsgBoxError(itext, IsExitApp:=0) {
+	MsgBox(itext,"Error","Iconx")
+	If IsExitApp
+		ExitApp
+}
 Debug(itext:="",itype:="Error",o:=1) {
 	If Type(itype)=="String" {
 		t:="`n================= " itype " ================="
-		t.="`n" A_Now
+		t.="`nTime: " A_Now
 		t.="`n" itext
 	} Else {
 		t:="`n================= Error ================="
-		t.="`n" A_Now
+		t.="`nTime: " A_Now
 		t.=itext?"`n" itext:""
 		t.="`nMessage: " itype.Message
 		t.="`nStack: " itype.Stack

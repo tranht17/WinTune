@@ -1,4 +1,25 @@
-CheckUninstallOneDrive() => !FileExist(EnvGet2("Local AppData") "\Microsoft\OneDrive\onedrive.exe")
+CheckUninstallOneDrive() {
+	OneDriveSetup:=A_WinDir "\System32\OneDriveSetup.exe"
+	If !FileExist(OneDriveSetup) {	
+		OneDriveSetup:=A_WinDir "\SysWOW64\OneDriveSetup.exe"
+		If !FileExist(OneDriveSetup) {
+			OneDriveSetup:=A_WinDir "\Sysnative\OneDriveSetup.exe"
+			If !FileExist(OneDriveSetup)
+				Return -1
+		}
+	}
+	OneDriveSetupRun:=RegRead(HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup", "")
+	PreInstall:=!InStr(OneDriveSetupRun, "/uninstall")
+	If !(OneDriveExist:=FileExist(EnvGet2("Local AppData") "\Microsoft\OneDrive\onedrive.exe")) {
+		If !(OneDriveExist:=FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
+				OneDriveExist:=FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft OneDrive\OneDrive.exe")
+		}
+	}
+	r:=0
+	If (!OneDriveExist && !OneDriveSetupRun) || (OneDriveExist && OneDriveSetupRun && !PreInstall)
+		r:=1
+	Return r
+}
 UninstallOneDrive(s,d,silent) {
 	OneDriveSetup:=A_WinDir "\System32\OneDriveSetup.exe"
 	If !FileExist(OneDriveSetup) {	
@@ -9,25 +30,32 @@ UninstallOneDrive(s,d,silent) {
 				Return -1
 		}
 	}
-	If s {
-		ProcessClose "OneDrive.exe"
-		RunWait OneDriveSetup ' /uninstall'
-		Sleep 1000
+	If !(IsPerMachine:=!!FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
+		IsPerMachine:=!!FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft OneDrive\OneDrive.exe")
+	}
+	OneDriveSetupCMD:=OneDriveSetup (IsPerMachine?' /allusers':'') (s?' /uninstall':'') ' /silent'
+	If CurrentUser=GetActiveUser() {
+		If s
+			ProcessClose "OneDrive.exe"
+		RunWait OneDriveSetupCMD
+	} Else {
 		try
-			DirDelete EnvGet2("Local AppData") "\Microsoft\OneDrive", 1
-	} Else 
-		RunWait OneDriveSetup
+			RegDelete HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDriveSetup"
+		try
+			RegDelete HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDrive"
+		RegWrite OneDriveSetupCMD, "REG_SZ", HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup"
+	}
 }
 
 CheckDisableVisualStudioTelemetry() {
-	If FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft Visual Studio\Installer\vswhere.exe")	
+	If FileExist(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe")	
 		Return RegRead(HKCU  "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
 	Else {
 		Return -1
 	}
 }
 DisableVisualStudioTelemetry(s,d,silent) {
-	Ver:=SubStr(RunTerminal(EnvGet("ProgramFiles(x86)") "\Microsoft Visual Studio\Installer\vswhere.exe -latest -property catalog_productDisplayVersion"), 1,2)
+	Ver:=SubStr(RunTerminal(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe -latest -property catalog_productDisplayVersion"), 1,2)
 	RegWrite s, "REG_DWORD", HKCU  "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch"
 	RegWrite !s, "REG_DWORD", "HKLM\Software\WOW6432Node\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
 	RegWrite !s, "REG_DWORD", HKCU "\Software\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
