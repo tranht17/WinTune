@@ -1,14 +1,17 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         1.5.0.0
+;@Ahk2Exe-SetVersion         1.6.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "1.5.0"}
+App:={Name: "WinTune", Ver: "1.6.0"}
 
-CheckAdmin()
+A_IconTip:= App.Name
+tray := A_TrayMenu
+tray.delete
+tray.Add("Exit", (*) => ExitApp())
 
 
 #include <RunTerminal>
@@ -24,12 +27,19 @@ CheckAdmin()
 #Include inc/Util.ahk
 #Include inc/HostEdit.ahk
 #Include inc/CustomFn.ahk
-#Include inc/SaveOptimizeConfig.ahk
+#Include inc/OptimizeConfig.ahk
 #Include inc/Theme.ahk
 #Include inc/LangData.ahk
 #Include inc/Language.ahk
 #Include inc/StartupManager.ahk
 #Include inc/User.ahk
+
+CheckAdmin()
+
+OnExit ExitFunc
+ExitFunc(ExitReason, ExitCode) {
+	UnLoadHive()
+}
 
 CurrentUser:=""
 for ,param in A_Args {
@@ -38,33 +48,38 @@ for ,param in A_Args {
 		DisableMSDefenderService(sparam)
 		Sleep 1000
 		ExitSafeboot()
-		Return
+		ExitApp
 	} Else If InStr(param, "/DisableMSDefenderScheduleTask=")=1 {
 		sparam:=SubStr(param,-1)
 		DisableMSDefenderScheduleTask(sparam)
-		Return
+		ExitApp
 	} Else If InStr(param, "/User=")=1 {
 		CurrentUser:=SubStr(param,7)
+	} Else If InStr(param, "/LoadConfig=")=1 {
+		sparam:=SubStr(param,13)
+		Init()
+		LoadOptimizeConfig(sparam)
+		ExitApp
+	} Else If InStr(param, "/SaveConfig")=1 {
+		If param="/SaveConfig"
+			sparam:=App.Name "_OptimizeConfig_" A_Now ".json"
+		Else If InStr(param, "/SaveConfig=")=1
+			sparam:=SubStr(param,13)
+		Else
+			Continue
+		Init()
+		SaveOptimizeConfigAll(sparam)
+		ExitApp
 	}
 }
-If !CurrentUser
-	CurrentUser:=GetActiveUser()
-UserSID:=LookupAccountName(CurrentUser)
-HKCU:=GetHKCU(&USERPROFILE)
-SystemInfo:=GetSystemInfo()
+
+Init()
+
 IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
 IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
-
 ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
-LangSelected:=IniRead("config.ini", "General", "Language", "en")
 
 CreateGui()
-OnExit ExitFunc
-ExitFunc(ExitReason, ExitCode) {
-	If RegKeyExist("HKU\WinTune_Hive_tmp")
-		RegUnLoadKey("WinTune_Hive_tmp")
-}
-
 
 CreateGui() {
 	g:=Gui("-Caption",App.Name)
