@@ -1,7 +1,7 @@
 ;================================================================================
 ; PackageManager
 ; tranht17
-; 2024/03/21
+; 2024/04/07
 ;================================================================================
 
 Class PackageManager {
@@ -155,6 +155,21 @@ Class PackageManager {
 		}
 		InstalledPath {
 			get => (ComCall(9, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
+		}
+		MutablePath {
+			get => (ComCall(10, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
+		}
+		EffectivePath {
+			get => (ComCall(11, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
+		}
+		EffectiveExternalPath {
+			get => (ComCall(12, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
+		}
+		MachineExternalPath {
+			get => (ComCall(13, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
+		}
+		UserExternalPath {
+			get => (ComCall(14, this.IPackage8, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
 		}
 	}
 	static RegisterPackage(manifestFilePath, dependencyPackageUris:=0, deploymentOptions:=0) {
@@ -389,16 +404,4 @@ PS_RemovePackage(packageFullName, UserSID:="", removalOptions:="") {
 		UserParam:=" -User " UserSID
 	UserParam.=removalOptions?" " removalOptions:""
 	Return RunTerminal('Powershell Remove-AppxPackage -Package ' packageFullName UserParam)
-}
-PS_RemovePackages(packageFullNameList, UserSID:="", removalOptions:="") {
-	UserParam:=""
-	If UserSID="All"
-		UserParam:=" -AllUsers"
-	Else If UserSID
-		UserParam:=" -User " UserSID
-	UserParam.=removalOptions?" " removalOptions:""
-	t:="Powershell $Bloatware="
-	t.=packageFullNameList
-	t.=';foreach ($Bloat in $Bloatware) {Remove-AppxPackage -Package $Bloat' UserParam '}'
-	Return RunTerminal(t)
 }
