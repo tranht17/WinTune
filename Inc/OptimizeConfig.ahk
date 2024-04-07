@@ -21,19 +21,39 @@ LoadOptimizeConfig(SelectedFile, g:="") {
 	Config:=JSON.parse(ConfigText,,False)
 	IsRunDisableMSDefender:=0
 	For ItemId, ItemValue in Config.OwnProps() {
-		If !Data.HasOwnProp(ItemID)
-			Continue
-		s:=CheckStatusItem(ItemId, Data.%ItemId%)
-		If s<=-1 || ItemValue=s
-			Continue
-		If ItemId="DisableMSDefender" {
-			IsRunDisableMSDefender:=1
-			Continue
-		}
-		ProgNow(ItemId, ItemValue, Data.%ItemId%, 1)
-		try {
-			If g && g[ItemID].Type="PicSwitch" && g[ItemID].Visible=True {
-				g[ItemID].Value:=ItemValue
+		If ItemId="PackageManager" {
+			Loop ItemValue.Length {
+				If ItemValue[A_Index].Act="RemovePackage" {
+					If ItemValue[A_Index].HasOwnProp("FamilyNames") {
+						FamilyNames:=ItemValue[A_Index].FamilyNames
+						AllUsers:=ItemValue[A_Index].HasOwnProp("AllUsers")?ItemValue[A_Index].AllUsers:0
+						Deprovision:=ItemValue[A_Index].HasOwnProp("Deprovision")?ItemValue[A_Index].Deprovision:0
+						Loop FamilyNames.Length {
+							Packages:=PackageManager.FindPackagesByPackageFamilyName(FamilyNames[A_Index])
+							Loop Packages.Length {
+								UninstallPackage(Packages[A_Index], AllUsers, Deprovision)
+							}
+						}
+					}
+				}
+			}
+			If g
+				NavItem_Click(g)
+		} Else {
+			If !Data.HasOwnProp(ItemID)
+				Continue
+			s:=CheckStatusItem(ItemId, Data.%ItemId%)
+			If s<=-1 || ItemValue=s
+				Continue
+			If ItemId="DisableMSDefender" {
+				IsRunDisableMSDefender:=1
+				Continue
+			}
+			ProgNow(ItemId, ItemValue, Data.%ItemId%, 1)
+			try {
+				If g && g[ItemID].Type="PicSwitch" && g[ItemID].Visible=True {
+					g[ItemID].Value:=ItemValue
+				}
 			}
 		}
 	}
