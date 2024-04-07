@@ -66,10 +66,10 @@ iVBORw0KGgoAAAANSUhEUgAAANcAAAFdCAYAAACQIfi/AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAFyWlU
 	
 	g.AddText("vHRLine_3 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
 	
-	BtnSys_Theme:=g.AddText('vBtnSys_ReloadTab x' (BtnSysX+=10) ' ym w30 h20 0x200 0x100 Center Border',Chr(0xE117))
-	BtnSys_Theme.SetFont("s11",IconFont)
-	BtnSys_Theme.Opt("-Border")
-	BtnSys_Theme.OnEvent("Click",(*)=>NavItem_Click(g))
+	BtnSys_ReloadTab:=g.AddText('vBtnSys_ReloadTab x' (BtnSysX+=10) ' ym w30 h20 0x200 0x100 Center Border',Chr(0xE117))
+	BtnSys_ReloadTab.SetFont("s11",IconFont)
+	BtnSys_ReloadTab.Opt("-Border")
+	BtnSys_ReloadTab.OnEvent("Click",(*)=>NavItem_Click(g))
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
 	BtnSys_Minimize.SetFont("s11",IconFont)
@@ -277,11 +277,31 @@ BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 	SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
 	If SelectedFile {
 		Config:={}
-		CurrentTabCtrls:=CurrentTabCtrlArray()
-		Loop CurrentTabCtrls.Length {
-			ItemID:=CurrentTabCtrls[A_Index]
-			If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
-				Config.%ItemID%:=g[ItemID].Value
+		If Layout[g.NavSelected].ID="BtnPackageManager" {
+			ObjPackageManager:=Object()
+			ObjPackageManager.Act:="RemovePackage"
+			If g["PackageManager_InstalledAllUsers"].Value
+				ObjPackageManager.AllUsers:=1
+			If g["PackageManager_DeprovisionPackage"].Value
+				ObjPackageManager.Deprovision:=1
+			LVPackageManager:=g["PackageManager_LV"]
+			Items:=Array()
+			RowNumber := 0
+			Loop {
+				RowNumber := LVPackageManager.GetNext(RowNumber,"c")
+				if not RowNumber
+					break
+				Items.Push LVPackageManager.GetText(RowNumber,7)
+			}
+			ObjPackageManager.FamilyNames := Items
+			Config.PackageManager:=[ObjPackageManager]
+		} Else {
+			CurrentTabCtrls:=CurrentTabCtrlArray()
+			Loop CurrentTabCtrls.Length {
+				ItemID:=CurrentTabCtrls[A_Index]
+				If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
+					Config.%ItemID%:=g[ItemID].Value
+			}
 		}
 		try
 			FileDelete SelectedFile
@@ -522,7 +542,7 @@ GetLangTextWithIcon(LangId) {
 	case "Text_OpenTarget": IconText:=Chr(0xED25)
 	case "Text_FindRegistry": IconText:=Chr(0xE74C)
 	case "Text_SearchOnline": IconText:=Chr(0xF6FA)
-	case "Text_Detail": IconText:=Chr(0xE946)
+	case "Text_Details": IconText:=Chr(0xE946)
 	}
 	Return (IconText?IconText " ":"") GetLangText(LangId)
 }
