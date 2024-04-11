@@ -80,7 +80,10 @@ iVBORw0KGgoAAAANSUhEUgAAANcAAAFdCAYAAACQIfi/AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAFyWlU
 	BtnSys_Close.SetFont("s11",IconFont)
 	BtnSys_Close.Opt("-Border")
 	BtnSys_Close.OnEvent("Click",Gui_Close)
+	g.OnEvent("Close",Gui_Close)
 	Gui_Close(*) {
+		If WinExist(App.Name "_Popup")
+			WinClose
 		IniWrite g.NavSelected, "config.ini", "General", "LastTab"
 		ExitApp
 	}

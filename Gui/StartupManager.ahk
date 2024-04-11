@@ -59,13 +59,23 @@ BtnStartupManager_Click(g, NavIndex) {
 	LVStartupManager.ModifyCol(6, 0)
 	
 	LVStartupManager.Delete()
-	LV_RegLoad(LVStartupManager, "HKCU|Run", HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
-	LV_RegLoad(LVStartupManager, "HKLM|Run", "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run")
-	LV_FolderLoad(LVStartupManager, EnvGet2("Startup"), "Folder|Startup", HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder")
-	LV_FolderLoad(LVStartupManager, A_StartupCommon, "Folder|StartupCommon", "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder")
+	StartupType:={
+		Registry_HKCU_Run: {Type: "Registry", RunKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"},
+		Registry_HKCU_Run32: {Type: "Registry", RunKey: HKCU "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"},
+		Registry_HKLM_Run: {Type: "Registry", RunKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"},
+		Registry_HKLM_Run32: {Type: "Registry", RunKey: "HKLM\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"},
+		Folder_Startup: {Type: "Folder", RunKey: EnvGet2("Startup"), StartupApprovedKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"},
+		Folder_StartupCommon: {Type: "Folder", RunKey: A_StartupCommon, StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"},
+	}
+	For k , v in StartupType.OwnProps() {
+		iType:=v.Type
+		%iType%Load(LVStartupManager, k, v)
+	}
 	Return CurrentTabCtrls
 	
-	LV_FolderLoad(LV, sPath, RunType, StartupApprovedKey) {
+	FolderLoad(LV, sId, sItem) {
+		sPath:=sItem.RunKey
+		StartupApprovedKey:=sItem.StartupApprovedKey
 		Loop Files, sPath "\*.*" {
 			If A_LoopFileName="desktop.ini"
 				Continue
@@ -94,10 +104,12 @@ BtnStartupManager_Click(g, NavIndex) {
 				ItemStatusText:=GetLangText("Text_Disabled")
 			Else
 				ItemStatusText:=GetLangText("Text_Enabled")
-			LV.Add("Icon" IconIndex, A_LoopFileName, ItemStatusText, rCommandLine, rTarget, RunType, ItemStatus)
+			LV.Add("Icon" IconIndex, A_LoopFileName, ItemStatusText, rCommandLine, rTarget, sId, ItemStatus)
 		}
 	}
-	LV_RegLoad(LV, RunType, RunKey, StartupApprovedKey) {
+	RegistryLoad(LV, sId, sItem) {
+		RunKey:=sItem.RunKey
+		StartupApprovedKey:=sItem.StartupApprovedKey
 		Loop Reg, RunKey {
 			v:=RegRead()
 			HexReg:=RegRead(StartupApprovedKey, A_LoopRegName, "")
@@ -117,7 +129,7 @@ BtnStartupManager_Click(g, NavIndex) {
 				IconIndex := IL_Add(ImageListID, rTarget, 1)
 				IconIndex := IconIndex?IconIndex:2
 			}
-			LV.Add("Icon" IconIndex, A_LoopRegName, ItemStatusText, v, rTarget, RunType, ItemStatus)
+			LV.Add("Icon" IconIndex, A_LoopRegName, ItemStatusText, v, rTarget, sId, ItemStatus)
 		}
 	}
 
@@ -125,8 +137,15 @@ BtnStartupManager_Click(g, NavIndex) {
 		r:=""
 		If !InPath
 			Return r
+		
+		SplitPath InPath,, &dir, &ext, &name_no_ext
+		sExt:=StrSplit(ext,A_Space)[1]
+		InPath:=dir "\" name_no_ext "." sExt
+
 		If InStr(InPath, "%") {
 			r:=FindTarget(ExpandEnvironmentStrings(InPath), &rFileAttr)
+		} Else If InStr(InPath,'"')=1 {
+			r:=FindTarget(SubStr(InPath, 2 , InStr(InPath,'"',,2)-2), &rFileAttr)
 		} Else If InStr(FileExist(InPath), "D") {
 			rFileAttr:="D"
 			r:=InPath
@@ -136,14 +155,7 @@ BtnStartupManager_Click(g, NavIndex) {
 			If SubStr(rFileName, -4)=".exe"
 				rFileAttr.="E"
 			r:=InPath
-		} Else If InStr(InPath,'"')=1 {
-			r:=FindTarget(SubStr(InPath, 2 , InStr(InPath,'"',,2)-2), &rFileAttr)
-		} Else If InPath {
-			SplitPath InPath,, &dir, &ext, &name_no_ext
-			sExt:=StrSplit(ext,A_Space)[1]
-			InPath:=dir "\" name_no_ext "." sExt
-			r:=FindTarget(ExpandEnvironmentStrings(InPath), &rFileAttr)
-		}
+		} 
 		Return r
 	}
 	ExpandEnvironmentStrings(str) {
@@ -155,10 +167,7 @@ BtnStartupManager_Click(g, NavIndex) {
 		If Item {
 			iTarget:=GuiCtrlObj.GetText(Item , 4)
 			g["StartupManager_BtnOpenTarget"].Enabled:=!!iTarget
-			
-			iType:=GuiCtrlObj.GetText(Item , 5)
-			g["StartupManager_BtnFindRegistry"].Enabled:=(InStr(iType,"HK")=1)
-			
+			g["StartupManager_BtnFindRegistry"].Enabled:=(StartupType.%GuiCtrlObj.GetText(Item , 5)%.Type=="Registry")		
 			g["StartupManager_BtnSearchOnline"].Enabled:=True
 			
 			iStatus:=GuiCtrlObj.GetText(Item , 6)
@@ -205,8 +214,8 @@ BtnStartupManager_Click(g, NavIndex) {
 			MyMenu.Disable("2&")
 			MyMenu.Disable("3&")
 		}
-		iType:=GuiCtrlObj.GetText(Item , 5)
-		If InStr(iType,"HK")=1 {
+		IsRegistry:=(StartupType.%GuiCtrlObj.GetText(Item , 5)%.Type=="Registry")
+		If IsRegistry {
 			g["StartupManager_BtnFindRegistry"].Enabled:=True
 		} Else {
 			MyMenu.Disable("4&")
@@ -245,41 +254,23 @@ BtnStartupManager_Click(g, NavIndex) {
 				iStatusText:="Text_Disabled"
 				bStatusText:="Text_Enable"
 			}
-			t:=LV.GetText(i , 5)
-			If t="HKCU|Run" {
-				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
-			} Else If t="HKLM|Run" {
-				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
-			} Else If t="Folder|Startup" {
-				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
-			} Else If t="Folder|StartupCommon" {
-				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
-			}
-			RegWrite sHex, "REG_BINARY", Key, LV.GetText(i , 1)
+			RegWrite sHex, "REG_BINARY", StartupType.%LV.GetText(i , 5)%.StartupApprovedKey, LV.GetText(i , 1)
 			g["StartupManager_BtnDisable"].Text:=GetLangTextWithIcon(bStatusText)
 			LV.Modify(i,,, GetLangText(iStatusText),,,,sc)
 			Return
 		} Else If ItemPos=6 {
-			t:=LV.GetText(i , 5)
-			RunKey:=""
-			StartupApprovedKey:=""
-			If t="HKCU|Run" {
-				RunKey:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Run"
-				StartupApprovedKey:="HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
-			} Else If t="HKLM|Run" {
-				RunKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Run"
-				StartupApprovedKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
-			} Else If t="Folder|Startup" {
-				StartupApprovedKey:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
-				FileDelete A_Startup "\" LV.GetText(i , 1)
-			} Else If t="Folder|StartupCommon" {
-				StartupApprovedKey:="HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
-				FileDelete A_StartupCommon "\" LV.GetText(i , 1)
+			iType:=StartupType.%LV.GetText(i , 5)%.Type
+			If iType=="Registry" {
+				try RegDelete StartupType.%LV.GetText(i , 5)%.RunKey, LV.GetText(i , 1)
+			} Else {
+				f:=StartupType.%LV.GetText(i , 5)%.RunKey "\" LV.GetText(i , 1)
+				If InStr(FileExist(f), "D") {
+					try DirDelete f, true
+				} Else {
+					try FileDelete f
+				}
 			}
-			If RunKey
-				try RegDelete RunKey, LV.GetText(i , 1)
-			If StartupApprovedKey
-				try RegDelete StartupApprovedKey, LV.GetText(i , 1)
+			try RegDelete StartupType.%LV.GetText(i , 5)%.StartupApprovedKey, LV.GetText(i , 1)
 			LV.Delete(i)
 			DisableAllBtn()
 			Return
@@ -287,15 +278,8 @@ BtnStartupManager_Click(g, NavIndex) {
 			runAsParam:="properties " LV.GetText(i, 4)
 		} Else If ItemPos=3 {
 			runAsParam:="explorer.exe /select, " LV.GetText(i, 4)
-		} Else If ItemPos=4 {
-			Key:=""
-			t:=LV.GetText(i, 5)
-			If InStr(t,"HKCU|Run")=1 {
-				Key:=HKCU "\Software\Microsoft\Windows\CurrentVersion\Run"
-			} Else If InStr(t,"HKLM|Run")=1 {
-				Key:="HKLM\Software\Microsoft\Windows\CurrentVersion\Run"
-			}
-			RegWrite Key, "REG_SZ", "HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit", "LastKey"
+		} Else If ItemPos=4 {	
+			RegWrite StartupType.%LV.GetText(i , 5)%.RunKey, "REG_SZ", "HKCU\Software\Microsoft\Windows\CurrentVersion\Applets\Regedit", "LastKey"
 			runAsParam:="regedit.exe"
 		} Else If ItemPos=5 {
 			SplitPath LV.GetText(i, 4), &rFileName
