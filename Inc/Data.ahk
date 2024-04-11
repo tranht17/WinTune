@@ -100,7 +100,7 @@ NoInternetOpenWith: {Act: [
 DisableBootOptimize: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Dfrg\BootOptimizeFunction",RegType: "REG_SZ",RegValue1: "n",RegValueName: "Enable"}
 ]},
-DisableAutoDefragIde: {Act: [
+DisableAutoDefragIdle: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\OptimalLayout",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "EnableAutoLayout"}
 ]},
 DisablePrefetchParameters: {Act: [
@@ -199,10 +199,12 @@ DisableSyncProviderNotifications: {Act: [
 DisableAdsOnLockScreen: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "RotatingLockScreenEnabled"},
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "RotatingLockScreenOverlayEnabled"},
-	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338387Enabled"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338387Enabled"}
 ]},
 DisableSettingsAppSuggestions: {Act: [
-	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338393Enabled"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338393Enabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353694Enabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353696Enabled"}
 ]},
 DisableAutoInstallationApps: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SilentInstalledAppsEnabled"}
@@ -275,6 +277,12 @@ DisableGameBar: {Act: [
 	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "AppCaptureEnabled"},
 	{Type: "RegChange",RegKey: "HKCU\System\GameConfigStore",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "GameDVR_Enabled"}
 ]},
+HideWindowsSecurityNotifications: {RequiresWinVer: ">=10.0.16299",Act: [
+	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableNotifications"}
+]},
+HideWindowsSecurityNoncriticalNotifications: {RequiresWinVer: ">=10.0.16299",Act: [
+	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableEnhancedNotifications"}
+]},
 DisableSleep: {Act: [{Type: "Power",Name: "SleepIdleTimeout", Value1: 0, Value0: 900}]},
 DisableHibernate: {Act: [{Type: "Power",Name: "HibernateIdleTimeout", Value1: 0, Value0: 1}]},
 DisableHybridSleep: {Act: [{Type: "Power",Name: "HybridSleepIdleTimeout", Value1: 0, Value0: 1}]},
@@ -287,7 +295,7 @@ Layout:=[
 "AutoEndTasks",
 "DisableAeDebug",
 "DisableAnimationEffectMaxMin",
-"DisableAutoDefragIde",
+"DisableAutoDefragIdle",
 "DisableBackgroundApps",
 "DisableBootOptimize",
 "DisableCortana",
@@ -369,6 +377,8 @@ Layout:=[
 "DisableSleep",
 "DisableSystemRestore",
 "DisableTurnOffDisplay",
+"HideWindowsSecurityNotifications",
+"HideWindowsSecurityNoncriticalNotifications",
 "DisableWindowsSearch",
 "UninstallOneDrive",
 "DisableMSDefender"]},
