@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         2.1.0.0
+;@Ahk2Exe-SetVersion         2.2.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "2.1.0"}
+App:={Name: "WinTune", Ver: "2.2.0"}
 
 A_IconTip:= App.Name
 tray := A_TrayMenu
@@ -49,6 +49,12 @@ ExitFunc(ExitReason, ExitCode) {
 OnError LogError
 LogError(exception, mode) {
 	Debug(, exception)
+	If PopupHwnd:=WinExist(App.Name "_Popup") {
+		WinClose
+		g:=GuiFromHwnd(DllCall("GetParent", "uint", PopupHwnd))
+		If g
+			g.Opt("-Disabled")
+	}
 	return true
 }
 
