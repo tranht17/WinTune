@@ -200,7 +200,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		} Else If ItemPos=2 {
 			g2:=CreateWaitDlg(g)
 			IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
-			r:=UninstallPackage(aList[cid], IsAllUsers, g["PackageManager_DeprovisionPackage"].Value)
+			r:=UninstallPackage(aList[id], IsAllUsers, g["PackageManager_DeprovisionPackage"].Value)
 			If r {
 				LVPackageManager.Delete(iSelected)
 				Reload_BtnCountChecked()
