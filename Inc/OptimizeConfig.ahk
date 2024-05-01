@@ -11,6 +11,10 @@ SaveOptimizeConfigAll(SelectedFile) {
 				Continue
 			Config.%ItemID%:=s
 		}
+		
+		ObjStartMenu:={}
+		StartMenuLayout(&ObjStartMenu)
+		Config.StartMenuLayout:=ObjStartMenu		
 	}	
 	try
 		FileDelete SelectedFile
@@ -37,8 +41,8 @@ LoadOptimizeConfig(SelectedFile, g:="") {
 					}
 				}
 			}
-			If g
-				NavItem_Click(g)
+		} Else If ItemId="StartMenuLayout" {
+			StartMenuLayout(&ItemValue, "set")
 		} Else {
 			If !Data.HasOwnProp(ItemID)
 				Continue
@@ -50,21 +54,14 @@ LoadOptimizeConfig(SelectedFile, g:="") {
 				Continue
 			}
 			ProgNow(ItemId, ItemValue, Data.%ItemId%, 1)
-			try {
-				If g && g[ItemID].Type="PicSwitch" && g[ItemID].Visible=True {
-					g[ItemID].Value:=ItemValue
-				}
-			}
 		}
 	}
 	
 	If IsRunDisableMSDefender {
 		ItemId:="DisableMSDefender"
 		ProgNow(ItemId, Config.%ItemId%, Data.%ItemId%, 1)
-		try {
-			If g && g[ItemID].Type="PicSwitch" && g[ItemID].Visible=True {
-				g[ItemID].Value:=ItemValue
-			}
-		}
-	}
+	} 
+	
+	If g
+		NavItem_Click(g)
 }

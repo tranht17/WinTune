@@ -16,10 +16,10 @@
 	; SERVICE_NO_CHANGE:=0xFFFFFFFF
 Data:={
 DisableAutoSuggest: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueName: "AutoSuggest"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueDefault: "no",RegValueName: "AutoSuggest"}
 ]},
 DisableAppendCompletion: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueName: "Append Completion"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueDefault: "yes",RegValueName: "Append Completion"}
 ]},
 DisableCortana: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Personalization\Settings",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "AcceptedPrivacyPolicy"},
@@ -33,10 +33,25 @@ DisableBackgroundApps: {Act: [
 	; {Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy",RegType: "REG_DWORD",RegValue1: "2",RegValueName: "LetAppsRunInBackground",LvlKeyDel: 1}
 ]},
 DisableLockScreen: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoLockScreen"}
+	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoLockScreen"}
 ]},
 NumLockonStartup: {Act: [
 	{Type: "RegChange",RegKey: "HKU\.DEFAULT\Control Panel\Keyboard",RegType: "REG_SZ",RegValue1: "2",RegValue0: "2147483648",RegValueName: "InitialKeyboardIndicators"}
+]},
+HideStartMenuRecommendations: {RequiresWinVer: ">=10.0.22000",Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "Start_IrisRecommendations"}
+]},
+HideMostUsedApps: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Start",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "0",RegValueName: "ShowFrequentList"}
+]},
+HideStartMenuRecentlyAdded: {RequiresWinVer: ">=10.0.22000",Act: [
+	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Start",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "ShowRecentList"}
+]},
+HideStartMenuRecentlyOpened: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "Start_TrackDocs"}
+]},
+HideStartMenuAccountNotifications: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "Start_AccountNotifications"}
 ]},
 ShowHidden: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "2",RegValueName: "Hidden"}
@@ -206,6 +221,9 @@ DisableSettingsAppSuggestions: {Act: [
 	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353694Enabled"},
 	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353696Enabled"}
 ]},
+DisableStartMenuAppSuggestions: {RequiresWinVer: "<10.0.22000", Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338388Enabled"}
+]},
 DisableAutoInstallationApps: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SilentInstalledAppsEnabled"}
 ]},
@@ -366,6 +384,13 @@ Layout:=[
 ; "UnpinStore",
 ; "UnpinCopilot",
 ; "UnpinWidgets"]},
+{ID: "StartMenu",Icon: "*icon190 imageres.dll",Fn: "OptimizeTab",Items: [
+"DisableStartMenuAppSuggestions",
+"HideMostUsedApps",
+"HideStartMenuRecentlyAdded",
+"HideStartMenuRecentlyOpened",
+"HideStartMenuAccountNotifications",
+"HideStartMenuRecommendations"]},
 {ID: "Optional",Icon: "*icon23 imageres.dll",Fn: "OptimizeTab",Items: [
 "EnableDarkMode",
 "ClassicContextMenu",
@@ -385,7 +410,6 @@ Layout:=[
 {ID: "BtnPackageManager",Icon: "*icon1 C:\WINDOWS\diagnostics\system\Apps\DiagPackage.dll", Fn: "BtnPackageManager_Click", hr:"Text_HR_Tools"},
 {ID: "BtnStartupManager",Icon: "*icon281 imageres.dll",Icon10: "*icon280 imageres.dll",Fn: "BtnStartupManager_Click"},
 {ID: "BtnHostEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostEdit_Click"},
-{ID: "BtnClearStartMenu",Icon: "*icon190 imageres.dll",Fn: "BtnClearStartMenu_Click",NotSelected:1},
 {ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}
 ]
 

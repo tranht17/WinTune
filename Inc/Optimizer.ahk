@@ -64,9 +64,11 @@ CheckStatusItem(ItemFunc, DataItem) {
 			}
 		Case "RegAdd":
 			Key:=HKCU2HCU(DataItem.Act[A_Index].RegKey)
-			If DataItem.Act[A_Index].HasOwnProp("RegValueName") && DataItem.Act[A_Index].HasOwnProp("RegValue1") {
+			If DataItem.Act[A_Index].HasOwnProp("RegValue1") {
 				try {
-					s:=RegRead(Key, DataItem.Act[A_Index].RegValueName)=DataItem.Act[A_Index].RegValue1
+					RegValueName:=DataItem.Act[A_Index].HasOwnProp("RegValueName")?DataItem.Act[A_Index].RegValueName:""
+					RegValueDefault:=DataItem.Act[A_Index].HasOwnProp("RegValueDefault")?DataItem.Act[A_Index].RegValueDefault:""
+					s:=RegRead(Key, RegValueName, RegValueDefault)=DataItem.Act[A_Index].RegValue1
 				} Catch {
 					s:=0
 				}
@@ -193,4 +195,83 @@ ProgScheduleService(s, ItemData, silent) {
 
 ProgPower(s, ItemData, silent) {
 	Set%ItemData.Name%(ItemData.Value%s%)
+}
+StartMenuLayout(&item, Type:="get", silent:=1) {
+	s:=0
+	If VerCompare(A_OSVersion,">=10.0.22000") {
+		LocalStatePath:=EnvGet2("Local AppData") "\Packages\Microsoft.Windows.StartMenuExperienceHost_cw5n1h2txyewy\LocalState"
+		StartBinPath:=""
+		If DirExist(LocalStatePath) {
+			If FileExist(LocalStatePath "\start.bin") {
+				StartBinPath:=LocalStatePath "\start.bin"
+			} Else If FileExist(LocalStatePath "\start2.bin") {
+				StartBinPath:=LocalStatePath "\start2.bin"
+			}
+		}
+		
+		If Type="get" {
+			item.VisiblePlaces:=RegRead(HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces", "")
+			If StartBinPath {
+				f := FileRead(StartBinPath, "RAW")
+				item.StartBin:=Bin2Hex(f, f.Size)
+				s:=1
+			}
+		} Else If Type="set" {
+			If item.HasOwnProp("VisiblePlaces") {
+				RegWrite item.VisiblePlaces, "REG_BINARY", HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces"
+				s:=1
+			}
+			If StartBinPath && item.HasOwnProp("StartBin") {
+				bin:=Hex2Bin(item.StartBin)
+				FileDelete StartBinPath
+				FileAppend bin, StartBinPath,"cp0"
+				s:=1
+			}
+		}
+	} Else If VerCompare(A_OSVersion,">=10.0.16299") {
+		Loop Reg, HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount", "K" {
+			If InStr(A_LoopRegName, "$start.suggestions$windows.data.curatedtilecollection.tilecollection") {
+				If Type="get" {
+					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					If sData
+						item.Suggestions:=sData
+					s:=1
+				} Else If Type="set" && item.HasOwnProp("Suggestions") {
+					RegWrite item.Suggestions, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					s:=1
+				}
+			} Else If InStr(A_LoopRegName, "$start.tilegrid$windows.data.curatedtilecollection.tilecollection") {
+				If Type="get" {
+					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					If sData
+						item.TileGrid:=sData
+					s:=1
+				} Else If Type="set" && item.HasOwnProp("TileGrid") {
+					RegWrite item.TileGrid, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					s:=1
+				}
+			} Else If InStr(A_LoopRegName, "$windows.data.unifiedtile.startglobalproperties") {
+				If Type="get" {
+					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					If sData
+						item.StartGlobalProperties:=sData
+					s:=1
+				} Else If Type="set" && item.HasOwnProp("StartGlobalProperties") {
+					RegWrite item.StartGlobalProperties, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					s:=1
+				}
+			}
+		}
+	}
+	
+	If Type="set" && s {
+		If VerCompare(A_OSVersion, ">=10.0.18362") {
+			PID:=ProcessClose("StartMenuExperienceHost.exe")
+			If !ProcessWaitClose(PID , 5000) && !silent
+				TrayTip GetLangText("Text_ClearStartMenu_Done"), App.Name
+		} Else
+			ProcessClose "explorer.exe"
+	}
+		
+	Return s
 }

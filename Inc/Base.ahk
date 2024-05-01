@@ -1,3 +1,27 @@
+CheckOS()
+CheckOS() {
+	If A_Is64bitOS && A_PtrSize==4 {
+		MsgBoxError("You need the 64-bit version of the software (WinTune64) to run on 64-bit Windows.`n`nhttps://github.com/tranht17/WinTune/releases", 1, "Incompatible")
+	}
+}
+
+OnExit ExitFunc
+ExitFunc(ExitReason, ExitCode) {
+	UnLoadHive()
+}
+
+OnError LogError
+LogError(exception, mode) {
+	Debug(, exception)
+	If PopupHwnd:=WinExist(App.Name "_Popup") {
+		WinClose
+		g:=GuiFromHwnd(DllCall("GetParent", "uint", PopupHwnd))
+		If g
+			g.Opt("-Disabled")
+	}
+	return true
+}
+
 Init() {
 	CheckAdmin()
 	Global CurrentUser
@@ -154,40 +178,36 @@ LookupAccountSid(SID) {
 	return r
 }
 
-GetLangName(ItemId) {
-	Lang:=LangData.%LangSelected%
+GetLangName(ItemId, LangId:="") {
+	If !LangId
+		LangId:=LangSelected
+	Lang:=LangData.%LangId%
+	
 	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Name") && Lang.%ItemId%.Name
 		ItemId:=Lang.%ItemId%.Name
-	Else {
-		If LangSelected!="en" {
-			Lang:=LangData.en
-			If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Name") && Lang.%ItemId%.Name
-				ItemId:=Lang.%ItemId%.Name
-		}
+	Else If LangId!="en" {
+		Return GetLangName(ItemId, "en")
 	}
 	Return ItemId
 }
-GetLangDesc(ItemId) {
-	Lang:=LangData.%LangSelected%
+GetLangDesc(ItemId, LangId:="") {
+	If !LangId
+		LangId:=LangSelected
+	Lang:=LangData.%LangId%
 	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc
-		Return Lang.%ItemId%.Desc
-	Else {
-		If LangSelected!="en" {
-			Lang:=LangData.en
-			If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc
-				Return Lang.%ItemId%.Desc	
-		}
+		Return ItemId:=Lang.%ItemId%.Desc
+	Else If LangId!="en" {
+		Return GetLangDesc(ItemId, "en")
 	}
 }
-GetLangText(ItemId) {
-	Lang:=LangData.%LangSelected%
+GetLangText(ItemId, LangId:="") {
+	If !LangId
+		LangId:=LangSelected
+	Lang:=LangData.%LangId%
 	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%
 		ItemId:=Lang.%ItemId%
-	Else {
-		If LangSelected!="en"
-			Lang:=LangData.en
-			If Lang.HasOwnProp(ItemId) && Lang.%ItemId%
-				ItemId:=Lang.%ItemId%
+	Else If LangSelected!="en" {
+		Return GetLangText(ItemId, "en")
 	}
 	Return ItemId
 }
@@ -223,7 +243,6 @@ CheckAdmin() {
 		ExitApp
 	}
 }
-
 RunAsAdmin() {
 	try {
 		Params:=""
@@ -242,25 +261,28 @@ RunAsAdmin() {
 	}
 	Return 0
 }
-MsgBoxError(itext, IsExitApp:=0) {
-	MsgBox(itext,"Error","Iconx")
+MsgBoxError(itext, IsExitApp:=0, title:="Error") {
+	MsgBox(itext,title,"Iconx")
 	If IsExitApp
 		ExitApp
 }
 Debug(itext:="",itype:="Error",o:=1) {
 	If Type(itype)=="String" {
-		t:="`n================= " itype " ================="
+		t:="`n================= " App.Name " - " itype " ================="
 		t.="`nTime: " A_Now
 		t.="`n" itext
 	} Else {
-		t:="`n================= Error ================="
-		t.="`nTime:    " A_Now
+		t:="`n================= " App.Name " - Error ================="
+		t.="`nTime     :" A_Now
+		t.="`nOSVersion:" A_OSVersion
+		t.="`nIs64bitOS:" A_Is64bitOS
 		t.=itext?"`n" itext:""
-		t.="`nMessage: " itype.Message
-		t.="`nStack:   " itype.Stack
+		t.="`nMessage  :" itype.Message
+		t.="`nStack    :" itype.Stack
 	}
 	If o==1 {
 		FileAppend t, "log.txt"
+		Run "notepad log.txt"
 	} Else {
 		OutputDebug t
 	}
