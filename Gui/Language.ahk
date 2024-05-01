@@ -38,12 +38,7 @@ CreatePopupLang(Ctr, *) {
 		LangSelected:=LangClicked
 		Lang:=LangData.%LangSelected%
 		For , GuiCtrlObj in g {
-			If GuiCtrlObj.Name="BtnSelectAll" {
-				vis:=GuiCtrlObj.Visible
-				GuiCtrlObj.Text:='<a id="1">' GetLangText("Text_SelectAll") '</a>   <a id="0">' GetLangText("Text_DeselectAll") '</a>'
-				LinkUseDefaultColor(GuiCtrlObj)
-				GuiCtrlObj.Visible:=vis
-			} Else If InStr(GuiCtrlObj.Name,"NavItem_") && GuiCtrlObj.Name!= "NavItem_UserName" {
+			If InStr(GuiCtrlObj.Name,"NavItem_") && GuiCtrlObj.Name!= "NavItem_UserName" {
 				NavItemID:=SubStr(GuiCtrlObj.Name,9)
 				GuiCtrlObj.Text:=SpaceName GetLangName(Layout[NavItemID].ID)
 			} Else If GuiCtrlObj.Name && Lang.HasOwnProp(GuiCtrlObj.Name) 

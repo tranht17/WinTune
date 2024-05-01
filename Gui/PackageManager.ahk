@@ -322,7 +322,6 @@ BtnPackageManager_Click(g, NavIndex) {
 		g.GetPos(&X, &Y, &W, &H)
 		tWidth:=500
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
-		; MsgBox sXCBT
 		g2.Show("x" X+sXCBT+(PanelW-tWidth)/2-12 " y" Y+130)
 	}
 	PackagesList(iArray?) {
