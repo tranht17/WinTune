@@ -181,5 +181,5 @@ DisableMSDefender(s,d,silent){
 
 
 BtnRestartExplorer_Click(*) {
-	ProcessClose "explorer.exe"
+	RestartExplorer()
 }

@@ -28,8 +28,8 @@ DisableCortana: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "HarvestContacts"}
 ]},
 DisableBackgroundApps: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "GlobalUserDisabled"},
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Search",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "BackgroundAppGlobalToggle"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "GlobalUserDisabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Search",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "BackgroundAppGlobalToggle"}
 	; {Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy",RegType: "REG_DWORD",RegValue1: "2",RegValueName: "LetAppsRunInBackground",LvlKeyDel: 1}
 ]},
 DisableLockScreen: {Act: [
@@ -51,16 +51,16 @@ HideStartMenuRecentlyOpened: {Act: [
 	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "Start_TrackDocs"}
 ]},
 HideStartMenuAccountNotifications: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "Start_AccountNotifications"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "Start_AccountNotifications"}
 ]},
 ShowHidden: {Act: [
-	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "2",RegValueName: "Hidden"}
+	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "2",RegValueName: "Hidden", RefreshExplorer: 1}
 ]},
 ShowHiddenSystem: {Act: [
-	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "ShowSuperHidden"}
+	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "ShowSuperHidden", RefreshExplorer: 1}
 ]},
 ShowExtensions: {Act: [
-	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "HideFileExt"}
+	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "HideFileExt", RefreshExplorer: 1}
 ]},
 DisableShortcutText: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer",RegType: "REG_BINARY",RegValue1: "00000000",RegValue0: "16000000",RegValueName: "link"}
@@ -71,22 +71,22 @@ SnippingPrintScreen: {Act: [
 ]},
 UninstallOneDrive: {Act: [{Type: "Custom"}]},
 ShowThisPC: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "{20D04FE0-3AEA-1069-A2D8-08002B30309D}"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "{20D04FE0-3AEA-1069-A2D8-08002B30309D}", RefreshExplorer: 1}
 ]},
 OpenFileExplorerThisPC: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "2",RegValueName: "LaunchTo"}
 ]},
 ShutdownAcceleration: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "4000",RegValueName: "LowLevelHooksTimeout"},
-	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "5000",RegValueName: "WaitToKillServiceTimeout"},
-	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "3000",RegValueName: "HungAppTimeout"},
-	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "10000",RegValueName: "WaitToKillAppTimeout"}
+	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "1000",RegValueDefault: "300",RegValueName: "LowLevelHooksTimeout"},
+	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "5000",RegValueDefault: "5000",RegValueName: "WaitToKillServiceTimeout"},
+	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "3000",RegValueDefault: "5000",RegValueName: "HungAppTimeout"},
+	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "10000",RegValueDefault: "20000",RegValueName: "WaitToKillAppTimeout"}
 ]},
 DisableMenuShowDelay: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "0",RegValue0: "400",RegValueName: "MenuShowDelay"}
 ]},
 AutoEndTasks: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "1",RegValueName: "AutoEndTasks"}
+	{Type: "RegAdd",RegKey: "HKCU\Control Panel\Desktop",RegType: "REG_SZ",RegValue1: "1",RegValueDefault: "0",RegValueName: "AutoEndTasks"}
 ]},
 DisableAnimationEffectMaxMin: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Control Panel\Desktop\WindowMetrics",RegType: "REG_SZ",RegValue1: "0",RegValue0: "1",RegValueName: "MinAnimate"}
@@ -95,35 +95,35 @@ MouseHoverTime: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Control Panel\Mouse",RegType: "REG_SZ",RegValue1: "100",RegValue0: "400",RegValueName: "MouseHoverTime"}
 ]},
 OptimizeRefreshPolicy: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoSimpleNetIDList"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoSimpleNetIDList"}
 ]},
 DisableLowDiskSpaceChecks: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoLowDiskSpaceChecks"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoLowDiskSpaceChecks"}
 ]},
 LinkResolveIgnoreLinkInfo: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "LinkResolveIgnoreLinkInfo"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "LinkResolveIgnoreLinkInfo"}
 ]},
 NoResolveSearch: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoResolveSearch"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoResolveSearch"}
 ]},
 NoResolveTrack: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoResolveTrack"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoResolveTrack"}
 ]},
 NoInternetOpenWith: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "NoInternetOpenWith"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "NoInternetOpenWith"}
 ]},
 DisableBootOptimize: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Dfrg\BootOptimizeFunction",RegType: "REG_SZ",RegValue1: "n",RegValueName: "Enable"}
+	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Dfrg\BootOptimizeFunction",RegType: "REG_SZ",RegValue1: "n",RegValueDefault: "y",RegValueName: "Enable"}
 ]},
 DisableAutoDefragIdle: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\OptimalLayout",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "EnableAutoLayout"}
+	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\OptimalLayout",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "EnableAutoLayout"}
 ]},
 DisablePrefetchParameters: {Act: [
 	{Type: "RegChange",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "3",RegValueName: "EnablePrefetcher"}
 ]},
 DisableErrorReporting: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "ShowUI"},
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "DoReport"}
+	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "ShowUI"},
+	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "DoReport"}
 ]},
 DisableAeDebug: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows NT\CurrentVersion\AeDebug",RegType: "REG_SZ",RegValue1: "0",RegValueName: "Auto"}
@@ -138,15 +138,15 @@ Disablememorypagination: {Act: [
 	{Type: "RegChange",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "DisablePagingExecutive"}
 ]},
 IoPageLockLimit: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",RegType: "REG_DWORD",RegValue1: "134217728",RegValueName: "IoPageLockLimit"}
+	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management",RegType: "REG_DWORD",RegValue1: "134217728",RegValueDefault: "512000",RegValueName: "IoPageLockLimit"}
 ]},
 IncreaseIconCache: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer",RegType: "REG_SZ",RegValue1: "4096",RegValueName: "Max Cached Icons"}
+	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer",RegType: "REG_SZ",RegValue1: "4096",RegValueDefault: "500",RegValueName: "Max Cached Icons"}
 ]},
 OptimizeNetworkTransfer: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "32",RegValueName: "MaxCollectionCount"},
-	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "30",RegValueName: "MaxThreads"},
-	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "30",RegValueName: "MaxCmds"}
+	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "32",RegValueDefault: "16",RegValueName: "MaxCollectionCount"},
+	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "30",RegValueDefault: "17",RegValueName: "MaxThreads"},
+	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters",RegType: "REG_DWORD",RegValue1: "100",RegValueDefault: "50",RegValueName: "MaxCmds"}
 ]},
 DisableWCE: {Act: [
 	{Type: "ScheduleService", Location: "\Microsoft\Windows\Autochk",TaskName: "Proxy"},
@@ -166,10 +166,12 @@ DisabledVBSCodeIntegrity: {Act: [
 	{Type: "RegDel",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity",RegType: "REG_DWORD",RegValue0: "2",RegValueName: "WasEnabledBy"}
 ]},
 DisableAutoplay: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "221",RegValueName: "NoDriveTypeAutoRun"}
+	; {Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer",RegType: "REG_DWORD",RegValue1: "255",RegValueDefault: "0",RegValueName: "NoDriveTypeAutoRun"},
+	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoplayHandlers",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "DisableAutoplay"}
 ]},
 DisableRemoteRegAccess: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "remoteregaccess"}
+	; {Type: "RegAdd",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "1",RegValueName: "remoteregaccess"}
+	{Type: "Service",Name: "RemoteRegistry",State1:1,StartType1:4,State0:4,StartType0:2}
 ]},
 DisableRecentFiles: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "ShowRecent"}
@@ -193,20 +195,27 @@ DisableTailoredExperiences: {Act: [
 DisablePersonalizedAdsStoreApps: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "Enabled"}
 ]},
-DisableWebSearch: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableSearchBoxSuggestions"}
+DisableWebSearch: {RequiresWinVer: ">=10.0.16299",Act: [
+	{RequiresWinVer: ">=10.0.19041",Type: "RegAdd",RegKey: "HKCU\SOFTWARE\Policies\Microsoft\Windows\Explorer",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "DisableSearchBoxSuggestions"},
+	{RequiresWinVer: ">=10.0.17763,<10.0.19041",Type: "RegAdd",RegKey: "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "BingSearchEnabled"},
+	{RequiresWinVer: ">=10.0.16299,<=10.0.17134",Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "AllowCortana"}
 ]},
-DisableCortanaWindowsSearch: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "AllowCortana"}
-]},
-DisableBingSearchStartMenu: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "BingSearchEnabled"}
-]},
+;?
 DisableWebSearchStartMenu: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableWebSearch"}
 ]},
+DisableMSACloudSearch: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "IsMSACloudSearchEnabled"}
+]},
+DisableAADCloudSearch: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "IsAADCloudSearchEnabled"}
+]},
+DisableDeviceSearchHistory: {Act: [
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\SearchSettings",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "IsDeviceSearchHistoryEnabled"}
+]},
 DisableWindowsFeedback: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Siuf\Rules",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "PeriodInNanoSeconds"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Siuf\Rules",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "",RegValueName: "PeriodInNanoSeconds"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Siuf\Rules",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "",RegValueName: "NumberOfSIUFInPeriod"}
 ]},
 DisableSyncProviderNotifications: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "ShowSyncProviderNotifications"}
@@ -214,15 +223,15 @@ DisableSyncProviderNotifications: {Act: [
 DisableAdsOnLockScreen: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "RotatingLockScreenEnabled"},
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "RotatingLockScreenOverlayEnabled"},
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338387Enabled"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "SubscribedContent-338387Enabled"}
 ]},
 DisableSettingsAppSuggestions: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338393Enabled"},
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353694Enabled"},
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-353696Enabled"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "SubscribedContent-338393Enabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "SubscribedContent-353694Enabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "SubscribedContent-353696Enabled"}
 ]},
 DisableStartMenuAppSuggestions: {RequiresWinVer: "<10.0.22000", Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SubscribedContent-338388Enabled"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "SubscribedContent-338388Enabled"}
 ]},
 DisableAutoInstallationApps: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "SilentInstalledAppsEnabled"}
@@ -275,7 +284,7 @@ EnableDarkMode: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "AppsUseLightTheme"}
 ]},
 ClassicContextMenu: {RequiresWinVer: ">=10.0.22000",Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32",RegType: "REG_SZ",RegValue1: "",LvlKeyDel: 2}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32",RegType: "REG_SZ",RegValue1: "",LvlKeyDel: 2, RestartExplorer: 2}
 ]},
 DisableWindowsSearch: {Act: [{Type: "Service",Name: "WSearch",State1:1,StartType1:4,State0:4,StartType0:2}]},
 DisablePrintSpooler: {Act: [{Type: "Service",Name: "Spooler",State1:1,StartType1:4,State0:4,StartType0:2}]},
@@ -292,14 +301,14 @@ AUOptions: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU",RegType: "REG_DWORD",RegValue1: "2",RegValueName: "AUOptions"}
 ]},
 DisableGameBar: {Act: [
-	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR",RegType: "REG_DWORD",RegValue1: "0",RegValueName: "AppCaptureEnabled"},
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\GameDVR",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueDefault: "1",RegValueName: "AppCaptureEnabled"},
 	{Type: "RegChange",RegKey: "HKCU\System\GameConfigStore",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "GameDVR_Enabled"}
 ]},
 HideWindowsSecurityNotifications: {RequiresWinVer: ">=10.0.16299",Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableNotifications"}
+	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "DisableNotifications"}
 ]},
 HideWindowsSecurityNoncriticalNotifications: {RequiresWinVer: ">=10.0.16299",Act: [
-	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueName: "DisableEnhancedNotifications"}
+	{Type: "RegAdd",RegKey: "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "DisableEnhancedNotifications"}
 ]},
 DisableSleep: {Act: [{Type: "Power",Name: "SleepIdleTimeout", Value1: 0, Value0: 900}]},
 DisableHibernate: {Act: [{Type: "Power",Name: "HibernateIdleTimeout", Value1: 0, Value0: 1}]},
@@ -343,12 +352,14 @@ Layout:=[
 "ShutdownAcceleration",
 "SnippingPrintScreen"]},
 {ID: "Privacy",Icon: "*icon185 imageres.dll",Fn: "OptimizeTab",Items: [
+"DisableWebSearch",
+"DisableMSACloudSearch",
+"DisableAADCloudSearch",
+"DisableDeviceSearchHistory",
 "DiagnosticDataOff",
 "DisableAdsOnLockScreen",
 "DisableAutoInstallationApps",
 "DisableAutoplay",
-"DisableBingSearchStartMenu",
-"DisableCortanaWindowsSearch",
 "DisabledVBSCodeIntegrity",
 "DisableOfferSuggestions",
 "DisablePersonalizedAdsStoreApps",
@@ -357,7 +368,6 @@ Layout:=[
 "DisableTailoredExperiences",
 "DisableTipsAndSuggestions",
 "DisableVisualStudioTelemetry",
-"DisableWebSearchStartMenu",
 "DisableWindowsFeedback"]},
 {ID: "Explorer",Icon: "*icon266 imageres.dll",Icon10: "*icon265 imageres.dll",Fn: "OptimizeTab",Items: [
 "DisableAutoSuggest",
@@ -370,7 +380,6 @@ Layout:=[
 "IncreaseIconCache",
 "DisableRecentFiles",
 "DisableFrequentFolders",
-"DisableWebSearch",
 "DisableSyncProviderNotifications"]},
 ; {ID: "UnpinTaskbar",Icon: "*icon295 imageres.dll",Fn: "OptimizeTab",Items: [
 ; "UnpinFileExplorer",

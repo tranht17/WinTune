@@ -233,7 +233,16 @@ ExitSafeboot() {
 HideToolTip() {
 	SetTimer () => ToolTip(), -500
 }
-
+RefreshExplorer() { ; by teadrinker
+   local Windows := ComObject("Shell.Application").Windows
+   Windows.Item(ComValue(0x13, 8)).Refresh()
+   for Window in Windows
+      if (Window.Name != "Internet Explorer")
+         Window.Refresh()
+}
+RestartExplorer() {
+	ProcessClose "explorer.exe"
+}
 CheckAdmin() {
 	full_command_line := DllCall("GetCommandLine", "str")
 	Loop 2

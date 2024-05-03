@@ -25,13 +25,13 @@ CheckRequires(DataItem) {
 			Return 0
 	}
 	
-	; RequiresWinVer: ">=10.0.10240+ <=10.0.19045"
+	; RequiresWinVer: ">=10.0.10240,<=10.0.19045"
 	; RequiresWinVer: ">=10.0.22000"
 	If DataItem.HasOwnProp("RequiresWinVer") && DataItem.RequiresWinVer {
-		IsPassed:=0
+		IsPassed:=1
 		Loop Parse, DataItem.RequiresWinVer, "," {
-			If VerCompare(A_OSVersion, A_LoopField) {
-				IsPassed:=1
+			If !VerCompare(A_OSVersion, A_LoopField) {
+				IsPassed:=0
 				Break
 			}
 		}
@@ -47,7 +47,8 @@ CheckStatusItem(ItemFunc, DataItem) {
 	Loop DataItem.Act.Length {
 		If DataItem.Act[A_Index].HasOwnProp("Check") && !DataItem.Act[A_Index].Check
 			Continue
-		sType:=DataItem.Act[A_Index].Type
+		If !CheckRequires(DataItem.Act[A_Index])
+			s:=-1
 		Switch DataItem.Act[A_Index].Type
 		{
 		Case "Custom": s:=Check%ItemFunc%()
@@ -66,15 +67,9 @@ CheckStatusItem(ItemFunc, DataItem) {
 			Key:=HKCU2HCU(DataItem.Act[A_Index].RegKey)
 			If DataItem.Act[A_Index].HasOwnProp("RegValue1") {
 				try {
-					RegValueName:=DataItem.Act[A_Index].HasOwnProp("RegValueName")?DataItem.Act[A_Index].RegValueName:""
-					RegValueDefault:=DataItem.Act[A_Index].HasOwnProp("RegValueDefault")?DataItem.Act[A_Index].RegValueDefault:""
-					s:=RegRead(Key, RegValueName, RegValueDefault)=DataItem.Act[A_Index].RegValue1
-				} Catch {
-					s:=0
-				}
-			} Else If DataItem.Act[A_Index].HasOwnProp("RegValue1") {
-				try {
-					s:=RegRead(Key)=DataItem.Act[A_Index].RegValue1
+					RegValueName:=DataItem.Act[A_Index].HasOwnProp("RegValueName")?DataItem.Act[A_Index].RegValueName:unset
+					RegValueDefault:=DataItem.Act[A_Index].HasOwnProp("RegValueDefault")?DataItem.Act[A_Index].RegValueDefault:unset
+					s:=RegRead(Key, RegValueName?, RegValueDefault?)=DataItem.Act[A_Index].RegValue1
 				} Catch {
 					s:=0
 				}
@@ -109,6 +104,8 @@ ProgNowCtr(Ctr, ItemData,silent:=0) {
 
 ProgNow(ItemId, ItemValue, ItemData, silent:=0, Ctr:="") {
 	Try {
+		IsRefreshExplorer:=0
+		IsRestartExplorer:=0
 		Loop ItemData.Act.Length {
 			If ItemData.Act[A_Index].HasOwnProp("Check") && ItemData.Act[A_Index].Check
 				Continue
@@ -120,7 +117,15 @@ ProgNow(ItemId, ItemValue, ItemData, silent:=0, Ctr:="") {
 				RunTerminal(ItemData.Act[A_Index].Value%ItemValue%)
 			Else
 				Prog%ItemData.Act[A_Index].Type%(ItemValue,ItemData.Act[A_Index],silent)
+			If !IsRefreshExplorer && ItemData.Act[A_Index].HasOwnProp("RefreshExplorer")
+					&& ItemData.Act[A_Index].RefreshExplorer
+				IsRefreshExplorer:=1
+			If !IsRestartExplorer && ItemData.Act[A_Index].HasOwnProp("RestartExplorer")
+					&& (ItemData.Act[A_Index].RestartExplorer==1 || (ItemData.Act[A_Index].RestartExplorer==2 && ItemValue==1))
+				IsRestartExplorer:=1
 		}
+		If IsRefreshExplorer
+			RefreshExplorer()
 	} Catch as err {
 		Debug("Func: " ItemId, err)
 	}
@@ -133,10 +138,11 @@ ProgReg(s, ItemData, silent) {
 			cKey:=""
 			Loop (sKey.Length-ItemData.LvlKeyDel+1)
 				cKey.=(A_Index=1?"":"\") sKey[A_Index]
-			RegDeleteKey cKey
+			try RegDeleteKey cKey
 		}
-		Else
-			RegDelete HKCU2HCU(ItemData.RegKey), ItemData.RegValueName
+		Else {
+			try RegDelete HKCU2HCU(ItemData.RegKey), ItemData.RegValueName
+		}
 	}
 	Else If !ItemData.HasOwnProp("RegValueName") && ItemData.HasOwnProp("RegValue" s)
 		RegWrite ItemData.RegValue%s%, ItemData.RegType, HKCU2HCU(ItemData.RegKey)
