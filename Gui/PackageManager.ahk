@@ -19,36 +19,36 @@ BtnPackageManager_Click(g, NavIndex) {
 		
 		xTop:=sXCBT+8
 		yTop:=sYCBT+8
-		a:=g.AddDDL("vPackageManager_Mode Choose1 x" xTop " y" yTop, [GetLangText("Text_InstalledMode"),GetLangText("Text_NotInstalledMode")])
+		a:=g.AddDDL("vPackageManager_Mode w150 Section x" xTop " y" yTop)
+
 		a.OnEvent("Change",SwichInstalled)
 		
-		b:=g.AddCheckbox("vPackageManager_InstalledAllUsers yp",GetLangName("PackageManager_InstalledAllUsers"))
+		b:=g.AddCheckbox("vPackageManager_InstalledAllUsers yp w100")
 		b.OnEvent("Click",SwichInstalled)
 		
-		g.AddCheckbox("vPackageManager_DeprovisionPackage yp",GetLangName("PackageManager_DeprovisionPackage"))
+		g.AddCheckbox("vPackageManager_DeprovisionPackage yp w200")
 		
-		a:=g.AddButton("vPackageManager_BtnUninstallChecked w140 Disabled x" sXCBT+6 " y" sYCBT+36, GetLangTextWithIcon("Text_Uninstall") " (0)")
+		a:=g.AddButton("vPackageManager_BtnUninstallChecked w140 Disabled xs")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(1))
 		
-		a:=g.AddButton("vPackageManager_BtnUninstall yp w140 Disabled", GetLangTextWithIcon("Text_Uninstall"))
+		a:=g.AddButton("vPackageManager_BtnUninstall yp w140 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(2))
 		
-		a:=g.AddButton("vPackageManager_BtnDisable yp w136 Disabled", GetLangTextWithIcon("Text_Disable"))
+		a:=g.AddButton("vPackageManager_BtnDisable yp w136 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(3))
 		
-		a:=g.AddButton("vPackageManager_BtnSearchOnline yp w150 Disabled", GetLangTextWithIcon("Text_SearchOnline"))
+		a:=g.AddButton("vPackageManager_BtnSearchOnline yp w150 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(4))
 		
-		a:=g.AddButton("vPackageManager_BtnDetails yp w150 Disabled", GetLangTextWithIcon("Text_Details"))
+		a:=g.AddButton("vPackageManager_BtnDetails yp w150 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(5))
 		
-		LVPackageManager:=g.AddListView("vPackageManager_LV -Multi Sort Checked w" PanelW-12 " h" PanelH-66-6 " x" sXCBT+6 " y" sYCBT+66, 
-								[GetLangText("Text_Name"),GetLangText("Text_Status"),GetLangText("Text_Version"),GetLangText("Text_Architecture"),GetLangText("Text_PublisherDisplayName"),"Id",GetLangText("Text_FamilyName")])
+		LVPackageManager:=g.AddListView("vPackageManager_LV -Multi Sort Checked xs w" PanelW-16 " h" PanelH-66-16, ["","","","","","Id",""])
 		LVPackageManager.SetFont("s10")
 		LVPackageManager.OnEvent("Click",LVPackageManager_Click)
 		LVPackageManager.OnEvent("DoubleClick",LVPackageManager_DoubleClick)
@@ -59,6 +59,38 @@ BtnPackageManager_Click(g, NavIndex) {
 			SetCtrlTheme(g[CurrentTabCtrls[A_Index]])
 		}
 	}
+	
+	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+		LVPackageManager:=g["PackageManager_LV"]
+		
+		g["PackageManager_Mode"].Delete()
+		g["PackageManager_Mode"].Add([GetLangText("Text_InstalledMode"),GetLangText("Text_NotInstalledMode")])
+		g["PackageManager_Mode"].Choose(1)
+		g["PackageManager_Mode"].Opt("Redraw")
+		
+		
+		g["PackageManager_BtnUninstallChecked"].Text:=GetLangTextWithIcon("Text_Uninstall") " (0)"
+		g["PackageManager_InstalledAllUsers"].Text:=GetLangName("PackageManager_InstalledAllUsers")
+		g["PackageManager_DeprovisionPackage"].Text:=GetLangName("PackageManager_DeprovisionPackage")
+		
+		m:=Map("PackageManager_BtnUninstall", "Text_Uninstall" ,
+			   "PackageManager_BtnDisable", "Text_Disable" ,
+			   "PackageManager_BtnDetails", "Text_Details" ,
+			   "PackageManager_BtnSearchOnline", "Text_SearchOnline")
+		For k, v in m {
+			g[k].Text:=GetLangTextWithIcon(v)
+		}
+		
+		LVPackageManager.ModifyCol(1, , GetLangText("Text_Name"))
+		LVPackageManager.ModifyCol(2, , GetLangText("Text_Status"))
+		LVPackageManager.ModifyCol(3, , GetLangText("Text_Version"))
+		LVPackageManager.ModifyCol(4, , GetLangText("Text_Architecture"))
+		LVPackageManager.ModifyCol(5, , GetLangText("Text_PublisherDisplayName"))
+		LVPackageManager.ModifyCol(7, , GetLangText("Text_FamilyName"))
+		
+		TabLangLoaded.%NavIndex%:=1
+	}
+	
 	LoadLV()	
 	Return CurrentTabCtrls
 	
@@ -69,6 +101,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		LVPackageManager.ModifyCol(1, 280)
 		LVPackageManager.ModifyCol(2, 80)
 		LVPackageManager.ModifyCol(3, 120)
+		LVPackageManager.ModifyCol(4, 72)
 		LVPackageManager.ModifyCol(5, 170)
 		LVPackageManager.ModifyCol(6, 0)
 		LVPackageManager.ModifyCol(7, 0)
@@ -196,7 +229,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				}	
 			}
 			SwichAllBtn(0)
-			DestroyDlg(g,g2)
+			DestroyDlg()
 		} Else If ItemPos=2 {
 			g2:=CreateWaitDlg(g)
 			IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
@@ -206,7 +239,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				Reload_BtnCountChecked()
 			}
 			SwichAllBtn(0)
-			DestroyDlg(g,g2)
+			DestroyDlg()
 		} Else If ItemPos=3 {
 			iDisabled:=aList[id].Disabled
 			If iDisabled {
@@ -246,7 +279,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				}
 			}
 			SwichAllBtn(0)
-			DestroyDlg(g,g2)
+			DestroyDlg()
 		} Else If ItemPos=9 {
 			g2:=CreateWaitDlg(g)
 			If PackageManager.RegisterPackageByFullName(aList[id].FullName)=1 {
@@ -254,7 +287,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				Reload_BtnCountChecked()
 			}
 			SwichAllBtn(0)
-			DestroyDlg(g,g2)
+			DestroyDlg()
 		}
 	}
 	Reload_BtnCountChecked() {
@@ -281,8 +314,6 @@ BtnPackageManager_Click(g, NavIndex) {
 		g["PackageManager_BtnDetails"].Enabled:=s
 	}
 	CreateDetailDlg(Item) {
-		If WinExist(App.Name "_Popup")
-			WinClose
 		g2:=CreateDlg(g)
 		a:=g2.AddText("w500 h22 xm0 Center", "~~~~~ " GetLangText("Text_Details") " ~~~~~").SetFont("s11")
 		aShowList:=["DisplayName"
@@ -296,6 +327,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				, "InstalledPath"
 				; , "MutablePath"
 				, "EffectivePath"
+				; , "Logo"
 				; , "EffectiveExternalPath"
 				; , "MachineExternalPath"
 				; , "UserExternalPath"	
@@ -316,12 +348,11 @@ BtnPackageManager_Click(g, NavIndex) {
 			b.SetFont("s10")
 		}
 		btn_OK:=g2.AddButton("xm200 w100", GetLangText("Text_OK"))
-		btn_OK.OnEvent("Click",(*)=>DestroyDlg(g,g2))
+		btn_OK.OnEvent("Click",(*)=>DestroyDlg())
 		SetCtrlTheme(btn_OK)
 		btn_OK.Focus()
 		g.GetPos(&X, &Y, &W, &H)
 		tWidth:=500
-		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
 		g2.Show("x" X+sXCBT+(PanelW-tWidth)/2-12 " y" Y+130)
 	}
 	PackagesList(iArray?) {
@@ -346,27 +377,65 @@ BtnPackageManager_Click(g, NavIndex) {
 		Return (SignatureKindID=0)?"None":(SignatureKindID=1)?"Developer":(SignatureKindID=2)?"Enterprise":(SignatureKindID=3)?"Store":(SignatureKindID=4)?"System":SignatureKindID
 	}
 }
-UninstallPackage(Package, IsAllUsers, IsDeprovision) {
-	If IsDeprovision
-		PackageManager.DeprovisionPackageForAllUsers(Package.FamilyName)
-	If CurrentUser=A_Username || IsAllUsers {
-		r1:=PackageManager.RemovePackage(Package.FullName, IsAllUsers?0x80000:0)
-		r:=(r1==1)
-		If r1==3 {
-			If A_LastError==0x80073cfa && !IsWin11 && IsAllUsers {
-				r2:=PackageManager.RemovePackage(Package.FullName)
-				If r2==3 {
-					Debug("RemovePackage error code:" Format("{:#x}",A_LastError))
-				}
-				r:=(r2==1)
-			} Else
-				Debug("RemovePackage error code:" Format("{:#x}",A_LastError))
-		}				
-	} Else {
-		If r:=PS_RemovePackage(Package.FullName, UserSID)
-			Debug(r)
-		r:=!r
+CreatePackageManagerPreSaveDlg(g) {
+	g2:=CreateDlg(g)
+	tWidth:=400
+	g2.AddText("w" tWidth " h22 xm0 Center", "~~~~~ Pre-Save"  " ~~~~~").SetFont("s11")
+	PreSaveAct:=g2.AddDDL("w200 Choose1", ["Uninstall", "Disable", "Deprovision"])
+	SetCtrlTheme(PreSaveAct)
+	PreSaveAct.OnEvent("Change", PreSaveAct_Change)
+	PreSaveAct_Change(GuiCtrlObj, Info) {
+		CB_InstalledAllUsers.Enabled:=(GuiCtrlObj.Value==1)
+		CB_DeprovisionPackage.Enabled:=(GuiCtrlObj.Value!=3)
 	}
-	Return r
-}
+	CB_InstalledAllUsers:=g2.AddCheckbox("w100 y+20 Checked" g["PackageManager_InstalledAllUsers"].Value, GetLangText("Text_InstalledAllUsers"))
+	CB_DeprovisionPackage:=g2.AddCheckbox("yp w200 Checked" g["PackageManager_DeprovisionPackage"].Value, GetLangText("Text_DeprovisionPackage"))
+	g2.AddText("w200 xm0 y+20", "FamilyName list:")
+	Edit_PreSave:=g2.AddEdit("w" tWidth " r10 -Wrap")
+	SetCtrlTheme(Edit_PreSave)
+	LVPackageManager:=g["PackageManager_LV"]
+	RowNumber := 0
+	Loop {
+		RowNumber := LVPackageManager.GetNext(RowNumber,"c")
+		if not RowNumber
+			break
+		Edit_PreSave.Value.= LVPackageManager.GetText(RowNumber,7) '`n'
+	}
 
+	btn_Save:=g2.AddButton("xm96 w100", GetLangText("Text_Save"))
+	btn_Save.OnEvent("Click",Save_Click)
+	SetCtrlTheme(btn_Save)
+	Save_Click(*) {
+		g2.Opt("+OwnDialogs")
+		SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
+		If SelectedFile {
+			Config:={}
+			ObjPackageManager:={}
+			ObjPackageManager.Act:=PreSaveAct.Text
+			If CB_InstalledAllUsers.Enabled && CB_InstalledAllUsers.Value
+				ObjPackageManager.AllUsers:=1
+			If CB_DeprovisionPackage.Enabled && CB_DeprovisionPackage.Value
+				ObjPackageManager.Deprovision:=1
+			Items:=Array()
+			Loop Parse, Edit_PreSave.Value, "`n" {
+				t:=Trim(A_LoopField)
+				If t
+					Items.Push t
+			}
+			ObjPackageManager.FamilyNames := Items
+			Config.PackageManager:=[ObjPackageManager]
+			try
+				FileDelete SelectedFile
+			FileAppend JSON.stringify(Config), SelectedFile
+			DestroyDlg()
+		}
+		g2.Opt("-OwnDialogs")
+	}
+	btn_Cancel:=g2.AddButton("yp w100", GetLangText("Text_Cancel"))
+	btn_Cancel.OnEvent("Click",(*)=>DestroyDlg())
+	SetCtrlTheme(btn_Cancel)
+	
+	g.GetPos(&X, &Y, &W, &H)
+	g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
+	g2.Show("x" X+sXCBT+(PanelW-tWidth)/2-12 " y" Y+130)
+}

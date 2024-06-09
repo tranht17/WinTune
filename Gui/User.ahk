@@ -1,6 +1,4 @@
 CreatePopupUser(Ctr, *) {
-	If WinExist(App.Name "_Popup")
-		WinClose
 	If UserCount()=1
 		Return
 	Ctr.GetPos(&xCtr,&yCtr,&wCtr,&hCtr)
@@ -35,7 +33,7 @@ CreatePopupUser(Ctr, *) {
 		UserClicked:=SubStr(Ctr.Name,9)
 		Global UserSID
 		If UserClicked=UserSID {
-			g2.Destroy()
+			DestroyDlg(0)
 			Return
 		}
 		Global HKCU,CurrentUser
@@ -47,7 +45,7 @@ CreatePopupUser(Ctr, *) {
 		pToken:=Gdip_Startup()
 		SetUserPic(g["UserPic"], UserSID)
 		Gdip_Shutdown(pToken)
-		g2.Destroy()
+		DestroyDlg(0)
 		NavItem_Click(g)
     }
 	
@@ -55,5 +53,5 @@ CreatePopupUser(Ctr, *) {
 	tY:=yG+yCtr+hCtr+6
 	g2.Show("x" tX " y" tY)
 	If WinWaitNotActive(g2)
-		g2.Destroy()		
+		DestroyDlg(0)	
 }

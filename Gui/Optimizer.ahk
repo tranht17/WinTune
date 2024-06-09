@@ -13,22 +13,19 @@ OptimizeTab(g, NavIndex) {
 		g["BGPanel"].GetPos(&PanelX, &PanelY, &PanelW)
 		sXCBT:=PanelX
 		sYCBT:=PanelY
-		BtnClearStartMenu:=g.AddText("vBtnClearStartMenu BackgroundTrans w150 h20 Hidden x" sXCBT+16 " y" (sYCBT+16), 
-									GetLangName("BtnClearStartMenu"))					
+		BtnClearStartMenu:=g.AddText("vBtnClearStartMenu BackgroundTrans w150 h20 Hidden x" sXCBT+16 " y" (sYCBT+16))					
 		BtnClearStartMenu.SetFont("underline")
 		BtnClearStartMenu.OnEvent("Click",BtnClearStartMenu_Click)
 		
-		BtnSelectAll:=g.AddText("vBtnSelectAll BackgroundTrans w80 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12), 
-									GetLangText("Text_SelectAll"))					
+		BtnSelectAll:=g.AddText("vBtnSelectAll BackgroundTrans w80 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12))					
 		BtnSelectAll.SetFont("s11 underline")
 		BtnSelectAll.OnEvent("Click",BtnSelectAll_Click)
 		
-		BtnDeselectAll:=g.AddText("vBtnDeselectAll BackgroundTrans w80 h20 yp", 
-									GetLangText("Text_DeselectAll"))					
+		BtnDeselectAll:=g.AddText("vBtnDeselectAll BackgroundTrans w80 h20 yp")					
 		BtnDeselectAll.SetFont("s11 underline")
 		BtnDeselectAll.OnEvent("Click",BtnDeselectAll_Click)
 		
-		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor).Focus()
+		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor)
 
 		sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 		sXCBT+=SpaceItem
@@ -70,10 +67,18 @@ OptimizeTab(g, NavIndex) {
 			}
 		}
 	}
-	
 	CurrentTabCtrls.Push "BtnClearStartMenu"
 	CurrentTabCtrls.Push "BtnSelectAll"
 	CurrentTabCtrls.Push "BtnDeselectAll"
+	
+	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+		Loop CurrentTabCtrls.Length {
+			tCtrlID:=CurrentTabCtrls[A_Index]
+			g[tCtrlID].Text:=GetLangName(tCtrlID)
+		}
+		TabLangLoaded.%NavIndex%:=1
+	}
+	
 	CurrentTabCtrls.Push "HRLine_1"
 	CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
 	
@@ -95,7 +100,7 @@ OptimizeTab(g, NavIndex) {
 			m["Value1Icon"]:="HBITMAP:*" hValue1Icon
 			m["Value0Icon"]:="HBITMAP:*" hValue0Icon
 		}
-		ThisCheckBox := g.AddPicSwitch("Hidden x0 y0 0x80 w" W " v" ItemId,GetLangName(ItemId),,m)
+		ThisCheckBox := g.AddPicSwitch("Hidden x0 y0 0x80 w" W " v" ItemId,"",,m)
 		g[ItemId].OnEvent("Click",CB_Click)
 		g[ItemId].SPic.OnEvent("Click",(*)=>CB_Click(g[ItemId],""))
 		g[ItemId].Value:=s
@@ -105,7 +110,7 @@ OptimizeTab(g, NavIndex) {
 		g:=Ctr.Gui
 		g2:=CreateWaitDlg(g)
 		ProgNowCtr(Ctr,Data.%Ctr.Name%)
-		DestroyDlg(g,g2)
+		DestroyDlg()
 	}
 
 	BtnSelectAll_Click(Ctr,Info) {
@@ -125,12 +130,10 @@ OptimizeTab(g, NavIndex) {
 				ProgNowCtr(g[CurrentTabCtrls[A_Index]],Data.%CurrentTabCtrls[A_Index]%,1)
 			}
 		}
-		DestroyDlg(g,g2)
+		DestroyDlg()
 	}
 
 	BtnClearStartMenu_Click(Ctr,Info) {
-		If WinExist(App.Name "_Popup")
-			WinClose
 		g:=Ctr.Gui
 		g2:=CreateDlg(g)
 		a:=g2.AddText("w400 h22 xm0 Center", "~~~~~ " GetLangName("BtnClearStartMenu") " ~~~~~").SetFont("s10")
@@ -140,14 +143,14 @@ OptimizeTab(g, NavIndex) {
 		btn_Yes.OnEvent("Click",BtnClearStartMenu_Yes_Click)
 		SetCtrlTheme(btn_Yes)
 		btn_No:=g2.AddButton("yp w100", GetLangText("Text_No"))
-		btn_No.OnEvent("Click",(*)=>DestroyDlg(g,g2))
+		btn_No.OnEvent("Click",(*)=>DestroyDlg())
 		SetCtrlTheme(btn_No)
 		g.GetPos(&gX, &gY)
 		tWidth:=400
 		g2.Show("x" gX+PanelX+(PanelW-tWidth)/2-12 " y" gY+PanelY+130)
 		
 		BtnClearStartMenu_Yes_Click(Ctr,Info) {
-			DestroyDlg(g,g2)
+			DestroyDlg()
 			g2:=CreateWaitDlg(g)
 			Config:={}
 			CurrentTabCtrls:=CurrentTabCtrlArray()
@@ -170,7 +173,7 @@ OptimizeTab(g, NavIndex) {
 				; StartGlobalProperties: ""
 			}
 			StartMenuLayout(&item, "set", 0)
-			DestroyDlg(g,g2)
+			DestroyDlg()
 		}
 	}
 }

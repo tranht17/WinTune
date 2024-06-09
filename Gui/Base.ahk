@@ -2,6 +2,7 @@ CreateGui() {
 	Global IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
 	Global IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
 	Global ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
+	Global TabLangLoaded:= {}
 	g:=Gui("-Caption",App.Name)
 	g.SetFont("s11 c" Themes.%ThemeSelected%.TextColor,"Segoe UI Semibold")
 	g.BackColor:=Themes.%ThemeSelected%.BackColor
@@ -77,8 +78,9 @@ CreateGui() {
 	BtnSys_Close.OnEvent("Click",Gui_Close)
 	g.OnEvent("Close",Gui_Close)
 	Gui_Close(*) {
-		If WinExist(App.Name "_Popup")
-			WinClose
+		If App.HasOwnProp("HwndPopup") && App.HwndPopup {
+			WinClose(App.HwndPopup)
+		}
 		IniWrite g.NavSelected, "config.ini", "General", "LastTab"
 		ExitApp
 	}
@@ -98,19 +100,19 @@ CreateGui() {
 	
 	g.AddText('xm95 y' (PanelY+PanelH-75+15) ' BackgroundTrans',"v" App.Ver)
 	
-	SpaceName:="            "
 	y:=36
 	Loop Layout.Length {
 		ItemID:=Layout[A_Index].ID
 		If (ItemID = "")
 			Continue
 		If Layout[A_Index].HasOwnProp("hr") && Layout[A_Index].hr {
-			g.AddText("vHRText_" A_Index " BackgroundTrans center w" NavSelectW " xm ym" y " c" Themes.%ThemeSelected%.HrColor, GetLangText(Layout[A_Index].hr))
+			g.AddText("vNavHRText_" A_Index " BackgroundTrans center w" NavSelectW " xm ym" y " c" Themes.%ThemeSelected%.HrColor)
 			y+=24
 		}
 		aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" (y+8))
 		aIcon.Value:=(!IsWin11 && Layout[A_Index].HasOwnProp("Icon10") && Layout[A_Index].Icon10)?Layout[A_Index].Icon10:Layout[A_Index].Icon
-		NavItem:=g.AddText("BackgroundTrans 0x200 0x100 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index, SpaceName GetLangName(ItemId))
+		NavItem:=g.AddText("BackgroundTrans 0x200 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index)
+		SetNavLang(g, A_Index)
 		y+=(NavSelectH+4)
 		If Layout[A_Index].HasOwnProp("Fn") && Layout[A_Index].Fn {
 			Fn:=Layout[A_Index].Fn
@@ -124,12 +126,13 @@ CreateGui() {
 	g.SetFont("s9")
 	NavItem_Click(g, IniRead("config.ini", "General", "LastTab", 1))
 	g.Show
+	App.HwndMain:=g.Hwnd
 	FrameShadow(g.hWnd)
-	Return g
-	
 }
 
-NavItem_Click(g, NavIndex:=0, *) {
+NavItem_Click(g:="", NavIndex:=0, *) {
+	If !g && App.HasOwnProp("HwndMain") && App.HwndMain
+		g:=GuiFromHwnd(App.HwndMain)
 	If NavIndex {
 		Ctr:=g["NavItem_" NavIndex]
 		Ctr.GetPos(&x, &y)
@@ -232,7 +235,7 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 			}
 		}
 		DisplayToolTip(){
-			ToolTip(GetLangDesc(currControl.Name))
+			ToolTip(HardWrapText(GetLangDesc(currControl.Name), 100))
 			SetTimer(CheckHoverControl, 0)
 		}
 	} Catch {
@@ -245,6 +248,15 @@ WM_LBUTTONDOWN(wParam,lParam,msg,hwnd) {
 	If thisGui
 		PostMessage 0xA1, 2
 }
+ON_EN_SETFOCUS(wParam,lParam,msg,hwnd) { ;by jNizM
+	static EM_SETSEL   := 0x00B1
+	static EN_SETFOCUS := 0x0100
+	critical
+	if ((wParam >> 16) = EN_SETFOCUS) {
+		; DllCall("user32\HideCaret", "ptr", lParam)
+		DllCall("user32\PostMessage", "ptr", lParam, "uint", EM_SETSEL, "ptr", -1, "ptr", 0)
+	}
+}
 CreateWaitDlg(g) {
 	g.GetPos(&X, &Y, &W, &H)
 	g2:=CreateDlg(g)
@@ -255,7 +267,9 @@ CreateWaitDlg(g) {
 }
 
 CreateDlg(g, gDisabled:=1, bg:="") {
+	DestroyDlg(0) 
 	g2:=Gui("-Caption +Owner" g.Hwnd,App.Name "_Popup")
+	App.HwndPopup:=g2.hWnd
 	FrameShadow(g2.hWnd)
 	g2.SetFont("c" Themes.%ThemeSelected%.TextColor, "Segoe UI Semibold")
 	g2.BackColor:=bg?bg:Themes.%ThemeSelected%.BackColor
@@ -264,54 +278,46 @@ CreateDlg(g, gDisabled:=1, bg:="") {
 	Return g2
 }
 
-DestroyDlg(g,g2,gDisabled:=1) {	
-	If gDisabled
+DestroyDlg(gDisabled:=1) {	
+	If gDisabled && App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain)
 		g.Opt("-Disabled")
-	g2.Destroy()
+	If App.HasOwnProp("HwndPopup") && App.HwndPopup {
+		WinClose(App.HwndPopup)
+		App.DeleteProp("HwndPopup")
+	}
 }
 BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 	g:=Ctr.Gui
-	g.Opt("+OwnDialogs")
 	HideToolTip()
-	SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
-	If SelectedFile {
-		Config:={}
-		If Layout[g.NavSelected].ID="BtnPackageManager" {
-			ObjPackageManager:={}
-			ObjPackageManager.Act:="RemovePackage"
-			If g["PackageManager_InstalledAllUsers"].Value
-				ObjPackageManager.AllUsers:=1
-			If g["PackageManager_DeprovisionPackage"].Value
-				ObjPackageManager.Deprovision:=1
-			LVPackageManager:=g["PackageManager_LV"]
-			Items:=Array()
-			RowNumber := 0
-			Loop {
-				RowNumber := LVPackageManager.GetNext(RowNumber,"c")
-				if not RowNumber
-					break
-				Items.Push LVPackageManager.GetText(RowNumber,7)
+	If Layout[g.NavSelected].ID="BtnPackageManager" {
+		CreatePackageManagerPreSaveDlg(g)
+	} Else {
+		g.Opt("+OwnDialogs")
+		SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
+		If SelectedFile {
+			Config:={}
+			If Layout[g.NavSelected].ID="BtnHostsEdit" {
+				Config.HostsEdit:=LoadHostsFile()
+			} Else {
+				CurrentTabCtrls:=CurrentTabCtrlArray()
+				Loop CurrentTabCtrls.Length {
+					ItemID:=CurrentTabCtrls[A_Index]
+					If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
+						Config.%ItemID%:=g[ItemID].Value
+				}
+				If Layout[g.NavSelected].ID="StartMenu" {
+					ObjStartMenu:={}
+					StartMenuLayout(&ObjStartMenu)
+					Config.StartMenuLayout:=ObjStartMenu
+				}		
 			}
-			ObjPackageManager.FamilyNames := Items
-			Config.PackageManager:=[ObjPackageManager]
-		} Else {
-			CurrentTabCtrls:=CurrentTabCtrlArray()
-			Loop CurrentTabCtrls.Length {
-				ItemID:=CurrentTabCtrls[A_Index]
-				If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
-					Config.%ItemID%:=g[ItemID].Value
-			}
-			If Layout[g.NavSelected].ID="StartMenu" {
-				ObjStartMenu:={}
-				StartMenuLayout(&ObjStartMenu)
-				Config.StartMenuLayout:=ObjStartMenu
-			}		
+			try
+				FileDelete SelectedFile
+			FileAppend JSON.stringify(Config), SelectedFile
 		}
-		try
-			FileDelete SelectedFile
-		FileAppend JSON.stringify(Config), SelectedFile
+		g.Opt("-OwnDialogs")
 	}
-	g.Opt("-OwnDialogs")
+	
 }
 BtnSys_SaveOptimizeConfigAll_Click(Ctr, *) {
 	g:=Ctr.Gui
@@ -332,7 +338,7 @@ BtnSys_LoadOptimizeConfig_Click(Ctr, *) {
 	If SelectedFile {
 		g2:=CreateWaitDlg(g)
 		LoadOptimizeConfig(SelectedFile, g)
-		DestroyDlg(g,g2)
+		DestroyDlg()
 	}
 	g.Opt("-OwnDialogs")
 }
@@ -511,36 +517,28 @@ FrameShadow(HGui) {
 		DllCall("dwmapi\DwmExtendFrameIntoClientArea", "Ptr", HGui, "Ptr", _MARGINS)
 	}
 }
-
 SetCtrlTheme(Ctr) {
 	Theme:=Themes.%ThemeSelected%
 	IsCtrDark:=Theme.CtrDark
 	Mode_Explorer  := (IsCtrDark ? "DarkMode_Explorer"  : "Explorer" )
 	Mode_CFD       := (IsCtrDark ? "DarkMode_CFD"       : "CFD"      )
-	; Mode_ItemsView := (IsCtrDark ? "DarkMode_ItemsView" : "ItemsView")
+	Mode_ItemsView := (IsCtrDark ? "DarkMode_ItemsView" : "ItemsView")
 	Mode:=""
-	If Ctr.Type="Button" || Ctr.Type="Edit" || Ctr.Type="UpDown" {
-		Ctr.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
-		Mode:=Mode_Explorer
-	} Else If Ctr.Type="Text" && (InStr(Ctr.Name, "HRText_")=1) {
-		Ctr.Opt("c" Theme.HrColor)
-		Ctr.Opt("BackgroundTrans")
+	
+	If Ctr.Type="Text" && (InStr(Ctr.Name, "NavHRText_")=1) {
+		Ctr.Opt("BackgroundTrans c" Theme.HrColor)
 	} Else If Ctr.Type="Text" && (InStr(Ctr.Name, "HRLine_")=1) {
-		Ctr.Opt("c" Theme.HrColor)
-		Ctr.Opt("Background" Theme.HrColor)
+		Ctr.Opt("Background" Theme.HrColor " c" Theme.HrColor)
 	} Else If Ctr.Type="Text" || Ctr.Type="PicSwitch" {
-		Ctr.SetFont("c" Theme.TextColor)
-	} Else If Ctr.Type="ListView" {
-		IsVisible:=Ctr.Visible
-		If IsVisible
-			Ctr.Visible:=0
-		Ctr.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
-		If IsVisible
-			Ctr.Visible:=1
-	} Else If Ctr.Type="ListView" || Ctr.Type="Link" || Ctr.Type="Radio" || Ctr.Type="CheckBox" {
-		Ctr.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
+		Ctr.Opt("BackgroundTrans c" Theme.TextColor)
 	} Else If Ctr.Type="DDL" {
 		Mode:=Mode_CFD
+	} Else If Ctr.Type!="Pic" {
+		Ctr.Opt("Background" Theme.BackColorPanelRGB " c" Theme.TextColor)
+		If Ctr.Type!="CheckBox"
+			Mode:=Mode_Explorer
+		Else If Ctr.Type="ListView"
+			Mode:=Mode_ItemsView
 	}
 	If Mode
 		DllCall("uxtheme\SetWindowTheme", "ptr", Ctr.hwnd, "str", Mode, "ptr", 0)
@@ -552,15 +550,6 @@ SetMenuTheme() {
 	FlushMenuThemes     := DllCall("kernel32\GetProcAddress", "Ptr", uxtheme, "Ptr", 136, "Ptr")
 	DllCall(SetPreferredAppMode, "Int", Themes.%ThemeSelected%.CtrDark?2:3)
 	DllCall(FlushMenuThemes)
-}
-LinkUseDefaultColor(CtrlObj, Use := True) {
-   LITEM := Buffer(4278, 0)                  ; 16 + (MAX_LINKID_TEXT * 2) + (L_MAX_URL_LENGTH * 2)
-   NumPut("UInt", 0x03, LITEM)               ; LIF_ITEMINDEX (0x01) | LIF_STATE (0x02)
-   NumPut("UInt", Use ? 0x10 : 0, LITEM, 8)  ; ? LIS_DEFAULTCOLORS : 0
-   NumPut("UInt", 0x10, LITEM, 12)           ; LIS_DEFAULTCOLORS
-   While DllCall("SendMessage", "Ptr", CtrlObj.Hwnd, "UInt", 0x0702, "Ptr", 0, "Ptr", LITEM, "UInt") ; LM_SETITEM
-      NumPut("Int", A_Index, LITEM, 4)
-   CtrlObj.Opt("+Redraw")
 }
 GetLangTextWithIcon(LangId) {
 	IconText:=""
@@ -575,4 +564,64 @@ GetLangTextWithIcon(LangId) {
 	case "Text_Details": IconText:=Chr(0xE946)
 	}
 	Return (IconText?IconText " ":"") GetLangText(LangId)
+}
+SetNavLang(g, i) {
+	g["NavItem_" i].Text:="            " GetLangName(Layout[i].ID)
+	If Layout[i].HasOwnProp("hr") && Layout[i].hr
+		g["NavHRText_" i].Text:=GetLangText(Layout[i].hr)
+}
+SetNavLangAll(g) {
+	Loop Layout.Length {
+		ItemID:=Layout[A_Index].ID
+		If (ItemID = "")
+			Continue
+		SetNavLang(g, A_Index)
+	}
+}
+HardWrapText(TextToWrap, LengthLim) {
+   Static RegExDelimiters := "(\||\*|\!|\]|\[|\\|\/|\.|\=|\:|\;|\?|\@|\-|\_|\)|\(|\{|\}|\s)"
+   LengthLim := Round(LengthLim)
+   if (LengthLim<2)
+      return TextToWrap
+   if (StrLen(TextToWrap) <= LengthLim + 1)
+      return TextToWrap
+
+   thisIndex := hasMatchedRegEx := offsetu := 0
+   whereHasMatched := newLinez := ""
+   
+   Loop Parse, TextToWrap {
+       thisIndex++
+       newLinez .= A_LoopField
+       If A_LoopField="`r" || A_LoopField="`n"
+          thisIndex := hasMatchedRegEx := 0
+
+       If RegExMatch(A_LoopField, RegExDelimiters) {
+          hasMatchedRegEx := 1
+          whereHasMatched := A_Index
+       }
+
+       If thisIndex=LengthLim && hasMatchedRegEx=1 {
+          newLinez := ST_Insert("`n", newLinez, whereHasMatched + offsetu)
+          offsetu++
+          thisIndex := hasMatchedRegEx := 0
+       } Else If thisIndex=LengthLim {
+          newLinez .= "`n"
+          thisIndex := hasMatchedRegEx := 0
+       }
+   }
+   return newLinez
+}
+ST_Insert(insert,input,pos:=1) {
+; from String Things by Tidbit
+  Length := StrLen(input)
+  ((pos > 0) ? (pos2 := pos - 1) : (((pos = 0) ? (pos2 := StrLen(input),Length := 0) : (pos2 := pos))))
+  output := SubStr(input, 1, pos2) . insert . SubStr(input, pos, Length)
+  If (StrLen(output) > StrLen(input) + StrLen(insert))
+     ((Abs(pos) <= StrLen(input)/2) ? (output := SubStr(output, 1, pos2 - 1) . SubStr(output, pos + 1, StrLen(input)))
+     : (output := SubStr(output, 1, pos2 - StrLen(insert) - 2) . SubStr(output, pos - StrLen(insert), StrLen(input))))
+  Return output
+}
+
+BtnRestartExplorer_Click(*) {
+	RestartExplorer()
 }

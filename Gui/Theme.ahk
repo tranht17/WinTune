@@ -1,6 +1,4 @@
 CreatePopupTheme(Ctr, *) {
-	If WinExist(App.Name "_Popup")
-		WinClose
 	Ctr.GetPos(&xCtr,&yCtr,&wCtr,&hCtr)
 	g:=Ctr.Gui
 	g.GetPos(&xG,&yG)
@@ -56,6 +54,7 @@ CreatePopupTheme(Ctr, *) {
 		BtnSelectImage.Enabled:=True
 	}
 	BtnSelectImage_Click(*) {
+		g.Opt("+Disabled")
 		g2.Opt("+OwnDialogs")
 		HideToolTip()
 		SelectedFile := FileSelect(3, , "Open a image", "")
@@ -66,13 +65,14 @@ CreatePopupTheme(Ctr, *) {
 			}
 		}
 		g2.Opt("-OwnDialogs")
+		g.Opt("-Disabled")
 	}
 	
 	tX:=xG+xCtr-(343-wCtr)/2
 	tY:=yG+yCtr+hCtr+6
 	g2.Show("x" tX " y" tY)
 	If WinWaitNotActive(g2)
-		g2.Destroy()
+		DestroyDlg(0)
 }
 
 SetTheme(g, Theme) {
