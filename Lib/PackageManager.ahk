@@ -1,7 +1,7 @@
 ;================================================================================
 ; PackageManager
 ; tranht17
-; 2024/04/07
+; 2024/06/08
 ;================================================================================
 
 Class PackageManager {
@@ -221,22 +221,29 @@ Class PackageManager {
 		ComCall(6, PackageCollection, 'Ptr*', CPackage:=ComValue(13, 0)) ;First
 		arr := Array()
 		Loop {
-			obj:={}
-			ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
-			SignatureKind:=IPackage.SignatureKind
-			IsFramework:=IPackage.IsFramework
-			FamilyName:=IPackage.FamilyName
-			If (IncludeSignatureKindSystem 
-					|| (!IncludeSignatureKindSystem 
-						&& SignatureKind!=4 
-						&& FamilyName != "Microsoft.SecHealthUI_8wekyb3d8bbwe" 
-						&& FamilyName!="Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"))
-				&& (IncludeFramework
-					|| (!IncludeFramework && IsFramework==0)) {
-				arr.Push IPackage
-			}
-			ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
-			If !IsMoveNext {
+			Try {
+				obj:={}
+				ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
+				SignatureKind:=IPackage.SignatureKind
+				IsFramework:=IPackage.IsFramework
+				FamilyName:=IPackage.FamilyName
+				If (IncludeSignatureKindSystem 
+						|| (!IncludeSignatureKindSystem 
+							&& SignatureKind!=4 
+							&& FamilyName != "Microsoft.SecHealthUI_8wekyb3d8bbwe" 
+							&& FamilyName!="Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"))
+					&& (IncludeFramework
+						|| (!IncludeFramework && IsFramework==0)) {
+					arr.Push IPackage
+				}
+				ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
+				If !IsMoveNext {
+					IPackage:=""
+					CPackage:=""
+					PackageCollection:=""
+					Break
+				}
+			} Catch {
 				IPackage:=""
 				CPackage:=""
 				PackageCollection:=""
@@ -258,10 +265,17 @@ Class PackageManager {
 		ComCall(6, PackageCollection, 'Ptr*', CPackage:=ComValue(13, 0)) ;First
 		arr := Array()
 		Loop {
-			ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
-			arr.Push IPackage
-			ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
-			If !IsMoveNext {
+			Try {
+				ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
+				arr.Push IPackage
+				ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
+				If !IsMoveNext {
+					IPackage:=""
+					CPackage:=""
+					PackageCollection:=""
+					Break
+				}
+			} Catch {
 				IPackage:=""
 				CPackage:=""
 				PackageCollection:=""
@@ -386,22 +400,4 @@ Class PackageManager {
 		   throw Error("CLSIDFromString failed. Error: " . Format("{:#x}", res))
 		Return CLSID
 	}
-}
-
-PS_RemovePackage(packageFullName, UserSID:="", removalOptions:="") {
-	; -PreserveApplicationData: 
-		; Specifies that the cmdlet preserves the application data during the package removal. 
-		; The application data is available for later use.
-		; Note that this is only applicable for apps that are under development 
-		; so this option can only be specified for apps that are registered from file layout (Loose file registered).
-	; -PreserveRoamableApplicationData:
-		; Preserves the roamable portion of the app's data when the package is removed.
-		; This parameter is incompatible with PreserveApplicationData.
-	UserParam:=""
-	If UserSID="All"
-		UserParam:=" -AllUsers"
-	Else If UserSID
-		UserParam:=" -User " UserSID
-	UserParam.=removalOptions?" " removalOptions:""
-	Return RunTerminal('Powershell Remove-AppxPackage -Package ' packageFullName UserParam)
 }

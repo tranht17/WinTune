@@ -1,4 +1,4 @@
-; Class ToolTipOptions - 2023-09-10
+; Class ToolTipOptions - 2024-03-27
 ; just me
 ; https://www.autohotkey.com/boards/viewtopic.php?f=83&t=113308
 ; ======================================================================================================================
@@ -21,7 +21,7 @@ Class ToolTipOptions {
    Static ToolTips := Map()
    ; -------------------------------------------------------------------------------------------------------------------
    Static BkgColor := ""
-   Static TktColor := ""
+   Static TxtColor := ""
    Static Icon := ""
    Static Title := ""
    Static HFONT := 0
@@ -34,7 +34,7 @@ Class ToolTipOptions {
    Static Init() {
       If (This.OWP = 0) {
          This.BkgColor := ""
-         This.TktColor := ""
+         This.TxtColor := ""
          This.Icon := ""
          This.Title := ""
          This.Margins := ""
@@ -53,14 +53,14 @@ Class ToolTipOptions {
    ; -------------------------------------------------------------------------------------------------------------------
    Static Reset() {
       If (This.OWP != 0) {
-         For HWND In This.ToolTips
-            WinClose(HWND)
+         For HWND In This.ToolTips.Clone()
+            DllCall("DestroyWindow", "Ptr", HWND)
          This.ToolTips.Clear()
          If This.HFONT
             DllCall("DeleteObject", "Ptr", This.HFONT)
          This.HFONT := 0
          If (A_PtrSize = 8)
-            DllCall("User32.dll\SetClassLongPtr", "Ptr", This.HTT, "Int", -24, "Ptr", This.OWP, "UPtr")
+            DllCall("User32.dll\SetClassLongPtrW", "Ptr", This.HTT, "Int", -24, "Ptr", This.OWP, "UPtr")
          Else
             DllCall("User32.dll\SetClassLongW", "Ptr", This.HTT, "Int", -24, "Int", This.OWP, "UInt")
          This.OWP := 0
@@ -72,7 +72,7 @@ Class ToolTipOptions {
    ; -------------------------------------------------------------------------------------------------------------------
    ; SetColors()     -  Set or remove the text and/or the background color for the tooltip.
    ; Parameters:
-   ;     BkgColor    -  color value like used in Gui, Color, ...
+   ;     BkgColor    -  color value like used in Gui.BackColor(...)
    ;     TxtColor    -  see above.
    ; -------------------------------------------------------------------------------------------------------------------
    Static SetColors(BkgColor := "", TxtColor := "") {
@@ -84,9 +84,13 @@ Class ToolTipOptions {
                          GREEN:  0x008000, LIME:  0x00FF00, MAROON: 0x000080, NAVY:    0x800000, OLIVE: 0x008080,
                          PURPLE: 0x800080, RED:   0x0000FF, SILVER: 0xC0C0C0, TEAL:    0x808000, WHITE: 0xFFFFFF,
                          YELLOW: 0x00FFFF}
+         If HTML.HasProp(Color)
+            Return HTML.%Color%
+         If (Color Is String) && IsXDigit(Color) && (StrLen(Color) = 6)
+            Color := Integer("0x" . Color)
          If IsInteger(Color)
             Return ((Color >> 16) & 0xFF) | (Color & 0x00FF00) | ((Color & 0xFF) << 16)
-         Return HTML.HasProp(Color) ? HTML.%Color% : Default
+         Return Default
       }
    }
    ; -------------------------------------------------------------------------------------------------------------------
@@ -194,7 +198,7 @@ Class ToolTipOptions {
    ; -------------------------------------------------------------------------------------------------------------------
    Static _WNDPROC_(hWnd, uMsg, wParam, lParam) {
       ; WNDPROC -> https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
-	  Switch uMsg {
+      Switch uMsg {
          Case 0x0411: ; TTM_TRACKACTIVATE - just handle the first message after the control has been created
             If This.ToolTips.Has(hWnd) && (This.ToolTips[hWnd] = 0) {
                If (This.BkgColor != "")
