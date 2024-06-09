@@ -9,16 +9,10 @@ OnExit ExitFunc
 ExitFunc(ExitReason, ExitCode) {
 	UnLoadHive()
 }
-
 OnError LogError
 LogError(exception, mode) {
 	Debug(, exception)
-	If PopupHwnd:=WinExist(App.Name "_Popup") {
-		WinClose
-		g:=GuiFromHwnd(DllCall("GetParent", "uint", PopupHwnd))
-		If g
-			g.Opt("-Disabled")
-	}
+	try DestroyDlg()
 	return true
 }
 
@@ -183,9 +177,11 @@ GetLangName(ItemId, LangId:="") {
 		LangId:=LangSelected
 	Lang:=LangData.%LangId%
 	
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Name") && Lang.%ItemId%.Name
+	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Name") && Lang.%ItemId%.Name {
 		ItemId:=Lang.%ItemId%.Name
-	Else If LangId!="en" {
+		If InStr(ItemId, "Text_")==1
+			ItemId:=GetLangText(ItemId)
+	} Else If LangId!="en" {
 		Return GetLangName(ItemId, "en")
 	}
 	Return ItemId
@@ -194,9 +190,12 @@ GetLangDesc(ItemId, LangId:="") {
 	If !LangId
 		LangId:=LangSelected
 	Lang:=LangData.%LangId%
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc
-		Return ItemId:=Lang.%ItemId%.Desc
-	Else If LangId!="en" {
+	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc {
+		ItemDesc:=Lang.%ItemId%.Desc
+		If InStr(ItemDesc, "Text_")==1
+			ItemDesc:=GetLangText(ItemDesc)
+		Return ItemDesc
+	} Else If LangId!="en" {
 		Return GetLangDesc(ItemId, "en")
 	}
 }
@@ -291,8 +290,61 @@ Debug(itext:="",itype:="Error",o:=1) {
 	}
 	If o==1 {
 		FileAppend t, "log.txt"
-		Run "notepad log.txt"
+		try Run "notepad log.txt"
 	} Else {
 		OutputDebug t
 	}
+}
+
+/* Package Manager */
+UninstallPackage(Package, IsAllUsers, IsDeprovision) {
+	If IsDeprovision
+		PackageManager.DeprovisionPackageForAllUsers(Package.FamilyName)
+	If CurrentUser=A_Username || IsAllUsers {
+		r1:=PackageManager.RemovePackage(Package.FullName, IsAllUsers?0x80000:0)
+		r:=(r1==1)
+		If r1==3 {
+			If A_LastError==0x80073cfa && !IsWin11 && IsAllUsers {
+				r2:=PackageManager.RemovePackage(Package.FullName)
+				If r2==3 {
+					Debug("RemovePackage error code:" Format("{:#x}",A_LastError))
+				}
+				r:=(r2==1)
+			} Else
+				Debug("RemovePackage error code:" Format("{:#x}",A_LastError))
+		}				
+	} Else {
+		If r:=PS_RemovePackage(Package.FullName, UserSID)
+			Debug(r)
+		r:=!r
+	}
+	Return r
+}
+PS_RemovePackage(packageFullName, UserSID:="", removalOptions:="") {
+	; -PreserveApplicationData: 
+		; Specifies that the cmdlet preserves the application data during the package removal. 
+		; The application data is available for later use.
+		; Note that this is only applicable for apps that are under development 
+		; so this option can only be specified for apps that are registered from file layout (Loose file registered).
+	; -PreserveRoamableApplicationData:
+		; Preserves the roamable portion of the app's data when the package is removed.
+		; This parameter is incompatible with PreserveApplicationData.
+	UserParam:=""
+	If UserSID="All"
+		UserParam:=" -AllUsers"
+	Else If UserSID
+		UserParam:=" -User " UserSID
+	UserParam.=removalOptions?" " removalOptions:""
+	Return RunTerminal('Powershell Remove-AppxPackage -Package ' packageFullName UserParam)
+}
+
+/* Hosts Edit */
+SaveHostsFile(t) {
+	HostsTMPPath:=A_Temp "\hosts_tmp_" A_Now
+	FileAppend t, HostsTMPPath
+	FileSetAttrib "-R", A_WinDir "\System32\drivers\etc\hosts"
+	FileMove HostsTMPPath, A_WinDir "\System32\drivers\etc\hosts" , 1
+}
+LoadHostsFile() {
+	Return FileRead(A_WinDir "\System32\drivers\etc\hosts")
 }

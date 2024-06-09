@@ -178,8 +178,3 @@ DisableMSDefender(s,d,silent){
 		}
 	}
 }
-
-
-BtnRestartExplorer_Click(*) {
-	RestartExplorer()
-}

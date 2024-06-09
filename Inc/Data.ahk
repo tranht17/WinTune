@@ -327,7 +327,6 @@ Layout:=[
 "DisableBootOptimize",
 "DisableCortana",
 "DisableCrashAutoReboot",
-"DisableDiagTrack",
 "DisableErrorReporting",
 "DisableGoogleUpdateTask",
 "DisableLockScreen",
@@ -338,7 +337,6 @@ Layout:=[
 "DisablePrefetchParameters",
 "DisableScheduledDefrag",
 "DisableShortcutText",
-"DisableWCE",
 "IoPageLockLimit",
 "LinkResolveIgnoreLinkInfo",
 "MouseHoverTime",
@@ -356,6 +354,7 @@ Layout:=[
 "DisableMSACloudSearch",
 "DisableAADCloudSearch",
 "DisableDeviceSearchHistory",
+"DisableDiagTrack",
 "DiagnosticDataOff",
 "DisableAdsOnLockScreen",
 "DisableAutoInstallationApps",
@@ -367,7 +366,9 @@ Layout:=[
 "DisableSettingsAppSuggestions",
 "DisableTailoredExperiences",
 "DisableTipsAndSuggestions",
+"DisableWCE",
 "DisableVisualStudioTelemetry",
+; "DisableWebSearchStartMenu",
 "DisableWindowsFeedback"]},
 {ID: "Explorer",Icon: "*icon266 imageres.dll",Icon10: "*icon265 imageres.dll",Fn: "OptimizeTab",Items: [
 "DisableAutoSuggest",
@@ -418,7 +419,7 @@ Layout:=[
 "DisableMSDefender"]},
 {ID: "BtnPackageManager",Icon: "*icon1 C:\WINDOWS\diagnostics\system\Apps\DiagPackage.dll", Fn: "BtnPackageManager_Click", hr:"Text_HR_Tools"},
 {ID: "BtnStartupManager",Icon: "*icon281 imageres.dll",Icon10: "*icon280 imageres.dll",Fn: "BtnStartupManager_Click"},
-{ID: "BtnHostEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostEdit_Click"},
+{ID: "BtnHostsEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostsEdit_Click"},
 {ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}
 ]
 

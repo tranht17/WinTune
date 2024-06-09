@@ -14,7 +14,9 @@ SaveOptimizeConfigAll(SelectedFile) {
 		
 		ObjStartMenu:={}
 		StartMenuLayout(&ObjStartMenu)
-		Config.StartMenuLayout:=ObjStartMenu		
+		Config.StartMenuLayout:=ObjStartMenu	
+		
+		Config.HostsEdit:=LoadHostsFile()
 	}	
 	try
 		FileDelete SelectedFile
@@ -27,7 +29,7 @@ LoadOptimizeConfig(SelectedFile, g:="") {
 	For ItemId, ItemValue in Config.OwnProps() {
 		If ItemId="PackageManager" {
 			Loop ItemValue.Length {
-				If ItemValue[A_Index].Act="RemovePackage" {
+				If ItemValue[A_Index].Act="RemovePackage" || ItemValue[A_Index].Act="Uninstall" {
 					If ItemValue[A_Index].HasOwnProp("FamilyNames") {
 						FamilyNames:=ItemValue[A_Index].FamilyNames
 						AllUsers:=ItemValue[A_Index].HasOwnProp("AllUsers")?ItemValue[A_Index].AllUsers:0
@@ -39,10 +41,33 @@ LoadOptimizeConfig(SelectedFile, g:="") {
 							}
 						}
 					}
+				} Else If ItemValue[A_Index].Act="Disable"{
+					If ItemValue[A_Index].HasOwnProp("FamilyNames") {
+						FamilyNames:=ItemValue[A_Index].FamilyNames
+						Deprovision:=ItemValue[A_Index].HasOwnProp("Deprovision")?ItemValue[A_Index].Deprovision:0
+						Loop FamilyNames.Length {
+							Packages:=PackageManager.FindPackagesByPackageFamilyName(FamilyNames[A_Index])
+							Loop Packages.Length {
+								PackageManager.SetPackageStatus(Packages[A_Index].FullName, 8)
+								; PackageManager.ClearPackageStatus(Packages[A_Index].FullName, 8)
+							}
+							If Deprovision
+								PackageManager.DeprovisionPackageForAllUsers(FamilyNames[A_Index])
+						}
+					}
+				} Else If ItemValue[A_Index].Act="Deprovision"{
+					If ItemValue[A_Index].HasOwnProp("FamilyNames") {
+						FamilyNames:=ItemValue[A_Index].FamilyNames
+						Loop FamilyNames.Length {
+							PackageManager.DeprovisionPackageForAllUsers(FamilyNames[A_Index])
+						}
+					}
 				}
 			}
 		} Else If ItemId="StartMenuLayout" {
 			StartMenuLayout(&ItemValue, "set")
+		} Else If ItemId="HostsEdit" {
+			SaveHostsFile(ItemValue)
 		} Else {
 			If !Data.HasOwnProp(ItemID)
 				Continue
