@@ -107,7 +107,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		BtnImportFromLink.OnEvent("Click",(*)=>BtnImportFromLink_Click(g))
 		BtnImportFromLink_Click(g) {
 			Try
-				spy:=WinHttp(g["HostsEdit_EditLink"].Value)
+				spy:=WinHttpResponseText(g["HostsEdit_EditLink"].Value)
 			Catch
 				Return
 			g["HostsEdit"].Value.="`n" spy "`n"

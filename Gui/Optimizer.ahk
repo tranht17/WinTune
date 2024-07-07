@@ -67,7 +67,8 @@ OptimizeTab(g, NavIndex) {
 			}
 		}
 	}
-	CurrentTabCtrls.Push "BtnClearStartMenu"
+	If Layout[NavIndex].ID="StartMenu"
+		CurrentTabCtrls.Push "BtnClearStartMenu"
 	CurrentTabCtrls.Push "BtnSelectAll"
 	CurrentTabCtrls.Push "BtnDeselectAll"
 	
@@ -123,7 +124,7 @@ OptimizeTab(g, NavIndex) {
 	Select_Click(Ctr, ID) {
 		g:=Ctr.Gui
 		g2:=CreateWaitDlg(g)
-		CurrentTabCtrls:=CurrentTabCtrlArray()
+		CurrentTabCtrls:=App.CurrentTabCtrls
 		Loop CurrentTabCtrls.Length {
 			If g[CurrentTabCtrls[A_Index]].Type="PicSwitch" && g[CurrentTabCtrls[A_Index]].Value!=ID {
 				g[CurrentTabCtrls[A_Index]].Value:=ID
@@ -153,7 +154,7 @@ OptimizeTab(g, NavIndex) {
 			DestroyDlg()
 			g2:=CreateWaitDlg(g)
 			Config:={}
-			CurrentTabCtrls:=CurrentTabCtrlArray()
+			CurrentTabCtrls:=App.CurrentTabCtrls
 			Loop CurrentTabCtrls.Length {
 				ItemID:=CurrentTabCtrls[A_Index]
 				If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)

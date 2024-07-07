@@ -11,7 +11,7 @@ ExitFunc(ExitReason, ExitCode) {
 }
 OnError LogError
 LogError(exception, mode) {
-	Debug(, exception)
+	Debug(exception)
 	try DestroyDlg()
 	return true
 }
@@ -186,17 +186,22 @@ GetLangName(ItemId, LangId:="") {
 	}
 	Return ItemId
 }
-GetLangDesc(ItemId, LangId:="") {
+GetLangDesc(ItemId, LangId:="", Ex:="") {
 	If !LangId
 		LangId:=LangSelected
 	Lang:=LangData.%LangId%
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc {
+	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc" Ex) && Lang.%ItemId%.Desc%Ex% {
+		ItemDesc:=Lang.%ItemId%.Desc%Ex%
+		If InStr(ItemDesc, "Text_")==1
+			ItemDesc:=GetLangText(ItemDesc)
+		Return ItemDesc
+	} Else If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc {
 		ItemDesc:=Lang.%ItemId%.Desc
 		If InStr(ItemDesc, "Text_")==1
 			ItemDesc:=GetLangText(ItemDesc)
 		Return ItemDesc
 	} Else If LangId!="en" {
-		Return GetLangDesc(ItemId, "en")
+		Return GetLangDesc(ItemId, "en", Ex)
 	}
 }
 GetLangText(ItemId, LangId:="") {
@@ -210,15 +215,26 @@ GetLangText(ItemId, LangId:="") {
 	}
 	Return ItemId
 }
-
-WinHttp(link) {
-	whr := ComObject("WinHttp.WinHttpRequest.5.1")
-	whr.Open("get", link)
-	whr.Send()
-	whr.WaitForResponse()
+WinHttpResponseText(Link, Method:="GET", Async:=0, WaitForResponseTimeout:=-2) {
+	whr:=WinHttp(Link, Method, Async, WaitForResponseTimeout)
 	c:=whr.responseText
-	whr:=""
 	Return c
+}
+
+WinHttp(Link, Method:="GET", Async:=0, WaitForResponseTimeout:=-2) {
+	whr := ComObject("WinHttp.WinHttpRequest.5.1")
+	; Default value (milliseconds)
+	; ResolveTimeout:=0
+	; ConnectTimeout:=60000
+	; SendTimeout:=30000
+	; ReceiveTimeout:=30000
+	; whr.SetTimeouts(ResolveTimeout, ConnectTimeout, SendTimeout, ReceiveTimeout)
+	whr.Open(Method, Link, Async)
+	whr.Send()
+	if Async && WaitForResponseTimeout>-2 {
+		whr.WaitForResponse(WaitForResponseTimeout)
+	}
+	Return whr
 }
 
 GoSafeboot() {
@@ -269,29 +285,31 @@ RunAsAdmin() {
 	}
 	Return 0
 }
-MsgBoxError(itext, IsExitApp:=0, title:="Error") {
-	MsgBox(itext,title,"Iconx")
+MsgBoxError(iText, IsExitApp:=0, title:="Error") {
+	MsgBox(iText,title,"Iconx")
 	If IsExitApp
 		ExitApp
 }
-Debug(itext:="",itype:="Error",o:=1) {
-	If Type(itype)=="String" {
-		t:="`n================= " App.Name " - " itype " ================="
-		t.="`nTime: " A_Now
-		t.="`n" itext
+Debug(iErr:="",iErrEx:="") {
+	t:="`n================= " App.Name " v" App.Ver " ================="
+	t.="`nTime     :" A_Now
+	t.="`nOSVersion:" A_OSVersion
+	t.="`nIs64bitOS:" A_Is64bitOS
+	
+	If Type(iErr)=="String" {
+		t.="`n" iErr
 	} Else {
-		t:="`n================= " App.Name " - Error ================="
-		t.="`nTime     :" A_Now
-		t.="`nOSVersion:" A_OSVersion
-		t.="`nIs64bitOS:" A_Is64bitOS
-		t.=itext?"`n" itext:""
-		t.="`nMessage  :" itype.Message
-		t.="`nStack    :" itype.Stack
+		t.="`nMessage  :" iErr.Message
+		t.="`nStack    :" iErr.Stack
 	}
-	If o==1 {
+	
+	t.=iErrEx?"`n" iErrEx:""
+	
+	DebugMode:=App.HasOwnProp("DebugMode")?App.DebugMode:1
+	If DebugMode==1 {
 		FileAppend t, "log.txt"
 		try Run "notepad log.txt"
-	} Else {
+	} Else If DebugMode==2 {
 		OutputDebug t
 	}
 }

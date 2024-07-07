@@ -127,7 +127,7 @@ ProgNow(ItemId, ItemValue, ItemData, silent:=0, Ctr:="") {
 		If IsRefreshExplorer
 			RefreshExplorer()
 	} Catch as err {
-		Debug("Func: " ItemId, err)
+		Debug(err, "Func: " ItemId)
 	}
 }
 

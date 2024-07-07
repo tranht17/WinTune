@@ -40,6 +40,7 @@ tray.Add("Exit", (*) => ExitApp())
 #Include Gui/HostsEdit.ahk
 #Include Gui/StartupManager.ahk
 #Include Gui/PackageManager.ahk
+#Include Gui/CheckUpdate.ahk
 
 Init()
 OnMessage 0x0111, ON_EN_SETFOCUS
