@@ -151,7 +151,12 @@ BtnStartupManager_Click(g, NavIndex) {
 				If Mod(ItemStatus, 2)
 					ItemStatusText:=GetLangText("Text_Disabled")
 			}
-			rTarget:=FindTarget(v, &attr:="")
+			try {
+				rTarget:=FindTarget(v, &attr:="")
+			} catch Error as err {
+				Debug(err,"CommandLine: " v)
+			}
+			
 			IconIndex:=1
 			If attr="D"
 				IconIndex := 3
