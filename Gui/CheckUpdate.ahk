@@ -35,8 +35,8 @@ CheckUpdate(g:="") {
 				g2.AddText("yp c" Themes.%ThemeSelected%.TextColorHover, NewVer)
 				g2.AddText("xm0", GetLangText("Text_WhatsNew") ":")
 				
-				WhatsNew:=RegExReplace(LatestInfo["body"], "\\r\\n## Verify(.*)")
-				WhatsNew:=RegExReplace(WhatsNew, "\\r\\n!\[\]\((.*?)\)")
+				WhatsNew:=RegExReplace(LatestInfo["body"], "sm)\r\n## Verify.*")
+				WhatsNew:=RegExReplace(WhatsNew, "\r\n!\[\]\(.*\)")
 				
 				EditWhatsNew:=g2.AddEdit("readonly xm0 h150 w" tWidth, WhatsNew)
 				SetCtrlTheme(EditWhatsNew)
