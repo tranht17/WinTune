@@ -195,7 +195,7 @@ Class PackageManager {
 			; RemovalOptions_None = 0,
 			; RemovalOptions_PreserveApplicationData = 0x1000,
 			; RemovalOptions_PreserveRoamableApplicationData = 0x80,
-			; RemovalOptions_RemoveForAllUsers = 0x80000
+			; RemovalOptions_RemoveForAllUsers = 0x80000, In Windows 11 this will deprovision package
 			ComCall(6, this.IPackageManager2
 				, 'Ptr', this.HString(packageFullName)
 				, 'UInt', removalOptions

@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         2.4.0.0
+;@Ahk2Exe-SetVersion         2.5.0.0
 ;@Ahk2Exe-SetMainIcon        Img/Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Ignore
 #Warn
 
-App:={Name: "WinTune", Ver: "2.4.0"}
+App:={Name: "WinTune", Ver: "2.5.0"}
 
 A_IconTip:= App.Name
 tray := A_TrayMenu

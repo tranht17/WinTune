@@ -1,120 +1,142 @@
 CheckUpdate(g:="") {
-	try {
-		LatestInfoText:=WinHttpResponseText("https://api.github.com/repos/tranht17/WinTune/releases/latest")
-	} catch Error as err {
-		; if g {
-		; }
-		Return
-	}
-	LatestInfo:=JSON.parse(LatestInfoText)
-	NewVer:=LatestInfo["tag_name"]
+	req := ComObject("Msxml2.XMLHTTP")
+	req.open("GET", "https://api.github.com/repos/tranht17/WinTune/releases/latest", 1)
+	req.onreadystatechange := Ready
+	req.send()
 	
-	if VerCompare(NewVer, App.Ver)==1 {
-		if g {
-			g2:=CreateDlg(g)
-			tWidth:=400
-			g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
-			g2.AddText("xm0", GetLangText("Text_CurrentVersion") ":")
-			g2.AddText("yp", App.Ver)
-			g2.AddText("xm0", GetLangText("Text_NewestVersion") ":")
-			g2.AddText("yp c00A7EB", NewVer)
-			g2.AddText("xm0", GetLangText("Text_WhatsNew") ":")
-			
-			WhatsNew:=RegExReplace(LatestInfo["body"], "\\r\\n## Verify(.*)")
-			WhatsNew:=RegExReplace(WhatsNew, "\\r\\n!\[\]\((.*?)\)")
-			
-			EditWhatsNew:=g2.AddEdit("readonly xm0 h150 w" tWidth, WhatsNew)
-			SetCtrlTheme(EditWhatsNew)
-			BtnUpdate:=g2.AddButton("xm40 w100", GetLangText("Text_Update"))
-			BtnUpdate.OnEvent("Click",BtnUpdate_Click)
-			BtnUpdate.Focus()
-			SetCtrlTheme(BtnUpdate)
-			
-			BtnHomepage:=g2.AddButton("yp w100", GetLangText("Text_Homepage"))
-			BtnHomepage.OnEvent("Click",(*)=>Run("https://github.com/tranht17/WinTune"))
-			SetCtrlTheme(BtnHomepage)
-			
-			BtnClose:=g2.AddButton("yp w100", GetLangText("Text_Close"))
-			BtnClose.OnEvent("Click",(*)=>DestroyDlg())
-			SetCtrlTheme(BtnClose)
-			g.GetPos(&gX, &gY, &gW, &gH)
-			g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-130)
-			
-			BtnUpdate_Click(*) {
-				DestroyDlg()
+	Ready() {
+		if (req.readyState != 4)
+			return
+		if (req.status != 200) {
+			;12007: No internet|The server name cannot be resolved.
+			;12029: Block internet|Connection to the server failed.
+			if g
+				MsgBox("Connection to the server failed.",,"Icon!")
+			return
+		}
+		
+		try {
+			LatestInfo:=JSON.parse(req.responseText)
+			NewVer:=LatestInfo["tag_name"]
+		} catch Error as err {
+			if g
+				MsgBox("Connection to the server failed.",,"Icon!")
+			Return
+		}
+		
+		if VerCompare(NewVer, App.Ver)==1 {
+			if g {
 				g2:=CreateDlg(g)
-				tWidth:=200
-				ProgressUpdate:=g2.AddProgress("w200 h20", 0)
-				g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2)
+				tWidth:=400
+				g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
+				g2.AddText("xm0", GetLangText("Text_CurrentVersion") ":")
+				g2.AddText("yp", App.Ver)
+				g2.AddText("xm0", GetLangText("Text_NewestVersion") ":")
+				g2.AddText("yp c" Themes.%ThemeSelected%.TextColorHover, NewVer)
+				g2.AddText("xm0", GetLangText("Text_WhatsNew") ":")
 				
-				if A_IsCompiled {
-					DownloadLink:="https://github.com/tranht17/WinTune/releases/download/" NewVer "/WinTune" (A_Is64bitOS?"":"32") ".exe"
-					DownloadFile:=A_ScriptFullPath ".tmp"
-					Method:="HEAD"
-				} else {
-					DownloadLink:="https://github.com/tranht17/WinTune/archive/refs/tags/" NewVer ".zip"
-					DownloadFolder:=A_ScriptDir "\WinTune-" NewVer
-					DownloadFile:=DownloadFolder ".zip"
-					Method:="GET"
-				}
+				WhatsNew:=RegExReplace(LatestInfo["body"], "\\r\\n## Verify(.*)")
+				WhatsNew:=RegExReplace(WhatsNew, "\\r\\n!\[\]\((.*?)\)")
 				
-				whr:=ComObject("WinHttp.WinHttpRequest.5.1")
-				whr.Open(Method, DownloadLink)
+				EditWhatsNew:=g2.AddEdit("readonly xm0 h150 w" tWidth, WhatsNew)
+				SetCtrlTheme(EditWhatsNew)
+				BtnUpdate:=g2.AddButton("xm40 w100", GetLangText("Text_Update"))
+				BtnUpdate.OnEvent("Click",BtnUpdate_Click)
+				BtnUpdate.Focus()
+				SetCtrlTheme(BtnUpdate)
 				
-				TryCount:=0
-				GoSend:
-				whr.Send()
-
-				try {
-					TotalSize := whr.GetResponseHeader("Content-Length")
-				} catch Error as err {
-					if TryCount < 10 {
-						Sleep 1000
-						TryCount++
-						GoTo GoSend
+				BtnHomepage:=g2.AddButton("yp w100", GetLangText("Text_Homepage"))
+				BtnHomepage.OnEvent("Click",(*)=>Run("https://github.com/tranht17/WinTune"))
+				SetCtrlTheme(BtnHomepage)
+				
+				BtnClose:=g2.AddButton("yp w100", GetLangText("Text_Close"))
+				BtnClose.OnEvent("Click",(*)=>DestroyDlg())
+				SetCtrlTheme(BtnClose)
+				g.GetPos(&gX, &gY, &gW, &gH)
+				g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-130)
+				
+				BtnUpdate_Click(*) {
+					DestroyDlg()
+					g2:=CreateDlg(g)
+					uWidth:=300,uHeight:=20
+					g2.AddText("Center 0x200 h" uHeight " w" uWidth,"Updating...").SetFont("s10")
+					g2.Show("x" gX+(gW-uWidth)/2 " y" gY+(gH-uHeight)/2)
+					
+					if A_IsCompiled {
+						CurrentFile:=A_ScriptFullPath
+						DownloadLink:="https://github.com/tranht17/WinTune/releases/download/" NewVer "/WinTune" (A_Is64bitOS?"64":"32") ".exe"
+						DownloadFile:=CurrentFile ".tmp"
+						Method:="GET"
+						ContentType:="application/octet-stream"
 					} else {
-						Debug(err)
+						DownloadLink:="https://codeload.github.com/tranht17/WinTune/zip/refs/tags/" NewVer
+						DownloadFolder:=A_ScriptDir "\WinTune-" NewVer
+						DownloadFile:=DownloadFolder ".zip"
+						Method:="GET"
+						ContentType:="application/zip"
+						try DirDelete DownloadFolder , 1
+					}	
+					try FileDelete DownloadFile
+					
+					req:=ComObject("WinHttp.WinHttpRequest.5.1")
+					req.SetTimeouts(4000, 4000, 4000, 4000)
+					req.Open(Method, DownloadLink, 0)
+					
+					FileDownloaded:=0
+					Loop 10 {
+						try {
+							req.Send()
+							TotalSize := req.GetResponseHeader("Content-Length")
+							tContentType := req.GetResponseHeader("Content-Type")
+							if tContentType=ContentType {
+								tResponseBody := req.ResponseBody
+								pData := NumGet(ComObjValue(tResponseBody) + 8 + A_PtrSize, "UPtr")
+								FileOpen(DownloadFile, "w").RawWrite(pData, TotalSize)
+								FileDownloaded:=1
+								Break
+							}
+						} catch Error as err {
+							if A_Index==10 {
+								MsgBox("Update failed please try again later.",,"Icon!")
+								try FileDelete DownloadFile
+								DestroyDlg()
+							}
+						}
 					}
-				}
-				
-				ProgressUpdate.Opt("Range0-" TotalSize)
-				
-				SetTimer __UpdateProgressBar, 100
-				Download DownloadLink, DownloadFile
-				
-				__UpdateProgressBar() {
-					CurrentSize:=FileGetSize(DownloadFile)
-					ProgressUpdate.Value := CurrentSize
-					if CurrentSize==TotalSize {
-						SetTimer , 0
+					
+					if FileDownloaded {
 						if A_IsCompiled {
-							FileMove A_ScriptFullPath, A_ScriptFullPath ".BAK", 1
-							FileMove DownloadFile, A_ScriptFullPath, 1
+							FileMove CurrentFile, CurrentFile ".bak", 1
+							FileMove DownloadFile, CurrentFile, 1
 						} else {
 							DirCopy DownloadFile, A_ScriptDir, 1
 							DirCopy DownloadFolder, A_ScriptDir, 1
-							DirDelete DownloadFolder , 1
-							FileDelete DownloadFile
+							try DirDelete DownloadFolder , 1
+							try FileDelete DownloadFile
 						}
 						Reload
 					}
 				}
+			} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {
+				g["VerCtrl"].ToolTipEx:=1
+				g["VerCtrl"].Text:="v" App.Ver " -> v" NewVer
+				g["VerCtrl"].SetFont("c00A7EB")
 			}
-		} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {
-			g["VerCtrl"].ToolTipEx:=1
-			g["VerCtrl"].Text:="v" App.Ver " -> v" NewVer
-			g["VerCtrl"].SetFont("c00A7EB")
+		} else if g {
+			g["VerCtrl"].DeleteProp("ToolTipEx")
+			g2:=CreateDlg(g)
+			tWidth:=300
+			a:=g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
+			a:=g2.AddText("xm0 yp50 w300 h50 Center", GetLangText("Text_NoUpdate"))
+			BtnOK:=g2.AddButton("xm50 w100", GetLangText("Text_OK"))
+			BtnOK.OnEvent("Click",(*)=>DestroyDlg())
+			SetCtrlTheme(BtnOK)
+			BtnHomepage:=g2.AddButton("yp w100", GetLangText("Text_Homepage"))
+			BtnHomepage.OnEvent("Click",(*)=>Run("https://github.com/tranht17/WinTune"))
+			SetCtrlTheme(BtnHomepage)
+				
+			g.GetPos(&gX, &gY, &gW, &gH)
+			g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-80)
 		}
-	} else if g {
-		g["VerCtrl"].DeleteProp("ToolTipEx")
-		g2:=CreateDlg(g)
-		tWidth:=300
-		a:=g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
-		a:=g2.AddText("xm0 yp50 w300 h50 Center", GetLangText("Text_NoUpdate"))
-		BtnOK:=g2.AddButton("xm100 w100", GetLangText("Text_OK"))
-		BtnOK.OnEvent("Click",(*)=>DestroyDlg())
-		SetCtrlTheme(BtnOK)
-		g.GetPos(&gX, &gY, &gW, &gH)
-		g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-80)
 	}
 }

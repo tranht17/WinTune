@@ -424,9 +424,9 @@ Layout:=[
 ]
 
 Themes:={
-Dark: {BackColor: "202020", TextColor: "FFFFFF",BackColorNavSelect: "0DFFFFFF", BackColorPanel: "80000000", BorderColorPanel: "30FFFFFF", CtrDark: 1, HrColor: "4c4c4c"},
-Light: {BackColor: "F3F3F3", TextColor: "000000", BackColorNavSelect: "50000000", BackColorPanel: "A0FFFFFF", BorderColorPanel: "40000000", CtrDark: 0, HrColor: "ADADAD"},
-Purple: {BackColor: "7F3FBF", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "307F3FBF", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "B27FE5"},
-Red: {BackColor: "720001", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "30720001", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "A50002"},
-Green: {BackColor: "2D7226", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "302D7226", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "48A73D"}
+Dark: {BackColor: "202020", TextColor: "FFFFFF",BackColorNavSelect: "0DFFFFFF", BackColorPanel: "80000000", BorderColorPanel: "30FFFFFF", CtrDark: 1, HrColor: "4c4c4c", TextColorHover: "00A7EB"},
+Light: {BackColor: "F3F3F3", TextColor: "000000", BackColorNavSelect: "50000000", BackColorPanel: "A0FFFFFF", BorderColorPanel: "40000000", CtrDark: 0, HrColor: "ADADAD", TextColorHover: "00A7EB"},
+Purple: {BackColor: "7F3FBF", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "307F3FBF", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "B27FE5", TextColorHover: "00A7EB"},
+Red: {BackColor: "720001", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "30720001", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "A50002", TextColorHover: "00A7EB"},
+Green: {BackColor: "2D7226", TextColor: "FFFFFF", BackColorNavSelect: "30FFFFFF", BackColorPanel: "302D7226", BorderColorPanel: "30FFFFFF", CtrDark: 0, HrColor: "48A73D", TextColorHover: "00A7EB"}
 }

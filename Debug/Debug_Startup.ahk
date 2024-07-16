@@ -27,31 +27,29 @@ CheckError() {
 		MsgBox "No error!"
 	}
 }
-
 FindTarget(InPath, &rFileAttr) {
-	r:=""
 	If !InPath
-		Return r
-	
-	SplitPath InPath,, &dir, &ext, &name_no_ext
-	sExt:=StrSplit(ext,A_Space)[1]
-	InPath:=dir "\" name_no_ext "." sExt
-
-	If InStr(InPath, "%") {
-		r:=FindTarget(ExpandEnvironmentStrings(InPath), &rFileAttr)
-	} Else If InStr(InPath,'"')=1 {
-		r:=FindTarget(SubStr(InPath, 2 , InStr(InPath,'"',,2)-2), &rFileAttr)
-	} Else If InStr(FileExist(InPath), "D") {
-		rFileAttr:="D"
-		r:=InPath
-	} Else If InStr(FileExist(InPath), "A") || InStr(FileExist(InPath), "N") {
-		SplitPath InPath, &rFileName
-		rFileAttr:="A"
-		If SubStr(rFileName, -4)=".exe"
-			rFileAttr.="E"
-		r:=InPath
-	} 
-	Return r
+		Return
+	StartPos:=1
+	tmpTarget:=""
+	while (fpo:=RegexMatch(InPath, '[^" ]+|"([^"]*)"', &m, StartPos)) {
+		if A_Index!=1
+			tmpTarget.=' '
+		tmpTarget.=m[1]?m[1]:m[]
+		If InStr(tmpTarget, "%")
+			tmpTarget:=ExpandEnvironmentStrings(tmpTarget)
+		If InStr(FileExist(tmpTarget), "D") {
+			rFileAttr:="D"
+			Return tmpTarget
+		} Else If InStr(FileExist(tmpTarget), "A") || InStr(FileExist(tmpTarget), "N") {
+			SplitPath tmpTarget, &rFileName
+			rFileAttr:="A"
+			If SubStr(rFileName, -4)=".exe"
+				rFileAttr.="E"
+			Return tmpTarget
+		}
+		StartPos := fpo + StrLen(m[])
+	}
 }
 ExpandEnvironmentStrings(str) {
 	rExpanded:=Buffer(2000) 
