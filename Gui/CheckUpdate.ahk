@@ -64,7 +64,7 @@ CheckUpdate(g:="") {
 					
 					if A_IsCompiled {
 						CurrentFile:=A_ScriptFullPath
-						DownloadLink:="https://github.com/tranht17/WinTune/releases/download/" NewVer "/WinTune" (A_Is64bitOS?"64":"32") ".exe"
+						DownloadLink:="https://github.com/tranht17/WinTune/releases/download/" NewVer "/WinTune" (A_Is64bitOS?"":"32") ".exe"
 						DownloadFile:=CurrentFile ".tmp"
 						Method:="GET"
 						ContentType:="application/octet-stream"
