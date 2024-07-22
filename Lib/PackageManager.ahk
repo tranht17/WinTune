@@ -133,20 +133,19 @@ Class PackageManager {
 		Logo {
 			get {
 				InstalledPath:=this.InstalledPath
-				Logo:=this.RawUri
-				If !FileExist(Logo) {
-					If !FileExist(Logo) {
-						AppxManifest:=FileRead(InstalledPath "\AppxManifest.xml")
-						If RegExMatch(AppxManifest, 'Square44x44Logo="(.*?)"', &SubPat) {
-							Logo:= InstalledPath "\" SubPat[1]
-							If !FileExist(Logo) {
-								SplitPath Logo,, &dir, &ext, &name_no_ext
-								Logo:=dir "\" name_no_ext ".scale-100." ext
-							}
+				rLogo:=""
+				try rLogo:=this.RawUri
+				If !FileExist(rLogo) && FileExist(InstalledPath "\AppxManifest.xml") {
+					AppxManifest:=FileRead(InstalledPath "\AppxManifest.xml")
+					If RegExMatch(AppxManifest, 'Square44x44Logo="(.*?)"', &SubPat) {
+						rLogo:= InstalledPath "\" SubPat[1]
+						If !FileExist(rLogo) {
+							SplitPath rLogo,, &dir, &ext, &name_no_ext
+							rLogo:=dir "\" name_no_ext ".scale-100." ext
 						}
 					}
 				}
-				Return Logo
+				Return rLogo
 			}
 		}
 		

@@ -33,25 +33,27 @@ CreatePopupTheme(Ctr, *) {
 	g2.AddRadio("yp h25" (BGImage==1?" Checked":""), "Default image").OnEvent("Click",BGImage_Radio_Default_Click)
 	IsCustomBGImage:=(BGImage&&BGImage!=0&&BGImage!=1?1:0)
 	g2.AddRadio("w80 h25 xm" (IsCustomBGImage?" Checked":""), "Custom").OnEvent("Click",BGImage_Radio_Custom_Click)
-	BGImageEdit:=g2.AddEdit("w200 h25 ReadOnly -Wrap r1 yp c202020", (IsCustomBGImage?BGImage:""))
+	BGImageEdit:=g2.AddEdit("w200 h25 ReadOnly -Wrap r1 yp c202020" (IsCustomBGImage?"":" Disabled"), (IsCustomBGImage?BGImage:""))
 	BtnSelectImage:=g2.AddButton("yp h25 Background00A7EB" (IsCustomBGImage?"":" Disabled"), "...")
 	BtnSelectImage.OnEvent("Click",BtnSelectImage_Click)
 	
 	BGImage_Radio_None_Click(*) {
 		BtnSelectImage.Enabled:=False
+		BGImageEdit.Enabled:=False
 		BGImageEdit.Value:=""
 		If SetBGImage(g["BGImage"],0)
 			IniWrite 0, "config.ini", "Gui", "BGImage"
-		
 	}
 	BGImage_Radio_Default_Click(*) {
 		BtnSelectImage.Enabled:=False
+		BGImageEdit.Enabled:=False
 		BGImageEdit.Value:=""
 		If SetBGImage(g["BGImage"],1)
 			IniDelete "config.ini", "Gui", "BGImage"
 	}
 	BGImage_Radio_Custom_Click(*) {
 		BtnSelectImage.Enabled:=True
+		BGImageEdit.Enabled:=True
 	}
 	BtnSelectImage_Click(*) {
 		g.Opt("+Disabled")

@@ -119,11 +119,14 @@ BtnPackageManager_Click(g, NavIndex) {
 					&& !RegKeyExist("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\EndOfLife\" UserSID "\" rList[A_Index].FullName))
 				|| (Mode==2 && (PackageManager.CheckInstallUser(rList[A_Index].FullName, "S-1-5-18", 1) 
 					|| !PackageManager.CheckInstallUser(rList[A_Index].FullName, UserSID))) {
-				i:=A_Index
-				IconIndex := IL_Add(ImageListID, rList[i].Logo, 1)
-				aDisplay:=DisplayArchitecture(rList[i].Architecture)
-				sDisplay:=DisplayStatus(rList[i])
-				LVPackageManager.Add("Icon" IconIndex, rList[i].DisplayName, sDisplay, rList[i].Version, aDisplay, rList[i].PublisherDisplayName, i, rList[i].FamilyName)
+				Try {
+					IconIndex := IL_Add(ImageListID, rList[A_Index].Logo, 1)
+					aDisplay:=DisplayArchitecture(rList[A_Index].Architecture)
+					sDisplay:=DisplayStatus(rList[A_Index])
+					LVPackageManager.Add("Icon" IconIndex, rList[A_Index].DisplayName, sDisplay, rList[A_Index].Version, aDisplay, rList[A_Index].PublisherDisplayName, A_Index, rList[A_Index].FamilyName)
+				} Catch Error as err {
+					Debug(err, "FullName :" rList[A_Index].FullName)
+				}
 			}
 		}
 	}

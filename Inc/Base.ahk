@@ -291,21 +291,28 @@ MsgBoxError(iText, IsExitApp:=0, title:="Error") {
 		ExitApp
 }
 Debug(iErr:="",iErrEx:="") {
-	t:="`n================= " App.Name " v" App.Ver " ================="
+	If IsSet(App)
+		t:="`n================= " App.Name " v" App.Ver " ================="
+	Else
+		t:="`n=================================================="
+	
 	t.="`nTime     :" A_Now
 	t.="`nOSVersion:" A_OSVersion
 	t.="`nIs64bitOS:" A_Is64bitOS
 	
 	If Type(iErr)=="String" {
 		t.="`n" iErr
+		try Msg(iErr)
 	} Else {
 		t.="`nMessage  :" iErr.Message
+		t.="`nExtra    :" iErr.Extra
 		t.="`nStack    :" iErr.Stack
+		try Msg(iErr.Message)
 	}
 	
 	t.=iErrEx?"`n" iErrEx:""
 	
-	DebugMode:=App.HasOwnProp("DebugMode")?App.DebugMode:1
+	DebugMode:=IsSet(App)&&App.HasOwnProp("DebugMode")?App.DebugMode:1
 	If DebugMode==1 {
 		FileAppend t, "log.txt"
 		try Run "notepad log.txt"
