@@ -75,3 +75,4 @@
 ## Translations
 
 - Chinese (Simplified) | Jvcon
+- Turkish | mikropsoft
