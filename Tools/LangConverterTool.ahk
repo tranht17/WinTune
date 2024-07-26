@@ -22,7 +22,7 @@ Convert_LangDataAHK(*) {
 	out:=RTrim(out,',')
 	out.="`n}"
 	tLangDataFile:="..\Inc\LangData.ahk"
-	try FileMove tLangDataFile, tLangDataFile "." A_Now, 1
+	try FileMove tLangDataFile, tLangDataFile "." A_Now ".bak", 1
 	FileAppend out, tLangDataFile
 	MsgBox "Done!"
 }
@@ -31,7 +31,7 @@ Convert_LangJson(*) {
 	DirCreate LangPath
 	For k,v In LangData.OwnProps() {
 		tFile:=LangPath k ".json"
-		try FileMove tFile, tFile "." A_Now, 1
+		try FileMove tFile, tFile "." A_Now ".bak", 1
 		FileAppend DisplayObj(v, 1, True), tFile
 	}
 	MsgBox "Done!"
