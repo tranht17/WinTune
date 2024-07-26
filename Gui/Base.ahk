@@ -13,13 +13,13 @@ CreateGui() {
 	ToolTipOptions.SetColors("0x" Themes.%ThemeSelected%.BackColor, "0x" Themes.%ThemeSelected%.TextColor)
 	SetMenuTheme()
 	
-	NavSelectW:=200, NavSelectH:=36
-	PanelX:=NavSelectW+24, PanelY:=36, PanelW:=760, PanelH:=500
+	NavSelectW:=250, NavSelectH:=36
+	PanelX:=NavSelectW+24, PanelY:=36, PanelW:=800, PanelH:=550
 	
 	pToken:=Gdip_Startup()
 
 	BGImageCtrl:=g.AddPic("vBGImage BackgroundTrans x0 y0")
-	BGImage:=IniRead("config.ini", "Gui", "BGImage", 1)
+	BGImage:=IniRead("config.ini", "Gui", "BGImage", 0)
 	SetBGImage(BGImageCtrl, BGImage, pToken)
 	
 	g.AddPic("vUserPic BackgroundTrans xm12 ym6 w22 h22")
@@ -163,67 +163,49 @@ NavItem_Click(g:="", NavIndex:=0, *) {
 }
 
 WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
-	static PrevHwnd:=0,HoveredName:=""
-	CurrControl := GuiCtrlFromHwnd(Hwnd)
+	static PrevHwnd:=0
 	if (Hwnd != PrevHwnd) {
-		ToolTip()
+		ResetNormal()
+		PrevHwnd := Hwnd
+		CurrControl := GuiCtrlFromHwnd(Hwnd)
 		If currControl {
 			thisGui := currControl.Gui
-			If HoveredName!=currControl.Name {
-				ResetNormal(&HoveredName, thisGui)
-				
-				If currControl.Type="PicSwitch" || InStr(currControl.Name, "Link_")=1 {
+			If currControl.Type="PicSwitch" || InStr(currControl.Name, "Link_")=1 {
+				currControl.SetFont("c" Themes.%ThemeSelected%.TextColorHover)
+			} Else If InStr(currControl.Name, "BtnSys_")=1 {
+				If currControl.Type="Text"
 					currControl.SetFont("c" Themes.%ThemeSelected%.TextColorHover)
-					HoveredName:=currControl.Name
-				} Else If InStr(currControl.Name, "BtnSys_")=1 {
-					If currControl.Type="Text"
-						currControl.SetFont("c" Themes.%ThemeSelected%.TextColorHover)
-					currControl.Opt("+Border")
-					HoveredName:=currControl.Name
-				} Else If InStr(currControl.Name, "NavItem_")=1 {
-					If currControl.Name=="NavItem_UserName" && (UserCount()==1 || WinExist(App.Name "_Popup")) {
-						PrevHwnd := Hwnd
-						Return
-					}
-					currControl.GetPos(&x, &y)
-					thisGui["NavBGHover"].Move(x, y)
-					thisGui["NavBGHover"].Visible := true
-					HoveredName:=currControl.Name
-				}
-				Lang:=LangData.%LangSelected%
-				If !currControl.Name || !GetLangDesc(currControl.Name) {
-					PrevHwnd := Hwnd
+				currControl.Opt("+Border")
+			} Else If InStr(currControl.Name, "NavItem_")=1 {
+				If currControl.Name="NavItem_UserName" && (UserCount()==1 || WinExist(App.HwndPopup))
 					Return
-				}
-				ToolTipOptions.SetTitle((Title:=GetLangName(currControl.Name))!=currControl.Name?Title:"")
-				SetTimer(CheckHoverControl, 50)
-				SetTimer(DisplayToolTip, -600)
+				currControl.GetPos(&x, &y)
+				thisGui["NavBGHover"].Move(x, y)
+				thisGui["NavBGHover"].Visible := true
 			}
-		} else {
-			thisGui := GuiFromHwnd(Hwnd)	
-			ResetNormal(&HoveredName, thisGui)
+			Lang:=LangData.%LangSelected%
+			If !currControl.Name || !GetLangDesc(currControl.Name)
+				Return
+			ToolTipOptions.SetTitle((Title:=GetLangName(currControl.Name))!=currControl.Name?Title:"")
+			SetTimer(CheckHoverControl, 50)
+			SetTimer(DisplayToolTip, -600)
 		}
-		PrevHwnd := Hwnd
 	}
 	
-	ResetNormal(&iHoveredName, tGui) {
-		try {
-			If isObject(tGui) && iHoveredName {
-				If tGui[iHoveredName].Type="PicSwitch" || InStr(tGui[iHoveredName].Name, "Link_")=1 {
-					tGui[iHoveredName].SetFont("c" Themes.%ThemeSelected%.TextColor)
-					iHoveredName:=""
-				} Else If InStr(iHoveredName, "BtnSys_")=1 {
-					If tGui[iHoveredName].Type="Text"
-						tGui[iHoveredName].SetFont("c" Themes.%ThemeSelected%.TextColor)
-					tGui[iHoveredName].Opt("-Border")
-					iHoveredName:=""
-				} Else If InStr(iHoveredName, "NavItem_")=1 {
-					tGui["NavBGHover"].Visible := false
-					iHoveredName:=""
-				}
+	ResetNormal() {
+		ToolTip()
+		tControl := GuiCtrlFromHwnd(PrevHwnd)
+		If tControl {
+			If tControl.Type="PicSwitch" || InStr(tControl.Name, "Link_")=1 {
+				tControl.SetFont("c" Themes.%ThemeSelected%.TextColor)
+			} Else If InStr(tControl.Name, "BtnSys_")=1 {
+				If tControl.Type="Text"
+					tControl.SetFont("c" Themes.%ThemeSelected%.TextColor)
+				tControl.Opt("-Border")
+			} Else If InStr(tControl.Name, "NavItem_")=1 {
+				tGui := tControl.Gui
+				tGui["NavBGHover"].Visible := false
 			}
-		} Catch {
-			iHoveredName:=""
 		}
 	}
 
@@ -239,9 +221,11 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 }
 
 WM_LBUTTONDOWN(wParam,lParam,msg,hwnd) {
-    thisGui := GuiFromHwnd(hwnd)
-	If thisGui
-		PostMessage 0xA1, 2
+	If App.HwndMain==hwnd {
+		thisGui := GuiFromHwnd(hwnd)
+		If thisGui
+			PostMessage 0xA1, 2
+	}
 }
 ON_EN_SETFOCUS(wParam,lParam,msg,hwnd) { ;by jNizM
 	static EM_SETSEL   := 0x00B1
@@ -263,13 +247,13 @@ CreateWaitDlg(g) {
 
 CreateDlg(g, gDisabled:=1, bg:="") {
 	DestroyDlg(0) 
-	g2:=Gui("-Caption +Owner" g.Hwnd,App.Name "_Popup")
-	App.HwndPopup:=g2.hWnd
+	g2:=Gui("-Caption +Owner" g.Hwnd)
 	FrameShadow(g2.hWnd)
 	g2.SetFont("c" Themes.%ThemeSelected%.TextColor, "Segoe UI Semibold")
 	g2.BackColor:=bg?bg:Themes.%ThemeSelected%.BackColor
 	If gDisabled
 		g.Opt("+Disabled")
+	App.HwndPopup:=g2.hWnd
 	Return g2
 }
 
@@ -277,7 +261,8 @@ DestroyDlg(gDisabled:=1) {
 	If gDisabled && App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain)
 		g.Opt("-Disabled")
 	If App.HasOwnProp("HwndPopup") && App.HwndPopup {
-		WinClose(App.HwndPopup)
+		If WinExist(App.HwndPopup)
+			WinClose
 		App.DeleteProp("HwndPopup")
 	}
 }

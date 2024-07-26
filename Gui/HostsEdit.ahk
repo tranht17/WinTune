@@ -19,7 +19,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 	} catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
-		HostsEdit:=g.AddEdit("h" PanelH-12 " w420 -wrap x" sXCBT+6 " y" sYCBT+6 " vHostsEdit",Hosts)
+		HostsEdit:=g.AddEdit("h" PanelH-12 " w" PanelW-320-24 " -wrap x" sXCBT+6 " y" sYCBT+6 " vHostsEdit",Hosts)
 		HostsEdit.OnEvent("Change",HostsEdit_Change)
 		HostsEdit_Change(*) {
 			g["HostsEdit_BtnSave"].Enabled:=True
@@ -75,7 +75,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		ImageListID := IL_Create(2)
 		IL_Add(ImageListID, "shell32.dll", 4)
 		IL_Add(ImageListID, "shell32.dll", 14)
-		TV := g.AddTreeView("w320 r15 vHostsEdit_TreeViewSelectLink ImageList" ImageListID)
+		TV := g.AddTreeView("w320 h300 vHostsEdit_TreeViewSelectLink ImageList" ImageListID)
 		TV.OnEvent("Click",TreeViewSelectLink_Click)
 		TV.OnEvent("ItemExpand",TreeViewSelectLink_ItemExpand)
 		ObjectF:={}
@@ -123,7 +123,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 			g["HostsEdit_BtnImportFromLink"].Enabled:=!!EditLink.Value
 		}
 		
-		BtnImportFromFile := g.AddButton("xs y+24 w120 vHostsEdit_BtnImportFromFile")
+		BtnImportFromFile := g.AddButton("xs y+24 w140 h40 vHostsEdit_BtnImportFromFile")
 		BtnImportFromFile.OnEvent("Click",BtnImportFromFile_Click)
 		BtnImportFromFile_Click(*) {
 			files := FileSelect("M3", A_WorkingDir, "Select block list to hosts file")
@@ -134,7 +134,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 			}
 		}
 		
-		BtnSaveAs := g.AddButton("yp w120 vHostsEdit_BtnSaveAs")
+		BtnSaveAs := g.AddButton("yp w140 h40 vHostsEdit_BtnSaveAs")
 		BtnSaveAs.OnEvent("Click",BtnSaveAs_Click)
 		BtnSaveAs_Click(*) {
 			sfile := FileSelect("S16", "hosts_" A_Now, "Save As")
@@ -144,7 +144,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 			}
 		}
 		
-		BtnReload := g.AddButton("xs w120 vHostsEdit_BtnReload")
+		BtnReload := g.AddButton("xs w140 h40 vHostsEdit_BtnReload")
 		BtnReload.OnEvent("Click",BtnReload_Click)
 		BtnReload_Click(*) {
 			g["HostsEdit"].Value:=LoadHostsFile()
@@ -152,7 +152,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 			g["HostsEdit_BtnSave"].Enabled:=False
 		}
 		
-		BtnResetDefault := g.AddButton("yp w120 vHostsEdit_BtnResetDefault")
+		BtnResetDefault := g.AddButton("yp w140 h40 vHostsEdit_BtnResetDefault")
 		BtnResetDefault.OnEvent("Click",BtnResetDefault_Click)
 		BtnResetDefault_Click(*) {
 			g["HostsEdit"].Value:='
@@ -183,7 +183,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 			g["HostsEdit_BtnSave"].Enabled:=True
 		}
 		
-		BtnSave := g.AddButton("Disabled xs w120 h45 vHostsEdit_BtnSave")
+		BtnSave := g.AddButton("Disabled xs w140 h60 vHostsEdit_BtnSave")
 		BtnSave.OnEvent("Click",BtnSave_Click)
 		
 		BtnSave_Click(*) {

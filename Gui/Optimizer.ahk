@@ -1,38 +1,41 @@
 
 OptimizeTab(g, NavIndex) {
-	WICB:=20,SpaceItem:=16,C:=3
-	Static sWCBT,sXCBT,sYCBT
+	WICB:=20,SpaceItem:=16,C:=LangSelected="tr"?2:3
+	Static sXCBT,sYCBT
 	
 	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
 	
+	g["BGPanel"].GetPos(&PanelX, &PanelY, &PanelW)
+		
 	try {
 		g["Link_SelectAll"].Visible:=True
 		g["Link_DeselectAll"].Visible:=True
 		g["HRLine_1"].Visible:=True
 	} Catch {
-		g["BGPanel"].GetPos(&PanelX, &PanelY, &PanelW)
+		
 		sXCBT:=PanelX
 		sYCBT:=PanelY
 		Link_ClearStartMenu:=g.AddText("vLink_ClearStartMenu BackgroundTrans w150 h20 Hidden x" sXCBT+16 " y" (sYCBT+16))					
 		Link_ClearStartMenu.SetFont("underline")
 		Link_ClearStartMenu.OnEvent("Click",Link_ClearStartMenu_Click)
 		
-		Link_SelectAll:=g.AddText("vLink_SelectAll BackgroundTrans w80 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12))					
-		Link_SelectAll.SetFont("s11 underline")
+		Link_SelectAll:=g.AddText("vLink_SelectAll BackgroundTrans w100 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12))					
+		Link_SelectAll.SetFont("s10 underline")
 		Link_SelectAll.OnEvent("Click",Link_SelectAll_Click)
 		
-		Link_DeselectAll:=g.AddText("vLink_DeselectAll BackgroundTrans w80 h20 yp")					
-		Link_DeselectAll.SetFont("s11 underline")
+		Link_DeselectAll:=g.AddText("vLink_DeselectAll BackgroundTrans w100 h20 yp")					
+		Link_DeselectAll.SetFont("s10 underline")
 		Link_DeselectAll.OnEvent("Click",Link_DeselectAll_Click)
 		
 		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor)
 
-		sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 		sXCBT+=SpaceItem
 		sYCBT+=SpaceItem
 	}
 	
-	If Layout[NavIndex].ID="StartMenu"
+	sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
+	
+	If NavIndex>0 && Layout[NavIndex].ID="StartMenu"
 		g["Link_ClearStartMenu"].Visible:=True
 	
 	CurrentTabCtrls:=Array()
@@ -61,7 +64,8 @@ OptimizeTab(g, NavIndex) {
 			CtrlCreated:=CreateCB(g,ItemId, sWCBT)
 		} Finally {
 			If CtrlCreated {
-				g[ItemId].Move(x, y)
+				g[ItemId].Visible:=False
+				g[ItemId].Move(x, y, sWCBT)
 				g[ItemId].Visible:=True
 				CurrentTabCtrls.Push ItemId
 			}

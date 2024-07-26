@@ -11,7 +11,7 @@ CheckUpdate(g:="") {
 			;12007: No internet|The server name cannot be resolved.
 			;12029: Block internet|Connection to the server failed.
 			if g
-				MsgBox("Connection to the server failed.",,"Icon!")
+				MsgBox("Connection to the server failed.","Check Update","Icon!")
 			return
 		}
 		
@@ -20,7 +20,7 @@ CheckUpdate(g:="") {
 			NewVer:=LatestInfo["tag_name"]
 		} catch Error as err {
 			if g
-				MsgBox("Connection to the server failed.",,"Icon!")
+				MsgBox("Connection to the server failed.","Check Update","Icon!")
 			Return
 		}
 		
@@ -95,17 +95,12 @@ CheckUpdate(g:="") {
 								FileDownloaded:=1
 								Break
 							}
-						} catch Error as err {
-							if A_Index==10 {
-								MsgBox("Update failed please try again later.",,"Icon!")
-								try FileDelete DownloadFile
-								DestroyDlg()
-							}
 						}
 					}
 					
 					if FileDownloaded {
 						if A_IsCompiled {
+							try FileDelete CurrentFile ".bak"
 							FileMove CurrentFile, CurrentFile ".bak", 1
 							FileMove DownloadFile, CurrentFile, 1
 						} else {
@@ -115,6 +110,10 @@ CheckUpdate(g:="") {
 							try FileDelete DownloadFile
 						}
 						Reload
+					} Else {
+						try FileDelete DownloadFile
+						DestroyDlg()
+						MsgBox("Update failed please try again later.","Check Update","Icon!")
 					}
 				}
 			} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {

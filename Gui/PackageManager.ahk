@@ -1,4 +1,5 @@
 BtnPackageManager_Click(g, NavIndex) {
+	static LVWidth
 	CurrentTabCtrls:=[	"PackageManager_BtnDisable" ,
 						"PackageManager_BtnUninstallChecked",
 						"PackageManager_BtnUninstall",
@@ -28,27 +29,28 @@ BtnPackageManager_Click(g, NavIndex) {
 		
 		g.AddCheckbox("vPackageManager_DeprovisionPackage yp w200")
 		
-		a:=g.AddButton("vPackageManager_BtnUninstallChecked w140 Disabled xs")
+		a:=g.AddButton("vPackageManager_BtnUninstallChecked w150 Disabled xs")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(1))
 		
-		a:=g.AddButton("vPackageManager_BtnUninstall yp w140 Disabled")
+		a:=g.AddButton("vPackageManager_BtnUninstall yp w150 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(2))
 		
-		a:=g.AddButton("vPackageManager_BtnDisable yp w136 Disabled")
+		a:=g.AddButton("vPackageManager_BtnDisable yp w146 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(3))
 		
-		a:=g.AddButton("vPackageManager_BtnSearchOnline yp w150 Disabled")
+		a:=g.AddButton("vPackageManager_BtnSearchOnline yp w160 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(4))
 		
-		a:=g.AddButton("vPackageManager_BtnDetails yp w150 Disabled")
+		a:=g.AddButton("vPackageManager_BtnDetails yp w146 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(5))
 		
-		LVPackageManager:=g.AddListView("vPackageManager_LV -Multi Sort Checked xs w" PanelW-16 " h" PanelH-66-16, ["","","","","","Id",""])
+		LVWidth:=PanelW-16
+		LVPackageManager:=g.AddListView("vPackageManager_LV -Multi Sort Checked xs w" LVWidth " h" PanelH-66-16, ["","","","","","Id",""])
 		LVPackageManager.SetFont("s10")
 		LVPackageManager.OnEvent("Click",LVPackageManager_Click)
 		LVPackageManager.OnEvent("DoubleClick",LVPackageManager_DoubleClick)
@@ -98,11 +100,11 @@ BtnPackageManager_Click(g, NavIndex) {
 		g["BtnSys_SaveOptimizeConfigTab"].Visible:=False
 		
 		LVPackageManager:=g["PackageManager_LV"]
-		LVPackageManager.ModifyCol(1, 280)
-		LVPackageManager.ModifyCol(2, 80)
-		LVPackageManager.ModifyCol(3, 120)
-		LVPackageManager.ModifyCol(4, 72)
-		LVPackageManager.ModifyCol(5, 170)
+		LVPackageManager.ModifyCol(1, 38/100*LVWidth)
+		LVPackageManager.ModifyCol(2, 12/100*LVWidth)
+		LVPackageManager.ModifyCol(3, 17/100*LVWidth)
+		LVPackageManager.ModifyCol(4, 10/100*LVWidth)
+		LVPackageManager.ModifyCol(5, 23/100*LVWidth-2)
 		LVPackageManager.ModifyCol(6, 0)
 		LVPackageManager.ModifyCol(7, 0)
 		

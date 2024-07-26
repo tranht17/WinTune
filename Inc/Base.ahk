@@ -1,7 +1,7 @@
 CheckOS()
 CheckOS() {
 	If A_Is64bitOS && A_PtrSize==4 {
-		MsgBoxError("You need the 64-bit version of the software (WinTune64) to run on 64-bit Windows.`n`nhttps://github.com/tranht17/WinTune/releases", 1, "Incompatible")
+		MsgBoxError("You need the 64-bit version of the software to run on 64-bit Windows.`n`nhttps://github.com/tranht17/WinTune/releases", 1, "Incompatible")
 	}
 }
 
@@ -259,66 +259,57 @@ RestartExplorer() {
 	ProcessClose "explorer.exe"
 }
 CheckAdmin() {
-	full_command_line := DllCall("GetCommandLine", "str")
-	Loop 2
-		DllCall( "ChangeWindowMessageFilter", "uInt", "0x" (A_Index=1?49:233), "uint", 1)
+	; Loop 2
+		; DllCall( "ChangeWindowMessageFilter", "uInt", "0x" (A_Index=1?49:233), "uint", 1)
+	if A_Args.Length ==1 && FileExist(A_Args[1]) && SubStr(A_Args[1], -4)=".ahk" {
+		full_command_line := '/script "' A_Args[1] '"'
+	} Else
+		full_command_line := DllCall("GetCommandLine", "str")
 	if !(A_IsAdmin || RegExMatch(full_command_line, " /restart(?!S)")) {	
-		RunAsAdmin()
+		try {
+			if A_IsCompiled {
+				Run '*RunAs "' A_ScriptFullPath '" /restart ' full_command_line
+			} else
+				Run '*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '" ' full_command_line
+		}
 		ExitApp
 	}
-}
-RunAsAdmin() {
-	try {
-		Params:=""
-		Loop A_Args.Length {
-			i:=A_Index
-			If InStr(A_Args[i], " ")
-				Params .= A_Space '"' A_Args[i] '"'
-			Else
-				Params .= A_Space A_Args[i]
-		}
-		if A_IsCompiled
-			Run '*RunAs "' A_ScriptFullPath '" /restart' Params
-		else
-			Run '*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"' Params
-		Return 1
-	}
-	Return 0
 }
 MsgBoxError(iText, IsExitApp:=0, title:="Error") {
 	MsgBox(iText,title,"Iconx")
 	If IsExitApp
 		ExitApp
 }
-Debug(iErr:="",iErrEx:="") {
-	If IsSet(App)
-		t:="`n================= " App.Name " v" App.Ver " ================="
-	Else
-		t:="`n=================================================="
+Debug(iErr:="",iErrEx:="", iErrTitle:="") {
+	static IsLog:=0
+	LogFile:="log.txt"
+	t:=""
+	If !IsLog {
+		If IsSet(App) {
+			t.="`n================= " App.Name " v" App.Ver " ================="
+		} Else {
+			t.="`n=================================================="
+		}
+		t.="`nOSVersion          :" A_OSVersion
+		t.="`nIs64bitOS          :" A_Is64bitOS
+		t.="`nInstallationType   :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType","")
+		t.="`nEditionID          :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID","")
+
+		IsLog:=1
+		try FileDelete LogFile
+	}
+	t.="`n=================================================="
+	t.="`nTime               :" A_Now
 	
-	t.="`nTime     :" A_Now
-	t.="`nOSVersion:" A_OSVersion
-	t.="`nIs64bitOS:" A_Is64bitOS
-	
-	If Type(iErr)=="String" {
+	If Type(iErr)="String" {
 		t.="`n" iErr
-		try Msg(iErr)
 	} Else {
-		t.="`nMessage  :" iErr.Message
-		t.="`nExtra    :" iErr.Extra
-		t.="`nStack    :" iErr.Stack
-		try Msg(iErr.Message)
+		t.="`nMessage            :" iErr.Message
+		t.="`nExtra              :" iErr.Extra
+		t.="`nStack              :" iErr.Stack
 	}
-	
 	t.=iErrEx?"`n" iErrEx:""
-	
-	DebugMode:=IsSet(App)&&App.HasOwnProp("DebugMode")?App.DebugMode:1
-	If DebugMode==1 {
-		FileAppend t, "log.txt"
-		try Run "notepad log.txt"
-	} Else If DebugMode==2 {
-		OutputDebug t
-	}
+	FileAppend t, LogFile
 }
 
 /* Package Manager */

@@ -10,6 +10,7 @@ for ,param in A_Args {
 		DisableMSDefenderScheduleTask(sparam)
 		ExitApp
 	} Else If InStr(param, "/User=")=1 {
+		LookupAccountName(SubStr(param,7))
 		CurrentUser:=SubStr(param,7)
 	} Else If InStr(param, "/LoadConfig=")=1 {
 		sparam:=SubStr(param,13)

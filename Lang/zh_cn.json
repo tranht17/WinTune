@@ -67,7 +67,6 @@
 "EnableDarkMode": {"Name": "启用暗黑模式"},
 "HostsEdit_BtnImportFromFile": {"Name": "从文件导入"},
 "HostsEdit_BtnImportFromLink": {"Name": "从链接导入"},
-"HostsEdit_BtnInsertLink": {"Desc": "插入链接以导入到主机"},
 "HostsEdit_BtnReload": {"Name": "重新加载主机文件"},
 "HostsEdit_BtnResetDefault": {"Name": "重置默认"},
 "HostsEdit_BtnSave": {"Name": "保存"},

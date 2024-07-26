@@ -1,5 +1,5 @@
 BtnStartupManager_Click(g, NavIndex) {
-	CurrentTabCtrls:=Array()
+	static LVWidth
 	CurrentTabCtrls:=[	"StartupManager_BtnDisable" ,
 						"StartupManager_BtnDelete",
 						"StartupManager_BtnOpenTarget",
@@ -33,7 +33,8 @@ BtnStartupManager_Click(g, NavIndex) {
 		a:=g.AddButton("vStartupManager_BtnSearchOnline yp w145 Disabled")
 		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(5))
-		LVStartupManager:=g.AddListView("vStartupManager_LV -Multi w" PanelW-12 " h" PanelH-46 " x" sXCBT+6 " y" sYCBT+40, ["","","","","Type","StatusId"])
+		LVWidth:=PanelW-12
+		LVStartupManager:=g.AddListView("vStartupManager_LV -Multi w" LVWidth " h" PanelH-46 " x" sXCBT+6 " y" sYCBT+40, ["","","","","Type","StatusId"])
 		LVStartupManager.SetFont("s10")
 		LVStartupManager.OnEvent("Click",LVStartupManager_Click)
 		LVStartupManager.OnEvent("ContextMenu",LVStartupManager_ContextMenu)
@@ -70,9 +71,9 @@ BtnStartupManager_Click(g, NavIndex) {
 	IL_Add(ImageListID, "imageres.dll", 12)
 	IL_Add(ImageListID, "imageres.dll", 4)
 
-	LVStartupManager.ModifyCol(1, 200)
-	LVStartupManager.ModifyCol(2, 70)
-	LVStartupManager.ModifyCol(3, 473)
+	LVStartupManager.ModifyCol(1, 28/100*LVWidth)
+	LVStartupManager.ModifyCol(2, 12/100*LVWidth)
+	LVStartupManager.ModifyCol(3, 60/100*LVWidth-2)
 	LVStartupManager.ModifyCol(4, 0)
 	LVStartupManager.ModifyCol(5, 0)
 	LVStartupManager.ModifyCol(6, 0)

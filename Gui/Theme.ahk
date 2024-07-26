@@ -27,7 +27,7 @@ CreatePopupTheme(Ctr, *) {
 		IniWrite ThemeSelected, "config.ini", "General", "Theme"
 	}
 	
-	BGImage:=IniRead("config.ini", "Gui", "BGImage", 1)
+	BGImage:=IniRead("config.ini", "Gui", "BGImage", 0)
 	g2.AddText("xm","Background Image:")
 	g2.AddRadio("vSetting_BGImage_Radio w80 h25" (BGImage==0?" Checked":""), "None").OnEvent("Click",BGImage_Radio_None_Click)
 	g2.AddRadio("yp h25" (BGImage==1?" Checked":""), "Default image").OnEvent("Click",BGImage_Radio_Default_Click)
