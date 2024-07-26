@@ -12,40 +12,6 @@ g.AddButton("h30 w124", "Convert to Json files").OnEvent("Click", Convert_LangJs
 g.AddButton("yp h30 w170", "Convert back LangData.ahk").OnEvent("Click", Convert_LangDataAHK)
 g.Show()
 
-for ,param in A_Args {
-	MsgBox param
-}
-
-CheckLangExistList() {
-	List:={}
-	For k, In LangData.en.OwnProps() {
-		i:=0
-		Loop Files, "..\*.ahk", "R" {
-			t:=FileRead(A_LoopFilePath)
-			If InStr(t, '"' k '"')
-				i++
-			If InStr(t, 'v' k)
-				i++
-		}
-		List.%k%:=i
-	}
-	FileAppend DisplayObj(List,1), "LangExistList.txt"
-	MsgBox "Done!"
-}
-; CheckLangExist()
-CheckLangExist() {
-	For k,v In LangData.OwnProps() {
-		If k="en"
-			Continue
-		For k2, In v.OwnProps() {
-			If !LangData.en.HasOwnProp(k2) {
-				A_Clipboard:=k2
-				MsgBox k "|" k2
-			}
-				
-		}
-	}
-}
 Convert_LangDataAHK(*) {
 	out:="LangData:= {"
 	Loop Files, "..\Lang\*.json" {
