@@ -72,6 +72,10 @@
 	
 	`WinTune /User=YourUserName /LoadConfig=YourConfig.json`
 
+## Community
+
+- [Join discord](https://discord.gg/mk6uwQscrq)
+
 ## Translations
 
 - Chinese (Simplified) | Jvcon
