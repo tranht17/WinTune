@@ -28,11 +28,11 @@ CheckUpdate(g:="") {
 			if g {
 				g2:=CreateDlg(g)
 				tWidth:=400
-				g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
+				g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s" App.MainFontSize+1)
 				g2.AddText("xm0", GetLangText("Text_CurrentVersion") ":")
 				g2.AddText("yp", App.Ver)
 				g2.AddText("xm0", GetLangText("Text_NewestVersion") ":")
-				g2.AddText("yp c" Themes.%ThemeSelected%.TextColorHover, NewVer)
+				g2.AddText("yp c" Themes.%App.ThemeSelected%.TextColorHover, NewVer)
 				g2.AddText("xm0", GetLangText("Text_WhatsNew") ":")
 				
 				WhatsNew:=RegExReplace(LatestInfo["body"], "sm)\r\n## Verify.*")
@@ -59,7 +59,7 @@ CheckUpdate(g:="") {
 					DestroyDlg()
 					g2:=CreateDlg(g)
 					uWidth:=300,uHeight:=20
-					g2.AddText("Center 0x200 h" uHeight " w" uWidth,"Updating...").SetFont("s10")
+					g2.AddText("Center 0x200 h" uHeight " w" uWidth,"Updating...").SetFont("s" App.MainFontSize+1)
 					g2.Show("x" gX+(gW-uWidth)/2 " y" gY+(gH-uHeight)/2)
 					
 					if A_IsCompiled {
@@ -119,13 +119,13 @@ CheckUpdate(g:="") {
 			} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {
 				g["VerCtrl"].ToolTipEx:=1
 				g["VerCtrl"].Text:="v" App.Ver " -> v" NewVer
-				g["VerCtrl"].SetFont("c00A7EB")
+				g["VerCtrl"].SetFont("c" Themes.%App.ThemeSelected%.TextColorHover)
 			}
 		} else if g {
 			g["VerCtrl"].DeleteProp("ToolTipEx")
 			g2:=CreateDlg(g)
 			tWidth:=300
-			a:=g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s10")
+			a:=g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s" App.MainFontSize+1)
 			a:=g2.AddText("xm0 yp50 w300 h50 Center", GetLangText("Text_NoUpdate"))
 			BtnOK:=g2.AddButton("xm50 w100", GetLangText("Text_OK"))
 			BtnOK.OnEvent("Click",(*)=>DestroyDlg())
@@ -133,9 +133,8 @@ CheckUpdate(g:="") {
 			BtnHomepage:=g2.AddButton("yp w100", GetLangText("Text_Homepage"))
 			BtnHomepage.OnEvent("Click",(*)=>Run("https://github.com/tranht17/WinTune"))
 			SetCtrlTheme(BtnHomepage)
-				
 			g.GetPos(&gX, &gY, &gW, &gH)
-			g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-80)
+			g2.Show("x" (gX+(gW-tWidth)/2-16) " y" (gY+gH/2-80))
 		}
 	}
 }

@@ -3,7 +3,7 @@ CheckRequires(DataItem) {
 	If DataItem.HasOwnProp("RequiresWinInstallationType") && DataItem.RequiresWinInstallationType {
 		IsPassed:=0
 		Loop Parse, DataItem.RequiresWinInstallationType, "," {
-			If A_LoopField=SystemInfo.InstallationType {
+			If A_LoopField=App.SystemInfo.InstallationType {
 				IsPassed:=1
 				Break
 			}	
@@ -16,7 +16,7 @@ CheckRequires(DataItem) {
 	If DataItem.HasOwnProp("RequiresWinEditionID") && DataItem.RequiresWinEditionID {
 		IsPassed:=0
 		Loop Parse, DataItem.RequiresWinEditionID, "," {
-			If A_LoopField=SystemInfo.EditionID {
+			If A_LoopField=App.SystemInfo.EditionID {
 				IsPassed:=1
 				Break
 			}	
@@ -216,7 +216,7 @@ StartMenuLayout(&item, Type:="get", silent:=1) {
 		}
 		
 		If Type="get" {
-			item.VisiblePlaces:=RegRead(HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces", "")
+			item.VisiblePlaces:=RegRead(App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces", "")
 			If StartBinPath {
 				f := FileRead(StartBinPath, "RAW")
 				item.StartBin:=Bin2Hex(f, f.Size)
@@ -224,7 +224,7 @@ StartMenuLayout(&item, Type:="get", silent:=1) {
 			}
 		} Else If Type="set" {
 			If item.HasOwnProp("VisiblePlaces") {
-				RegWrite item.VisiblePlaces, "REG_BINARY", HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces"
+				RegWrite item.VisiblePlaces, "REG_BINARY", App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Start", "VisiblePlaces"
 				s:=1
 			}
 			If StartBinPath && item.HasOwnProp("StartBin") {
@@ -235,35 +235,35 @@ StartMenuLayout(&item, Type:="get", silent:=1) {
 			}
 		}
 	} Else If VerCompare(A_OSVersion,">=10.0.16299") {
-		Loop Reg, HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount", "K" {
+		Loop Reg, App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount", "K" {
 			If InStr(A_LoopRegName, "$start.suggestions$windows.data.curatedtilecollection.tilecollection") {
 				If Type="get" {
-					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					sData:=RegRead(App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
 					If sData
 						item.Suggestions:=sData
 					s:=1
 				} Else If Type="set" && item.HasOwnProp("Suggestions") {
-					RegWrite item.Suggestions, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					RegWrite item.Suggestions, "REG_BINARY", App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
 					s:=1
 				}
 			} Else If InStr(A_LoopRegName, "$start.tilegrid$windows.data.curatedtilecollection.tilecollection") {
 				If Type="get" {
-					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					sData:=RegRead(App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
 					If sData
 						item.TileGrid:=sData
 					s:=1
 				} Else If Type="set" && item.HasOwnProp("TileGrid") {
-					RegWrite item.TileGrid, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					RegWrite item.TileGrid, "REG_BINARY", App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
 					s:=1
 				}
 			} Else If InStr(A_LoopRegName, "$windows.data.unifiedtile.startglobalproperties") {
 				If Type="get" {
-					sData:=RegRead(HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
+					sData:=RegRead(App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data", "")
 					If sData
 						item.StartGlobalProperties:=sData
 					s:=1
 				} Else If Type="set" && item.HasOwnProp("StartGlobalProperties") {
-					RegWrite item.StartGlobalProperties, "REG_BINARY", HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
+					RegWrite item.StartGlobalProperties, "REG_BINARY", App.HKCU "\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudStore\Store\Cache\DefaultAccount\" A_LoopRegName "\Current", "Data"
 					s:=1
 				}
 			}

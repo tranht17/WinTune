@@ -42,7 +42,6 @@ tray.Add("Exit", (*) => ExitApp())
 #Include Gui/PackageManager.ahk
 #Include Gui/CheckUpdate.ahk
 
-Init()
 OnMessage 0x0111, ON_EN_SETFOCUS
 CreateGui()
 OnMessage 0x0200, WM_MOUSEMOVE

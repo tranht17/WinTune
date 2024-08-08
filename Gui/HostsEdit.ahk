@@ -1,5 +1,4 @@
 BtnHostsEdit_Click(g, NavIndex) {
-	CurrentTabCtrls:=Array()
 	Hosts:=LoadHostsFile()
 	CurrentTabCtrls:=[	"HostsEdit" ,
 						"HostsEdit_BtnImportFromFile",
@@ -185,6 +184,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		
 		BtnSave := g.AddButton("Disabled xs w140 h60 vHostsEdit_BtnSave")
 		BtnSave.OnEvent("Click",BtnSave_Click)
+		BtnSave.SetFont("s" App.MainFontSize+2)
 		
 		BtnSave_Click(*) {
 			SaveHostsFile(HostsEdit.Value)
@@ -196,17 +196,17 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 	}
 
-	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
 		Loop CurrentTabCtrls.Length {
 			tCtrlID:=CurrentTabCtrls[A_Index]
 			If tCtrlID!="HostsEdit_BtnImportFromLink" && (g[tCtrlID].Type="Button" || g[tCtrlID].Type="Text")
 				g[tCtrlID].Text:=GetLangName(tCtrlID)
 		}
-		TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavIndex%:=1
 	}
 	
 	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
 	CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
 	
-	Return CurrentTabCtrls
+	App.CurrentTabCtrls:=CurrentTabCtrls
 }

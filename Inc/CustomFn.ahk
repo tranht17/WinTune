@@ -8,7 +8,7 @@ CheckUninstallOneDrive() {
 				Return -1
 		}
 	}
-	OneDriveSetupRun:=RegRead(HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup", "")
+	OneDriveSetupRun:=RegRead(App.HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup", "")
 	PreInstall:=!InStr(OneDriveSetupRun, "/uninstall")
 	If !(OneDriveExist:=FileExist(EnvGet2("Local AppData") "\Microsoft\OneDrive\onedrive.exe")) {
 		If !(OneDriveExist:=FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
@@ -34,31 +34,31 @@ UninstallOneDrive(s,d,silent) {
 		IsPerMachine:=!!FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft OneDrive\OneDrive.exe")
 	}
 	OneDriveSetupCMD:=OneDriveSetup (IsPerMachine?' /allusers':'') (s?' /uninstall':'') ' /silent'
-	If CurrentUser=GetActiveUser() {
+	If App.User=GetActiveUser() {
 		If s
 			ProcessClose "OneDrive.exe"
 		RunWait OneDriveSetupCMD
 	} Else {
 		try
-			RegDelete HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDriveSetup"
+			RegDelete App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDriveSetup"
 		try
-			RegDelete HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDrive"
-		RegWrite OneDriveSetupCMD, "REG_SZ", HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup"
+			RegDelete App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDrive"
+		RegWrite OneDriveSetupCMD, "REG_SZ", App.HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup"
 	}
 }
 
 CheckDisableVisualStudioTelemetry() {
 	If FileExist(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe")	
-		Return RegRead(HKCU  "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
+		Return RegRead(App.HKCU "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
 	Else {
 		Return -1
 	}
 }
 DisableVisualStudioTelemetry(s,d,silent) {
 	Ver:=SubStr(RunTerminal(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe -latest -property catalog_productDisplayVersion"), 1,2)
-	RegWrite s, "REG_DWORD", HKCU  "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch"
+	RegWrite s, "REG_DWORD", App.HKCU "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch"
 	RegWrite !s, "REG_DWORD", "HKLM\Software\WOW6432Node\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
-	RegWrite !s, "REG_DWORD", HKCU "\Software\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
+	RegWrite !s, "REG_DWORD", App.HKCU "\Software\Microsoft\VSCommon\" Ver ".0\SQM", "OptIn"
 }
 
 CheckDisableSystemRestore() {

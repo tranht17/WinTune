@@ -14,38 +14,35 @@ BtnStartupManager_Click(g, NavIndex) {
 		}	
 	} Catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
-		a:=g.AddButton("vStartupManager_BtnDisable w110 Disabled x" sXCBT+6 " y" sYCBT+6)
-		a.SetFont("s11",IconFont)
+		
+		g.SetFont("s11",App.IconFont)
+		a:=g.AddButton("vStartupManager_BtnDisable w130 Disabled x" sXCBT+6 " y" sYCBT+6)
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(1))
 
-		a:=g.AddButton("vStartupManager_BtnDelete yp w110 Disabled")
-		a.SetFont("s11",IconFont)
+		a:=g.AddButton("vStartupManager_BtnDelete yp w130 Disabled")
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(6))
 		
 		a:=g.AddButton("vStartupManager_BtnOpenTarget yp w190 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(3))
 
 		a:=g.AddButton("vStartupManager_BtnFindRegistry yp w160 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(4))
 		
 		a:=g.AddButton("vStartupManager_BtnSearchOnline yp w145 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>StartupManager_FnRun(5))
 		LVWidth:=PanelW-12
+		g.SetFont("s" App.MainFontSize+1,App.MainFont)
 		LVStartupManager:=g.AddListView("vStartupManager_LV -Multi w" LVWidth " h" PanelH-46 " x" sXCBT+6 " y" sYCBT+40, ["","","","","Type","StatusId"])
-		LVStartupManager.SetFont("s10")
 		LVStartupManager.OnEvent("Click",LVStartupManager_Click)
 		LVStartupManager.OnEvent("ContextMenu",LVStartupManager_ContextMenu)
-		
+		g.SetFont("s" App.MainFontSize,App.MainFont)
 		Loop CurrentTabCtrls.Length {
 			SetCtrlTheme(g[CurrentTabCtrls[A_Index]])
 		}
 	}
 	LVStartupManager:=g["StartupManager_LV"]
 	
-	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
 		m:=Map("StartupManager_BtnDisable", "Text_Disable" ,
 			   "StartupManager_BtnDelete", "Text_Delete" ,
 			   "StartupManager_BtnOpenTarget", "Text_OpenTarget" ,
@@ -62,7 +59,7 @@ BtnStartupManager_Click(g, NavIndex) {
 		LVStartupManager.ModifyCol(4, , GetLangText("Text_Target"))
 		; LVStartupManager.ModifyCol(5, , GetLangText("Text_Type"))
 		
-		TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavIndex%:=1
 	}
 
 	ImageListID := IL_Create(20)
@@ -81,15 +78,15 @@ BtnStartupManager_Click(g, NavIndex) {
 	LVStartupManager.Delete()
 	
 	StartupType:=[
-		{Type: "Registry", LongType: "Registry_HKCU_Run", RunKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"},
-		{Type: "Registry", LongType: "Registry_HKCU_RunOnce", RunKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce"},
-		{Type: "Registry", LongType: "Registry_HKCU_RunPolicies", RunKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"},
+		{Type: "Registry", LongType: "Registry_HKCU_Run", RunKey: App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"},
+		{Type: "Registry", LongType: "Registry_HKCU_RunOnce", RunKey: App.HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce"},
+		{Type: "Registry", LongType: "Registry_HKCU_RunPolicies", RunKey: App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"},
 		{Type: "Registry", LongType: "Registry_HKLM_Run", RunKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"},
 		{Type: "Registry", LongType: "Registry_HKLM_Run32", RunKey: "HKLM\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run", StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"},
 		{Type: "Registry", LongType: "Registry_HKLM_RunOnce", RunKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce"},
 		{Type: "Registry", LongType: "Registry_HKLM_RunOnce32", RunKey: "HKLM\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce"},
 		{Type: "Registry", LongType: "Registry_HKLM_RunPolicies", RunKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"},
-		{Type: "Folder", LongType: "Folder_Startup", RunKey: EnvGet2("Startup"), StartupApprovedKey: HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"},
+		{Type: "Folder", LongType: "Folder_Startup", RunKey: EnvGet2("Startup"), StartupApprovedKey: App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"},
 		{Type: "Folder", LongType: "Folder_StartupCommon", RunKey: A_StartupCommon, StartupApprovedKey: "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"},
 		{Type: "UWPApp", LongType: "Registry_HKCU_Run", FamilyName: "Microsoft.549981C3F5F10_8wekyb3d8bbwe", RunKey: "CortanaStartupId", CheckStartTerminalOnLoginTask: 1},
 		{Type: "UWPApp", LongType: "Registry_HKCU_Run", FamilyName: "Microsoft.WindowsTerminal_8wekyb3d8bbwe", RunKey: "StartTerminalOnLoginTask"}
@@ -100,7 +97,7 @@ BtnStartupManager_Click(g, NavIndex) {
 		%iType%Load(LVStartupManager, A_Index, StartupType[A_Index])
 	}
 	
-	Return CurrentTabCtrls
+	App.CurrentTabCtrls:=CurrentTabCtrls
 	
 	FolderLoad(LV, sId, sItem) {
 		sPath:=sItem.RunKey
@@ -174,7 +171,7 @@ BtnStartupManager_Click(g, NavIndex) {
 		If !Packages.Length
 			Return
 
-		RunKey:=HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" sItem.FamilyName "\" sItem.RunKey
+		RunKey:=App.HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" sItem.FamilyName "\" sItem.RunKey
 		State:=RegRead(RunKey, "State", 0)
 		
 		If sItem.HasOwnProp("CheckStartTerminalOnLoginTask") && sItem.CheckStartTerminalOnLoginTask {
@@ -316,14 +313,14 @@ BtnStartupManager_Click(g, NavIndex) {
 					iStatusText:="Text_Enabled"
 					bStatusText:="Text_Disable"
 					iStatus:=2
-					RunKey:=HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" StartupType[LV.GetText(i , 5)].FamilyName "\" StartupType[LV.GetText(i , 5)].RunKey
+					RunKey:=App.HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" StartupType[LV.GetText(i , 5)].FamilyName "\" StartupType[LV.GetText(i , 5)].RunKey
 					RegWrite 1, "REG_DWORD", RunKey, "UserEnabledStartupOnce"
 				} Else {
 					iStatusText:="Text_Disabled"
 					bStatusText:="Text_Enable"
 					iStatus:=1
 				}
-				RunKey:=HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" StartupType[LV.GetText(i , 5)].FamilyName "\" StartupType[LV.GetText(i , 5)].RunKey
+				RunKey:=App.HKCU "\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\" StartupType[LV.GetText(i , 5)].FamilyName "\" StartupType[LV.GetText(i , 5)].RunKey
 				RegWrite iStatus, "REG_DWORD", RunKey, "State"
 			} Else {
 				sHex:=""

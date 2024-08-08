@@ -20,49 +20,45 @@ BtnPackageManager_Click(g, NavIndex) {
 		
 		xTop:=sXCBT+8
 		yTop:=sYCBT+8
-		a:=g.AddDDL("vPackageManager_Mode w150 Section x" xTop " y" yTop)
+		a:=g.AddDDL("vPackageManager_Mode w200 Section x" xTop " y" yTop)
 
 		a.OnEvent("Change",SwichInstalled)
 		
-		b:=g.AddCheckbox("vPackageManager_InstalledAllUsers yp w100")
+		b:=g.AddCheckbox("vPackageManager_InstalledAllUsers yp w150")
 		b.OnEvent("Click",SwichInstalled)
 		
 		g.AddCheckbox("vPackageManager_DeprovisionPackage yp w200")
 		
+		g.SetFont("s11",App.IconFont)
 		a:=g.AddButton("vPackageManager_BtnUninstallChecked w150 Disabled xs")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(1))
 		
 		a:=g.AddButton("vPackageManager_BtnUninstall yp w150 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(2))
 		
 		a:=g.AddButton("vPackageManager_BtnDisable yp w146 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(3))
 		
 		a:=g.AddButton("vPackageManager_BtnSearchOnline yp w160 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(4))
 		
 		a:=g.AddButton("vPackageManager_BtnDetails yp w146 Disabled")
-		a.SetFont("s11",IconFont)
 		a.OnEvent("Click",(*)=>PackageManager_FnRun(5))
 		
+		g.SetFont("s" App.MainFontSize+1,App.MainFont)
 		LVWidth:=PanelW-16
 		LVPackageManager:=g.AddListView("vPackageManager_LV -Multi Sort Checked xs w" LVWidth " h" PanelH-66-16, ["","","","","","Id",""])
-		LVPackageManager.SetFont("s10")
 		LVPackageManager.OnEvent("Click",LVPackageManager_Click)
 		LVPackageManager.OnEvent("DoubleClick",LVPackageManager_DoubleClick)
 		LVPackageManager.OnEvent("ContextMenu",LVPackageManager_ContextMenu)
 		LVPackageManager.OnEvent("ItemCheck",LVPackageManager_ItemCheck)
-		
+		g.SetFont("s" App.MainFontSize,App.MainFont)
 		Loop CurrentTabCtrls.Length {
 			SetCtrlTheme(g[CurrentTabCtrls[A_Index]])
 		}
 	}
 	
-	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
 		LVPackageManager:=g["PackageManager_LV"]
 		
 		g["PackageManager_Mode"].Delete()
@@ -90,11 +86,11 @@ BtnPackageManager_Click(g, NavIndex) {
 		LVPackageManager.ModifyCol(5, , GetLangText("Text_PublisherDisplayName"))
 		LVPackageManager.ModifyCol(7, , GetLangText("Text_FamilyName"))
 		
-		TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavIndex%:=1
 	}
 	
 	LoadLV()	
-	Return CurrentTabCtrls
+	App.CurrentTabCtrls:=CurrentTabCtrls
 	
 	LoadLV(*) {
 		g["BtnSys_SaveOptimizeConfigTab"].Visible:=False
@@ -114,13 +110,13 @@ BtnPackageManager_Click(g, NavIndex) {
 		LVPackageManager.Delete()
 		IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
 		Mode:=g["PackageManager_Mode"].Value
-		rList:=PackageManager.FindPackages(IsAllUsers?"All":UserSID)
+		rList:=PackageManager.FindPackages(IsAllUsers?"All":App.UserSID)
 		PackagesList(rList)
 		Loop rList.Length {
-			If (Mode==1 && PackageManager.CheckInstallUser(rList[A_Index].FullName, UserSID)
-					&& !RegKeyExist("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\EndOfLife\" UserSID "\" rList[A_Index].FullName))
+			If (Mode==1 && PackageManager.CheckInstallUser(rList[A_Index].FullName, App.UserSID)
+					&& !RegKeyExist("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\EndOfLife\" App.UserSID "\" rList[A_Index].FullName))
 				|| (Mode==2 && (PackageManager.CheckInstallUser(rList[A_Index].FullName, "S-1-5-18", 1) 
-					|| !PackageManager.CheckInstallUser(rList[A_Index].FullName, UserSID))) {
+					|| !PackageManager.CheckInstallUser(rList[A_Index].FullName, App.UserSID))) {
 				Try {
 					IconIndex := IL_Add(ImageListID, rList[A_Index].Logo, 1)
 					aDisplay:=DisplayArchitecture(rList[A_Index].Architecture)
@@ -197,7 +193,7 @@ BtnPackageManager_Click(g, NavIndex) {
 			MyMenu.Add(GetLangText("Text_DeselectAll"), (*)=> LVPackageManager.Modify(0, "-Check") Reload_BtnCountChecked())
 			
 			Mode:=g["PackageManager_Mode"].Value
-			If Mode=2 && CurrentUser=A_Username {
+			If Mode=2 && App.User=A_Username {
 				MyMenu.Add(GetLangText("Text_Install") " (" iCount ")", RunItem)
 				If !iCount
 					MyMenu.Disable("8&")
@@ -320,7 +316,7 @@ BtnPackageManager_Click(g, NavIndex) {
 	}
 	CreateDetailDlg(Item) {
 		g2:=CreateDlg(g)
-		a:=g2.AddText("w500 h22 xm0 Center", "~~~~~ " GetLangText("Text_Details") " ~~~~~").SetFont("s11")
+		a:=g2.AddText("w500 h22 xm0 Center", "~~~~~ " GetLangText("Text_Details") " ~~~~~").SetFont("s" App.MainFontSize+2)
 		aShowList:=["DisplayName"
 				, "FamilyName"
 				, "FullName"
@@ -339,18 +335,17 @@ BtnPackageManager_Click(g, NavIndex) {
 				]
 		id := LVPackageManager.GetText(Item,6)
 		aList:=PackagesList()
+		g2.SetFont("s" App.MainFontSize+1)
 		Loop aShowList.Length {
 			tID:=aShowList[A_Index]
 			a:=g2.AddText("w100 h16 xm0", GetLangText("Text_" tID))
-			a.SetFont("s10")
 			If tID="Status"
 				s:=DisplayStatus(aList[id])
 			Else If tID="Architecture" || tID="SignatureKind"
 				s:=Display%tID%(aList[id].%tID%)
 			Else
 				s:=aList[id].%tID%
-			b:=g2.AddEdit("-vscroll -E0x200 ReadOnly w400 yp Background"  Themes.%ThemeSelected%.BackColor, s)
-			b.SetFont("s10")
+			b:=g2.AddEdit("-vscroll -E0x200 ReadOnly w400 yp Background"  Themes.%App.ThemeSelected%.BackColor, s)
 		}
 		btn_OK:=g2.AddButton("xm200 w100", GetLangText("Text_OK"))
 		btn_OK.OnEvent("Click",(*)=>DestroyDlg())
@@ -385,7 +380,7 @@ BtnPackageManager_Click(g, NavIndex) {
 CreatePackageManagerPreSaveDlg(g) {
 	g2:=CreateDlg(g)
 	tWidth:=400
-	g2.AddText("w" tWidth " h22 xm0 Center", "~~~~~ Pre-Save"  " ~~~~~").SetFont("s11")
+	g2.AddText("w" tWidth " h22 xm0 Center", "~~~~~ Pre-Save"  " ~~~~~").SetFont("s" App.MainFontSize+2)
 	PreSaveAct:=g2.AddDDL("w200 Choose1", ["Uninstall", "Disable", "Deprovision"])
 	SetCtrlTheme(PreSaveAct)
 	PreSaveAct.OnEvent("Change", PreSaveAct_Change)

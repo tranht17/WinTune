@@ -1,16 +1,18 @@
 CreateGui() {
-	Global IsWin11:=VerCompare(A_OSVersion, ">=10.0.22000")
-	Global IconFont:=IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
-	Global ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
-	Global TabLangLoaded:= {}
+	; App.MainFont:="Segoe UI"
+	App.MainFont:="Segoe UI Semibold"
+	App.MainFontSize:="9"
+	App.IconFont:=App.IsWin11?"Segoe Fluent Icons":"Segoe MDL2 Assets"
+	App.ThemeSelected:=IniRead("config.ini", "General", "Theme", "Dark")
+	App.TabLangLoaded:= {}
 	App.CurrentTabCtrls:=[]
 	g:=Gui("-Caption",App.Name)
-	g.SetFont("s11 c" Themes.%ThemeSelected%.TextColor,"Segoe UI Semibold")
-	g.BackColor:=Themes.%ThemeSelected%.BackColor
+	g.SetFont("s" App.MainFontSize+2 " c" Themes.%App.ThemeSelected%.TextColor, App.MainFont)
+	g.BackColor:=Themes.%App.ThemeSelected%.BackColor
 	
 	ToolTipOptions.Init()
 	ToolTipOptions.SetMargins(5, 5, 5, 5)
-	ToolTipOptions.SetColors("0x" Themes.%ThemeSelected%.BackColor, "0x" Themes.%ThemeSelected%.TextColor)
+	ToolTipOptions.SetColors("0x" Themes.%App.ThemeSelected%.BackColor, "0x" Themes.%App.ThemeSelected%.TextColor)
 	SetMenuTheme()
 	
 	NavSelectW:=250, NavSelectH:=36
@@ -23,58 +25,51 @@ CreateGui() {
 	SetBGImage(BGImageCtrl, BGImage, pToken)
 	
 	g.AddPic("vUserPic BackgroundTrans xm12 ym6 w22 h22")
-	NavItem_UserName:=g.AddText("vNavItem_UserName xm ym BackgroundTrans 0x200 0x100 h" NavSelectH " w" NavSelectW,"            " CurrentUser)
+	NavItem_UserName:=g.AddText("vNavItem_UserName xm ym BackgroundTrans 0x200 0x100 h" NavSelectH " w" NavSelectW,"            " App.User)
 	NavItem_UserName.OnEvent("Click",CreatePopupUser)
-	SetUserPic(g["UserPic"], UserSID)
+	SetUserPic(g["UserPic"], App.UserSID)
 	
 	BtnSysX:=PanelX
 	
+	g.SetFont("s11" ,App.IconFont)
 	BtnSys_SaveOptimizeConfigTab:=g.AddText('vBtnSys_SaveOptimizeConfigTab BackgroundTrans Hidden x' BtnSysX ' ym w30 h20 0x200 Center Border',Chr(0xE74E))
-	BtnSys_SaveOptimizeConfigTab.SetFont("s11",IconFont)
 	BtnSys_SaveOptimizeConfigTab.Opt("-Border")
 	BtnSys_SaveOptimizeConfigTab.OnEvent("Click",BtnSys_SaveOptimizeConfigTab_Click)
 
 	BtnSys_SaveOptimizeConfigAll:=g.AddText('vBtnSys_SaveOptimizeConfigAll BackgroundTrans x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xEA35))
-	BtnSys_SaveOptimizeConfigAll.SetFont("s11",IconFont)
 	BtnSys_SaveOptimizeConfigAll.Opt("-Border")
 	BtnSys_SaveOptimizeConfigAll.OnEvent("Click",BtnSys_SaveOptimizeConfigAll_Click)
 
 	BtnSys_LoadOptimizeConfig:=g.AddText('vBtnSys_LoadOptimizeConfig BackgroundTrans x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xED25))
-	BtnSys_LoadOptimizeConfig.SetFont("s11",IconFont)
 	BtnSys_LoadOptimizeConfig.Opt("-Border")
 	BtnSys_LoadOptimizeConfig.OnEvent("Click",BtnSys_LoadOptimizeConfig_Click)
 	
-	g.AddText("vHRLine_2 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
+	g.AddText("vHRLine_2 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%App.ThemeSelected%.HrColor)
 	
 	BtnSys_SaveImage:=g.AddText('vBtnSys_SaveImage BackgroundTrans x' (BtnSysX+=10) ' ym w30 h20 0x200 Center Border',Chr(0xE114))
-	BtnSys_SaveImage.SetFont("s11",IconFont)
 	BtnSys_SaveImage.Opt("-Border")
 	BtnSys_SaveImage.OnEvent("Click",BtnSys_SaveImage_Click)
 	
 	BtnSys_Theme:=g.AddText('vBtnSys_Theme BackgroundTrans x' (BtnSysX+=35) ' ym w30 h20 0x200 Center Border',Chr(0xE2B1))
-	BtnSys_Theme.SetFont("s11",IconFont)
 	BtnSys_Theme.Opt("-Border")
 	BtnSys_Theme.OnEvent("Click",CreatePopupTheme)
 	
-	hFlag:=Gdip_CreateARGBHBITMAPFromBase64(LangData.%LangSelected%.Flag)
+	hFlag:=Gdip_CreateARGBHBITMAPFromBase64(LangData.%App.LangSelected%.Flag)
 	BtnSys_Language:=g.AddPic("BackgroundTrans ym h20 w20 vBtnSys_Language x" (BtnSysX+=35), "HBITMAP:" hFlag)
 	DeleteObject(hFlag)
 	BtnSys_Language.OnEvent("Click",CreatePopupLang)
 	
-	g.AddText("vHRLine_3 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%ThemeSelected%.HrColor)
+	g.AddText("vHRLine_3 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%App.ThemeSelected%.HrColor)
 	
 	BtnSys_ReloadTab:=g.AddText('vBtnSys_ReloadTab BackgroundTrans x' (BtnSysX+=10) ' ym w30 h20 0x200 0x100 Center Border',Chr(0xE117))
-	BtnSys_ReloadTab.SetFont("s11",IconFont)
 	BtnSys_ReloadTab.Opt("-Border")
 	BtnSys_ReloadTab.OnEvent("Click",(*)=>NavItem_Click(g))
 
 	BtnSys_Minimize:=g.AddText('vBtnSys_Minimize BackgroundTrans x' PanelX+PanelW-65 ' ym w30 h20 0x200 Center Border',Chr(0xE108))
-	BtnSys_Minimize.SetFont("s11",IconFont)
 	BtnSys_Minimize.Opt("-Border")
 	BtnSys_Minimize.OnEvent("Click",(*)=>g.Minimize())
 	
 	BtnSys_Close:=g.AddText('vBtnSys_Close BackgroundTrans x' PanelX+PanelW-30 ' ym w30 h20 0x200 Center Border',Chr(0xE10A))
-	BtnSys_Close.SetFont("s11",IconFont)
 	BtnSys_Close.Opt("-Border")
 	BtnSys_Close.OnEvent("Click",Gui_Close)
 	g.OnEvent("Close",Gui_Close)
@@ -98,35 +93,39 @@ CreateGui() {
 	DeleteObject(hLogo)
 	Gdip_Shutdown(pToken)
 	
+	g.SetFont("s" App.MainFontSize+2 " bold c" Themes.%App.ThemeSelected%.TextColor, App.MainFont)
+	
 	VerCtrl:=g.AddText('vVerCtrl xm85 y' (PanelY+PanelH-75+15) ' w110 BackgroundTrans')
 	VerCtrl.SetFont("underline")
 	VerCtrl.OnEvent("Click",(*)=>CheckUpdate(g))
 	VerCtrl.Text:="v" App.Ver
-	
 	y:=36
 	Loop Layout.Length {
 		ItemID:=Layout[A_Index].ID
 		If (ItemID = "")
 			Continue
-		If Layout[A_Index].HasOwnProp("hr") && Layout[A_Index].hr {
-			g.AddText("vNavHRText_" A_Index " BackgroundTrans center w" NavSelectW " xm ym" y " c" Themes.%ThemeSelected%.HrColor)
+		NavItem:=Layout[A_Index]
+		If NavItem.HasOwnProp("hr") && NavItem.hr {
+			g.AddText("vNavHRText_" A_Index " BackgroundTrans center w" NavSelectW " xm ym" y " c" Themes.%App.ThemeSelected%.HrColor)
 			y+=24
 		}
-		aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" (y+8))
-		aIcon.Value:=(!IsWin11 && Layout[A_Index].HasOwnProp("Icon10") && Layout[A_Index].Icon10)?Layout[A_Index].Icon10:Layout[A_Index].Icon
-		NavItem:=g.AddText("BackgroundTrans 0x200 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index)
+		If NavItem.HasOwnProp("Icon") || NavItem.HasOwnProp("Icon10") {
+			aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" (y+8))
+			aIcon.Value:=(!App.IsWin11 && NavItem.HasOwnProp("Icon10") && NavItem.Icon10)?NavItem.Icon10:NavItem.Icon
+		}
+		NavItemText:=g.AddText("BackgroundTrans 0x200 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index)
 		SetNavLang(g, A_Index)
 		y+=(NavSelectH+4)
-		If Layout[A_Index].HasOwnProp("Fn") && Layout[A_Index].Fn {
-			Fn:=Layout[A_Index].Fn
-			If Layout[A_Index].HasOwnProp("NotSelected") && Layout[A_Index].NotSelected
+		If NavItem.HasOwnProp("Fn") && NavItem.Fn {
+			Fn:=NavItem.Fn
+			If NavItem.HasOwnProp("NotSelected") && NavItem.NotSelected
 				FnClick:=%Fn%.Bind(g, A_Index)
 			Else
 				FnClick:=NavItem_Click.Bind(g, A_Index)
-			NavItem.OnEvent("Click", FnClick)
+			NavItemText.OnEvent("Click", FnClick)
 		}
 	}
-	g.SetFont("s9")
+	g.SetFont("s" App.MainFontSize)
 	NavItem_Click(g, IniRead("config.ini", "General", "LastTab", 1))
 	g.Show
 	App.HwndMain:=g.Hwnd
@@ -138,8 +137,7 @@ NavItem_Click(g:="", NavIndex:=0, *) {
 	If !g && App.HasOwnProp("HwndMain") && App.HwndMain
 		g:=GuiFromHwnd(App.HwndMain)
 	If NavIndex {
-		Ctr:=g["NavItem_" NavIndex]
-		Ctr.GetPos(&x, &y)
+		g["NavItem_" NavIndex].GetPos(&x, &y)
 		If g["NavBGActive"].Visible {
 			g["NavBGActive"].GetPos(&xA, &yA)
 			If x=xA && y=yA
@@ -152,14 +150,12 @@ NavItem_Click(g:="", NavIndex:=0, *) {
 		g.NavSelected:=NavIndex
 		
 		CurrentTabCtrls:=App.CurrentTabCtrls
-		If Type(CurrentTabCtrls)="Array" && CurrentTabCtrls.Length {
-			Loop CurrentTabCtrls.Length {
-				g[CurrentTabCtrls[A_Index]].Visible:=False
-			}
+		Loop CurrentTabCtrls.Length {
+			g[CurrentTabCtrls[A_Index]].Visible:=False
 		}
 	}
-	CurrentTabCtrls:=%Layout[g.NavSelected].Fn%(g, g.NavSelected)
-	App.CurrentTabCtrls:=CurrentTabCtrls
+	
+	%Layout[g.NavSelected].Fn%(g, g.NavSelected)
 }
 
 WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
@@ -171,10 +167,10 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 		If currControl {
 			thisGui := currControl.Gui
 			If currControl.Type="PicSwitch" || InStr(currControl.Name, "Link_")=1 {
-				currControl.SetFont("c" Themes.%ThemeSelected%.TextColorHover)
+				currControl.SetFont("c" Themes.%App.ThemeSelected%.TextColorHover)
 			} Else If InStr(currControl.Name, "BtnSys_")=1 {
 				If currControl.Type="Text"
-					currControl.SetFont("c" Themes.%ThemeSelected%.TextColorHover)
+					currControl.SetFont("c" Themes.%App.ThemeSelected%.TextColorHover)
 				currControl.Opt("+Border")
 			} Else If InStr(currControl.Name, "NavItem_")=1 {
 				If currControl.Name="NavItem_UserName" && (UserCount()==1 || WinExist(App.HwndPopup))
@@ -183,7 +179,7 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 				thisGui["NavBGHover"].Move(x, y)
 				thisGui["NavBGHover"].Visible := true
 			}
-			Lang:=LangData.%LangSelected%
+			Lang:=LangData.%App.LangSelected%
 			If !currControl.Name || !GetLangDesc(currControl.Name)
 				Return
 			ToolTipOptions.SetTitle((Title:=GetLangName(currControl.Name))!=currControl.Name?Title:"")
@@ -197,10 +193,10 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 		tControl := GuiCtrlFromHwnd(PrevHwnd)
 		If tControl {
 			If tControl.Type="PicSwitch" || InStr(tControl.Name, "Link_")=1 {
-				tControl.SetFont("c" Themes.%ThemeSelected%.TextColor)
+				tControl.SetFont("c" Themes.%App.ThemeSelected%.TextColor)
 			} Else If InStr(tControl.Name, "BtnSys_")=1 {
 				If tControl.Type="Text"
-					tControl.SetFont("c" Themes.%ThemeSelected%.TextColor)
+					tControl.SetFont("c" Themes.%App.ThemeSelected%.TextColor)
 				tControl.Opt("-Border")
 			} Else If InStr(tControl.Name, "NavItem_")=1 {
 				tGui := tControl.Gui
@@ -249,8 +245,8 @@ CreateDlg(g, gDisabled:=1, bg:="") {
 	DestroyDlg(0) 
 	g2:=Gui("-Caption +Owner" g.Hwnd)
 	FrameShadow(g2.hWnd)
-	g2.SetFont("c" Themes.%ThemeSelected%.TextColor, "Segoe UI Semibold")
-	g2.BackColor:=bg?bg:Themes.%ThemeSelected%.BackColor
+	g2.SetFont("c" Themes.%App.ThemeSelected%.TextColor, App.MainFont)
+	g2.BackColor:=bg?bg:Themes.%App.ThemeSelected%.BackColor
 	If gDisabled
 		g.Opt("+Disabled")
 	App.HwndPopup:=g2.hWnd
@@ -355,7 +351,7 @@ CreateBGNavSelect(NavBGHover, NavBGActive, sPathX, sPathY ,sRounded) {
 	Gdip_SetSmoothing(pGraphics)
 
 	PathX := PathY := 0
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, sPathX, sPathY, sRounded, "0x" Themes.%ThemeSelected%.BackColorNavSelect)
+	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, sPathX, sPathY, sRounded, "0x" Themes.%App.ThemeSelected%.BackColorNavSelect)
 	
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 	NavBGHover.Value:="HBITMAP:" hBitmap
@@ -383,20 +379,20 @@ SetBGPanel(g, W:=0, H:=0, R:=6, BW:=1) {
 	pGraphics := Gdip_GraphicsFromImage(pBitmap)
 	Gdip_SetSmoothing(pGraphics)
 	
-	DllCall("Gdiplus.dll\GdipGraphicsClear", "Ptr", pGraphics, "UInt", "0xFF" Themes.%ThemeSelected%.BackColor)
+	DllCall("Gdiplus.dll\GdipGraphicsClear", "Ptr", pGraphics, "UInt", "0xFF" Themes.%App.ThemeSelected%.BackColor)
 	
 	PathX := PathY := 0
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, sPathX, sPathY, sRounded, "0x" Themes.%ThemeSelected%.BorderColorPanel)
+	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, sPathX, sPathY, sRounded, "0x" Themes.%App.ThemeSelected%.BorderColorPanel)
 	
 	PathX := PathY := BorderWidth, PathX2 := sPathX-BorderWidth, PathY2 := sPathY-BorderWidth, Rounded := sRounded-BorderWidth
-	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, "0x" Themes.%ThemeSelected%.BackColorPanel)
+	Gdip_FillRoundedRectanglePath(pGraphics, PathX, PathY, PathX2, PathY2, Rounded, "0x" Themes.%App.ThemeSelected%.BackColorPanel)
 
 	DllCall("gdiplus\GdipBitmapGetPixel", "UPtr", pBitmap, "Int", 10, "Int", 10, "uint*", &ARGB:=0)
 
 	hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
 	g["BGPanel"].Value:="HBITMAP:" hBitmap
 	DeleteObject(hBitmap), Gdip_DeleteGraphics(pGraphics), Gdip_DisposeImage(pBitmap)
-	Themes.%ThemeSelected%.BackColorPanelRGB:=Format("{:X}", ARGB & 0x00FFFFFF)
+	Themes.%App.ThemeSelected%.BackColorPanelRGB:=Format("{:X}", ARGB & 0x00FFFFFF)
 }
 
 SetBGImage(gBGImage, img:=1, pToken:=0) {
@@ -428,10 +424,10 @@ iVBORw0KGgoAAAANSUhEUgAAAMgAAAGQCAYAAADr8i+wAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFyWlU
 	Return 1
 }
 
-SetUserPic(Ctr, sUserSID) {
+SetUserPic(Ctr, UserSID) {
 	pBitmap := Gdip_CreateBitmap(32, 32)
 	pGraphics := Gdip_GraphicsFromImage(pBitmap)
-	sFile := RegRead("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\" sUserSID, "Image32", "")
+	sFile := RegRead("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\Users\" UserSID, "Image32", "")
 	If !(sFile && FileExist(sFile))
 		sFile:=EnvGet("ProgramData") "\Microsoft\User Account Pictures\user-32.png"
 	DllCall("gdiplus\GdipCreateBitmapFromFile", "UPtr", StrPtr(sFile), "UPtr*", &pBitmap2:=0)
@@ -498,7 +494,7 @@ FrameShadow(HGui) {
 	}
 }
 SetCtrlTheme(Ctr) {
-	Theme:=Themes.%ThemeSelected%
+	Theme:=Themes.%App.ThemeSelected%
 	IsCtrDark:=Theme.CtrDark
 	Mode_Explorer  := (IsCtrDark ? "DarkMode_Explorer"  : "Explorer" )
 	Mode_CFD       := (IsCtrDark ? "DarkMode_CFD"       : "CFD"      )
@@ -528,7 +524,7 @@ SetMenuTheme() {
 	uxtheme := DllCall("kernel32\GetModuleHandle", "Str", "uxtheme", "Ptr")
 	SetPreferredAppMode := DllCall("kernel32\GetProcAddress", "Ptr", uxtheme, "Ptr", 135, "Ptr")
 	FlushMenuThemes     := DllCall("kernel32\GetProcAddress", "Ptr", uxtheme, "Ptr", 136, "Ptr")
-	DllCall(SetPreferredAppMode, "Int", Themes.%ThemeSelected%.CtrDark?2:3)
+	DllCall(SetPreferredAppMode, "Int", Themes.%App.ThemeSelected%.CtrDark?2:3)
 	DllCall(FlushMenuThemes)
 }
 GetLangTextWithIcon(LangId) {

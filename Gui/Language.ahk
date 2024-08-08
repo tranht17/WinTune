@@ -22,22 +22,21 @@ CreatePopupLang(Ctr, *) {
     }
 	Gdip_Shutdown(pToken)
 	
-	g2["NavItem_" LangSelected].GetPos(&xNavItem, &yNavItem)
+	g2["NavItem_" App.LangSelected].GetPos(&xNavItem, &yNavItem)
 	g2["NavBGActive"].Move(xNavItem, yNavItem)
 	g2["NavBGActive"].Visible:=True
 	
     Lang_Code_Click(Ctr, *) {
 		LangClicked:=SubStr(Ctr.Name,9)
-		Global LangSelected
-		If LangClicked=LangSelected {
+		If LangClicked=App.LangSelected {
 			DestroyDlg(0)
 			Return
 		}
-		LangSelected:=LangClicked
-		Global TabLangLoaded:= {}	
+		App.LangSelected:=LangClicked
+		App.TabLangLoaded:= {}	
 		SetNavLangAll(g)
 		pToken:=Gdip_Startup()
-		hFlag:=Gdip_CreateARGBHBITMAPFromBase64(LangData.%LangSelected%.Flag)
+		hFlag:=Gdip_CreateARGBHBITMAPFromBase64(LangData.%App.LangSelected%.Flag)
 		g["BtnSys_Language"].Value:="HBITMAP:" hFlag
 		DeleteObject(hFlag)
 		Gdip_Shutdown(pToken)
@@ -49,5 +48,5 @@ CreatePopupLang(Ctr, *) {
 	tY:=yG+yCtr+hCtr+6
 	g2.Show("x" tX " y" tY)
 	If WinWaitNotActive(g2)
-		DestroyDlg(0)
+		DestroyDlg
 }

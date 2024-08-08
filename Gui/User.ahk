@@ -25,25 +25,23 @@ CreatePopupUser(Ctr, *) {
 	}
 	Gdip_Shutdown(pToken)
 	
-	g2["NavItem_" UserSID].GetPos(&xNavItem, &yNavItem)
+	g2["NavItem_" App.UserSID].GetPos(&xNavItem, &yNavItem)
 	g2["NavBGActive"].Move(xNavItem, yNavItem)
 	g2["NavBGActive"].Visible:=True
 	
 	User_Click(Ctr, *) {
 		UserClicked:=SubStr(Ctr.Name,9)
-		Global UserSID
-		If UserClicked=UserSID {
+		If UserClicked=App.UserSID {
 			DestroyDlg(0)
 			Return
 		}
-		Global HKCU,CurrentUser
-		UserSID:=UserClicked
-		HKCU:=GetHKCU()
-		CurrentUser:=LookupAccountSid(UserSID).Name
+		App.UserSID:=UserClicked
+		App.HKCU:=GetHKCU()
+		App.User:=LookupAccountSid(App.UserSID).Name
 		SpaceName:="            "
-		g["NavItem_UserName"].Text:=SpaceName CurrentUser
+		g["NavItem_UserName"].Text:=SpaceName App.User
 		pToken:=Gdip_Startup()
-		SetUserPic(g["UserPic"], UserSID)
+		SetUserPic(g["UserPic"], App.UserSID)
 		Gdip_Shutdown(pToken)
 		DestroyDlg(0)
 		NavItem_Click(g)

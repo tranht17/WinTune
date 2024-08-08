@@ -1,6 +1,6 @@
 
 OptimizeTab(g, NavIndex) {
-	WICB:=20,SpaceItem:=16,C:=LangSelected="tr"?2:3
+	WICB:=20,SpaceItem:=16,C:=App.LangSelected="tr"?2:3
 	Static sXCBT,sYCBT
 	
 	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
@@ -20,14 +20,14 @@ OptimizeTab(g, NavIndex) {
 		Link_ClearStartMenu.OnEvent("Click",Link_ClearStartMenu_Click)
 		
 		Link_SelectAll:=g.AddText("vLink_SelectAll BackgroundTrans w100 h20 x" sXCBT+(PanelW-160)/2 " y" (sYCBT+=12))					
-		Link_SelectAll.SetFont("s10 underline")
+		Link_SelectAll.SetFont("s" App.MainFontSize+1 " underline")
 		Link_SelectAll.OnEvent("Click",Link_SelectAll_Click)
 		
 		Link_DeselectAll:=g.AddText("vLink_DeselectAll BackgroundTrans w100 h20 yp")					
-		Link_DeselectAll.SetFont("s10 underline")
+		Link_DeselectAll.SetFont("s" App.MainFontSize+1 " underline")
 		Link_DeselectAll.OnEvent("Click",Link_DeselectAll_Click)
 		
-		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%ThemeSelected%.HrColor)
+		g.AddText("vHRLine_1 x" (sXCBT+(PanelW-400)/2) " y" (sYCBT+=30) " w400 h1 Background" Themes.%App.ThemeSelected%.HrColor)
 
 		sXCBT+=SpaceItem
 		sYCBT+=SpaceItem
@@ -35,7 +35,7 @@ OptimizeTab(g, NavIndex) {
 	
 	sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 	
-	If NavIndex>0 && Layout[NavIndex].ID="StartMenu"
+	If Layout[NavIndex].ID="StartMenu"
 		g["Link_ClearStartMenu"].Visible:=True
 	
 	CurrentTabCtrls:=Array()
@@ -76,18 +76,18 @@ OptimizeTab(g, NavIndex) {
 	CurrentTabCtrls.Push "Link_SelectAll"
 	CurrentTabCtrls.Push "Link_DeselectAll"
 	
-	If !TabLangLoaded.HasOwnProp(NavIndex) || !TabLangLoaded.%NavIndex% {
+	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
 		Loop CurrentTabCtrls.Length {
 			tCtrlID:=CurrentTabCtrls[A_Index]
 			g[tCtrlID].Text:=GetLangName(tCtrlID)
 		}
-		TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavIndex%:=1
 	}
 	
 	CurrentTabCtrls.Push "HRLine_1"
 	CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
 	
-	Return CurrentTabCtrls
+	App.CurrentTabCtrls:=CurrentTabCtrls
 	
 	CreateCB(g,ItemId, W) {
 		s:=CheckStatusItem(ItemId, Data.%ItemId%)
@@ -141,7 +141,7 @@ OptimizeTab(g, NavIndex) {
 	Link_ClearStartMenu_Click(Ctr,Info) {
 		g:=Ctr.Gui
 		g2:=CreateDlg(g)
-		a:=g2.AddText("w400 h22 xm0 Center", "~~~~~ " GetLangName("Link_ClearStartMenu") " ~~~~~").SetFont("s10")
+		a:=g2.AddText("w400 h22 xm0 Center", "~~~~~ " GetLangName("Link_ClearStartMenu") " ~~~~~").SetFont("s" App.MainFontSize+1)
 		g2.AddPic("xm16 y+24 Icon95", "imageres.dll")
 		a:=g2.AddText("x+16 yp-4 w320 h64", GetLangText("Text_ClearStartMenu_Confirm"))
 		btn_Yes:=g2.AddButton("xm96 y+16 w100", GetLangText("Text_Yes"))

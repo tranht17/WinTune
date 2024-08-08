@@ -11,10 +11,9 @@ for ,param in A_Args {
 		ExitApp
 	} Else If InStr(param, "/User=")=1 {
 		LookupAccountName(SubStr(param,7))
-		CurrentUser:=SubStr(param,7)
+		App.User:=SubStr(param,7)
 	} Else If InStr(param, "/LoadConfig=")=1 {
 		sparam:=SubStr(param,13)
-		Init()
 		LoadOptimizeConfig(sparam)
 		ExitApp
 	} Else If InStr(param, "/SaveConfig")=1 {
@@ -24,7 +23,6 @@ for ,param in A_Args {
 			sparam:=SubStr(param,13)
 		Else
 			Continue
-		Init()
 		SaveOptimizeConfigAll(sparam)
 		ExitApp
 	}
