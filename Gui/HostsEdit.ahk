@@ -18,7 +18,8 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 	} catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
-		HostsEdit:=g.AddEdit("h" PanelH-12 " w" PanelW-320-24 " -wrap x" sXCBT+6 " y" sYCBT+6 " vHostsEdit",Hosts)
+		HostsEdit:=g.AddEdit("h" PanelH-12 " w" PanelW-320-24 " -wrap x" sXCBT+6 " y" sYCBT+6 " vHostsEdit")
+		HostsEdit.Value:=Hosts
 		HostsEdit.OnEvent("Change",HostsEdit_Change)
 		HostsEdit_Change(*) {
 			g["HostsEdit_BtnSave"].Enabled:=True
