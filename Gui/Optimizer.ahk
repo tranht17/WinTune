@@ -1,6 +1,6 @@
 
 OptimizeTab(g, NavIndex) {
-	WICB:=20,SpaceItem:=16,C:=App.LangSelected="tr"?2:3
+	WICB:=20,SpaceItem:=16,C:=App.LangSelected~="en|zh_cn"?3:2
 	Static sXCBT,sYCBT
 	
 	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True
