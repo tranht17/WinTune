@@ -196,11 +196,6 @@ GetLangDesc(ItemId, LangId:="", Ex:="") {
 		If InStr(ItemDesc, "Text_")==1
 			ItemDesc:=GetLangText(ItemDesc)
 		Return ItemDesc
-	} Else If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc") && Lang.%ItemId%.Desc {
-		ItemDesc:=Lang.%ItemId%.Desc
-		If InStr(ItemDesc, "Text_")==1
-			ItemDesc:=GetLangText(ItemDesc)
-		Return ItemDesc
 	} Else If LangId!="en" {
 		Return GetLangDesc(ItemId, "en", Ex)
 	}
@@ -211,7 +206,7 @@ GetLangText(ItemId, LangId:="") {
 	Lang:=LangData.%LangId%
 	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%
 		ItemId:=Lang.%ItemId%
-	Else If LangSelected!="en" {
+	Else If LangId!="en" {
 		Return GetLangText(ItemId, "en")
 	}
 	Return ItemId
