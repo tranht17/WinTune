@@ -8,6 +8,12 @@
 
 App:={Name: "WinTune", Ver: "2.5.3"}
 
+SetTitleMatchMode 3
+If WinExist(App.Name) {
+	WinActivate
+	Return
+}
+
 A_IconTip:= App.Name
 tray := A_TrayMenu
 tray.delete
