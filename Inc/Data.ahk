@@ -122,8 +122,7 @@ DisablePrefetchParameters: {Act: [
 	{Type: "RegChange",RegKey: "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "3",RegValueName: "EnablePrefetcher"}
 ]},
 DisableErrorReporting: {Act: [
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "ShowUI"},
-	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\PCHealth\ErrorReporting",RegType: "REG_DWORD",RegValue1: "0",RegValueDefault: "1",RegValueName: "DoReport"}
+	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\Windows Error Reporting",RegType: "REG_DWORD",RegValue1: "1",RegValueDefault: "0",RegValueName: "Disabled"}
 ]},
 DisableAeDebug: {Act: [
 	{Type: "RegAdd",RegKey: "HKLM\Software\Microsoft\Windows NT\CurrentVersion\AeDebug",RegType: "REG_SZ",RegValue1: "0",RegValueName: "Auto"}
