@@ -276,35 +276,33 @@ MsgBoxError(iText, IsExitApp:=0, title:="Error") {
 	If IsExitApp
 		ExitApp
 }
-Debug(iErr:="",iErrEx:="", iErrTitle:="") {
+Debug(iErr:="",iErrEx:="", iErrTitle:="", iMode:="x") {
 	static IsLog:=0
-	LogFile:="log.txt"
+	LogFile:="WinTune.log"
 	t:=""
 	If !IsLog {
 		If IsSet(App) {
-			t.="`n================= " App.Name " v" App.Ver " ================="
+			t.="================= " App.Name " v" App.Ver " ================="
 		} Else {
-			t.="`n=================================================="
+			t.="=================================================="
 		}
 		t.="`nOSVersion          :" A_OSVersion
 		t.="`nIs64bitOS          :" A_Is64bitOS
 		t.="`nInstallationType   :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType","")
 		t.="`nEditionID          :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID","")
-
+		t.="`n=================================================="
 		IsLog:=1
 		try FileDelete LogFile
 	}
-	t.="`n=================================================="
-	t.="`nTime               :" A_Now
-	
+	t.="`n`n" FormatTime(A_Now, "[yyyy/MM/dd HH:mm:ss]") " [" iMode "]" (iErrTitle?" [" iErrTitle "]":"")
 	If Type(iErr)="String" {
 		t.="`n" iErr
 	} Else {
+		t.=iErrEx?"`n" iErrEx:""
 		t.="`nMessage            :" iErr.Message
 		t.="`nExtra              :" iErr.Extra
 		t.="`nStack              :" iErr.Stack
 	}
-	t.=iErrEx?"`n" iErrEx:""
 	FileAppend t, LogFile
 }
 
