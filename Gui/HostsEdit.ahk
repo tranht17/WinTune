@@ -106,15 +106,23 @@ BtnHostsEdit_Click(g, NavIndex) {
 		BtnImportFromLink := g.AddButton("xs Disabled vHostsEdit_BtnImportFromLink", "«")
 		BtnImportFromLink.OnEvent("Click",(*)=>BtnImportFromLink_Click(g))
 		BtnImportFromLink_Click(g) {
-			Try
-				spy:=WinHttpResponseText(g["HostsEdit_EditLink"].Value)
-			Catch
-				Return
-			g["HostsEdit"].Value.="`n" spy "`n"
-			g["HostsEdit_EditLink"].Value:=""
-			g["HostsEdit_BtnImportFromLink"].Enabled:=False
-			g["HostsEdit_BtnSave"].Enabled:=True
-			ControlSend "^{End}", g["HostsEdit"]
+			CreateWaitDlg(g)
+			Try {
+				spy:=WinHttpResponseText(g["HostsEdit_EditLink"].Value,,,, &Status, &StatusText)
+				If Status==200 {
+					g["HostsEdit"].Value.="`n" spy "`n"
+					g["HostsEdit_EditLink"].Value:=""
+					g["HostsEdit_BtnImportFromLink"].Enabled:=False
+					g["HostsEdit_BtnSave"].Enabled:=True
+					ControlSend "^{End}", g["HostsEdit"]
+				} Else {
+					MsgBox(StatusText,,"Icon!")
+				}
+			} Catch as err {
+				MsgBox(err.Message,,"Icon!")
+			} Finally {
+				DestroyDlg()
+			}
 		}
 		
 		EditLink:=g.AddEdit("yp w290 -wrap vHostsEdit_EditLink")
@@ -131,6 +139,9 @@ BtnHostsEdit_Click(g, NavIndex) {
 				Hosts:=FileRead(files[A_Index])
 				g["HostsEdit"].Value.="`n`n### " files[A_Index] "`n" Hosts
 				ControlSend "^{End}", g["HostsEdit"]
+			}
+			If files.Length {
+				g["HostsEdit_BtnSave"].Enabled:=True
 			}
 		}
 		

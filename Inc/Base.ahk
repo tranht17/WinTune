@@ -211,13 +211,13 @@ GetLangText(ItemId, LangId:="") {
 	}
 	Return ItemId
 }
-WinHttpResponseText(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2) {
-	whr:=WinHttp(Link, Method, Async, WaitForResponseTimeoutInSeconds)
+WinHttpResponseText(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2, &Status:=0, &StatusText:="") {
+	whr:=WinHttp(Link, Method, Async, WaitForResponseTimeoutInSeconds, &Status, &StatusText)
 	c:=whr.responseText
 	Return c
 }
 
-WinHttp(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2) {
+WinHttp(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2, &Status:=0, &StatusText:="") {
 	whr := ComObject("WinHttp.WinHttpRequest.5.1")
 	; Default value (milliseconds)
 	; ResolveTimeout:=0
@@ -230,6 +230,8 @@ WinHttp(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2) {
 	if Async && WaitForResponseTimeoutInSeconds>-2 {
 		whr.WaitForResponse(WaitForResponseTimeoutInSeconds)
 	}
+	Status:=whr.Status
+	StatusText:=whr.StatusText
 	Return whr
 }
 
