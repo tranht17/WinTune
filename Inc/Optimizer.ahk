@@ -98,10 +98,6 @@ CheckStatusItem(ItemFunc, DataItem) {
 	Return s
 }
 
-ProgNowCtr(Ctr, ItemData,silent:=0) {
-	ProgNow(Ctr.Name, Ctr.Value, ItemData, silent, Ctr)
-}
-
 ProgNow(ItemId, ItemValue, ItemData, silent:=0, Ctr:="") {
 	Try {
 		IsRefreshExplorer:=0

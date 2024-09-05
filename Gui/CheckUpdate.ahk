@@ -11,7 +11,7 @@ CheckUpdate(g:="") {
 			;12007: No internet|The server name cannot be resolved.
 			;12029: Block internet|Connection to the server failed.
 			if g
-				MsgBox("Connection to the server failed.","Check Update","Icon!")
+				MsgBox(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 			return
 		}
 		
@@ -20,13 +20,14 @@ CheckUpdate(g:="") {
 			NewVer:=LatestInfo["tag_name"]
 		} catch Error as err {
 			if g
-				MsgBox("Connection to the server failed.","Check Update","Icon!")
+				MsgBox(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 			Return
 		}
 		
 		if VerCompare(NewVer, App.Ver)==1 {
 			if g {
 				g2:=CreateDlg(g)
+				SetPreventDestroyDlg(300)
 				tWidth:=400
 				g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s" App.MainFontSize+1)
 				g2.AddText("xm0", GetLangText("Text_CurrentVersion") ":")
@@ -52,15 +53,14 @@ CheckUpdate(g:="") {
 				BtnClose:=g2.AddButton("yp w100", GetLangText("Text_Close"))
 				BtnClose.OnEvent("Click",(*)=>DestroyDlg())
 				SetCtrlTheme(BtnClose)
-				g.GetPos(&gX, &gY, &gW, &gH)
-				g2.Show("x" gX+(gW-tWidth)/2-16 " y" gY+gH/2-130)
+				ShowDlg(g, g2, 1)
 				
 				BtnUpdate_Click(*) {
 					DestroyDlg()
 					g2:=CreateDlg(g)
 					uWidth:=300,uHeight:=20
-					g2.AddText("Center 0x200 h" uHeight " w" uWidth,"Updating...").SetFont("s" App.MainFontSize+1)
-					g2.Show("x" gX+(gW-uWidth)/2 " y" gY+(gH-uHeight)/2)
+					g2.AddText("Center 0x200 h" uHeight " w" uWidth, GetLangText("Text_Updating") "...").SetFont("s" App.MainFontSize+1)
+					ShowDlg(g, g2, 1)
 					
 					if A_IsCompiled {
 						CurrentFile:=A_ScriptFullPath
@@ -113,7 +113,7 @@ CheckUpdate(g:="") {
 					} Else {
 						try FileDelete DownloadFile
 						DestroyDlg()
-						MsgBox("Update failed please try again later.","Check Update","Icon!")
+						MsgBox(GetLangText("Text_UpdateFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 					}
 				}
 			} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {
@@ -124,8 +124,8 @@ CheckUpdate(g:="") {
 		} else if g {
 			g["VerCtrl"].DeleteProp("ToolTipEx")
 			g2:=CreateDlg(g)
-			tWidth:=300
-			a:=g2.AddText("h22 xm0 Center w" tWidth, "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s" App.MainFontSize+1)
+			SetPreventDestroyDlg(300)
+			a:=g2.AddText("h22 xm0 Center w300", "~~~~~ " GetLangText("Text_CheckUpdate") " ~~~~~").SetFont("s" App.MainFontSize+1)
 			a:=g2.AddText("xm0 yp50 w300 h50 Center", GetLangText("Text_NoUpdate"))
 			BtnOK:=g2.AddButton("xm50 w100", GetLangText("Text_OK"))
 			BtnOK.OnEvent("Click",(*)=>DestroyDlg())
@@ -133,8 +133,7 @@ CheckUpdate(g:="") {
 			BtnHomepage:=g2.AddButton("yp w100", GetLangText("Text_Homepage"))
 			BtnHomepage.OnEvent("Click",(*)=>Run("https://github.com/tranht17/WinTune"))
 			SetCtrlTheme(BtnHomepage)
-			g.GetPos(&gX, &gY, &gW, &gH)
-			g2.Show("x" (gX+(gW-tWidth)/2-16) " y" (gY+gH/2-80))
+			ShowDlg(g, g2, 1)
 		}
 	}
 }

@@ -1,9 +1,7 @@
 CreatePopupUser(Ctr, *) {
 	If UserCount()=1
 		Return
-	Ctr.GetPos(&xCtr,&yCtr,&wCtr,&hCtr)
 	g:=Ctr.Gui
-	g.GetPos(&xG,&yG)
 	g2:=CreateDlg(g, 0)
 
 	NavSelectW:=190, NavSelectH:=30
@@ -46,10 +44,7 @@ CreatePopupUser(Ctr, *) {
 		DestroyDlg(0)
 		NavItem_Click(g)
     }
-	
-    tX:=xG+xCtr-(NavSelectW+12-wCtr)/2-6
-	tY:=yG+yCtr+hCtr+6
-	g2.Show("x" tX " y" tY)
+    ShowDlg(g, g2, 4, Ctr)
 	If WinWaitNotActive(g2)
 		DestroyDlg(0)	
 }

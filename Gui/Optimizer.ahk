@@ -137,6 +137,10 @@ OptimizeTab(g, NavIndex) {
 		}
 		DestroyDlg()
 	}
+	
+	ProgNowCtr(Ctr, ItemData,silent:=0) {
+		ProgNow(Ctr.Name, Ctr.Value, ItemData, silent, Ctr)
+	}
 
 	Link_ClearStartMenu_Click(Ctr,Info) {
 		g:=Ctr.Gui
@@ -150,12 +154,9 @@ OptimizeTab(g, NavIndex) {
 		btn_No:=g2.AddButton("yp w100", GetLangText("Text_No"))
 		btn_No.OnEvent("Click",(*)=>DestroyDlg())
 		SetCtrlTheme(btn_No)
-		g.GetPos(&gX, &gY)
-		tWidth:=400
-		g2.Show("x" gX+PanelX+(PanelW-tWidth)/2-12 " y" gY+PanelY+130)
+		ShowDlg(g, g2)
 		
 		Link_ClearStartMenu_Yes_Click(Ctr,Info) {
-			DestroyDlg()
 			g2:=CreateWaitDlg(g)
 			Config:={}
 			CurrentTabCtrls:=App.CurrentTabCtrls

@@ -240,26 +240,60 @@ CreateWaitDlg(g) {
 	g2.Show("x" X+(W-tWidth)/2 " y" Y+(H-tHeight)/2)
 	Return g2
 }
-
-CreateDlg(g, gDisabled:=1, bg:="") {
-	DestroyDlg(0) 
+CreateDlg(g, gDisabled:=1, bg:="", TextColor:="", HwndName:="HwndPopup") {
+	DestroyDlg(gDisabled, HwndName) 
 	g2:=Gui("-Caption +Owner" g.Hwnd)
 	FrameShadow(g2.hWnd)
-	g2.SetFont("c" Themes.%App.ThemeSelected%.TextColor, App.MainFont)
+	g2.SetFont("c" (TextColor?TextColor:Themes.%App.ThemeSelected%.TextColor), App.MainFont)
 	g2.BackColor:=bg?bg:Themes.%App.ThemeSelected%.BackColor
 	If gDisabled
 		g.Opt("+Disabled")
-	App.HwndPopup:=g2.hWnd
+	App.%HwndName%:=g2.hWnd
 	Return g2
 }
-
-DestroyDlg(gDisabled:=1) {	
+ShowDlg(g, g2, Mode:=1, Ctr:="") {
+	g.GetPos(&gX, &gY, &gW, &gH)
+	g2.Show("Hide")
+	g2.GetPos(,, &g2W, &g2H)
+	X:=gX
+	Y:=gY
+	Switch Mode {
+	Case 1: ; Center Main Gui
+		X+=(gW-g2W)/2
+		Y+=(gH-g2H)/2
+	Case 2: ; Center BGPanel
+		g["BGPanel"].GetPos(&pX, &pY, &pW, &pH)
+		X+=pX+(pW-g2W)/2
+		Y+=pY+(pH-g2H)/2
+	Case 3: ; Center mix: width BGPanel, height Main Gui
+		g["BGPanel"].GetPos(&pX,, &pW)
+		X+=pX+(pW-g2W)/2
+		Y+=(gH-g2H)/2
+	Case 4: ; Under control
+		Ctr.GetPos(&cX,&cY,&cW,&cH)
+		X+=cX-(g2W-cW)/2
+		Y+=cY+cH+6
+	}
+	g2.Show("x" X " y" Y)
+}
+DestroyDlg(gDisabled:=1, HwndName:="HwndPopup") {
+	If App.HasOwnProp("PreventDestroyDlg")
+		Return
 	If gDisabled && App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain)
 		g.Opt("-Disabled")
-	If App.HasOwnProp("HwndPopup") && App.HwndPopup {
-		If WinExist(App.HwndPopup)
+	If App.HasOwnProp(HwndName) && App.%HwndName% {
+		If WinExist(App.%HwndName%)
 			WinClose
-		App.DeleteProp("HwndPopup")
+		App.DeleteProp(HwndName)
+	}
+}
+SetPreventDestroyDlg(MilliSeconds:=0) {
+	If MilliSeconds<=0 {
+		SetTimer , 0
+		App.DeleteProp("PreventDestroyDlg")
+	} Else {
+		App.PreventDestroyDlg:=1
+		SetTimer SetPreventDestroyDlg, -MilliSeconds
 	}
 }
 BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {

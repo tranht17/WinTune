@@ -351,9 +351,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		btn_OK.OnEvent("Click",(*)=>DestroyDlg())
 		SetCtrlTheme(btn_OK)
 		btn_OK.Focus()
-		g.GetPos(&X, &Y, &W, &H)
-		tWidth:=500
-		g2.Show("x" X+sXCBT+(PanelW-tWidth)/2-12 " y" Y+130)
+		ShowDlg(g, g2, 3)
 	}
 	PackagesList(iArray?) {
 		Static pl:=Array()
