@@ -1,14 +1,16 @@
 ; https://github.com/buliasz/AHKv2-Gdip
-; v1.61
+; v1.62
+
 Gdip_Startup()
 {
 	if (!DllCall("LoadLibrary", "str", "gdiplus", "UPtr")) {
 		throw Error("Could not load GDI+ library")
 	}
 
-	si := Buffer(A_PtrSize = 8 ? 24 : 16, 0)
-	NumPut("UInt", 1, si)
-	DllCall("gdiplus\GdiplusStartup", "UPtr*", &pToken:=0, "UPtr", si.Ptr, "UPtr", 0)
+	si := Buffer(A_PtrSize = 4 ? 20:32, 0) ; sizeof(GdiplusStartupInputEx) = 20, 32
+	NumPut("uint", 0x2, si)
+	NumPut("uint", 0x4, si, A_PtrSize = 4 ? 16:24)
+	DllCall("gdiplus\GdiplusStartup", "UPtr*", &pToken:=0, "Ptr", si, "UPtr", 0)
 	if (!pToken) {
 		throw Error("Gdiplus failed to start. Please ensure you have gdiplus on your system")
 	}

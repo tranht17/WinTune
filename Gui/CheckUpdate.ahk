@@ -11,7 +11,7 @@ CheckUpdate(g:="") {
 			;12007: No internet|The server name cannot be resolved.
 			;12029: Block internet|Connection to the server failed.
 			if g
-				MsgBox(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
+				Msg(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 			return
 		}
 		
@@ -20,7 +20,7 @@ CheckUpdate(g:="") {
 			NewVer:=LatestInfo["tag_name"]
 		} catch Error as err {
 			if g
-				MsgBox(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
+				Msg(GetLangText("Text_ConnectionFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 			Return
 		}
 		
@@ -113,7 +113,7 @@ CheckUpdate(g:="") {
 					} Else {
 						try FileDelete DownloadFile
 						DestroyDlg()
-						MsgBox(GetLangText("Text_UpdateFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
+						Msg(GetLangText("Text_UpdateFailed"),GetLangText("Text_CheckUpdate"),"Icon!")
 					}
 				}
 			} else if App.HasOwnProp("HwndMain") && App.HwndMain && g:=GuiFromHwnd(App.HwndMain) {

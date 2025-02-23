@@ -1,7 +1,7 @@
 ;================================================================================
 ; PackageManager
 ; tranht17
-; 2024/06/08
+; v1.1.0
 ;================================================================================
 
 Class PackageManager {
@@ -100,6 +100,10 @@ Class PackageManager {
 		}
 		Disabled {
 			get => (ComCall(10, this.IPackageStatus, "Char*", &value:=0), value)
+		}
+		
+		InstalledDate {
+			get => (ComCall(7, this.IPackage3, "Int64*", &value:=0), DateAdd(1601,value/10000000, "S"))
 		}
 		
 		IPackage4 {

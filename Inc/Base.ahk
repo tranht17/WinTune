@@ -1,26 +1,68 @@
-CheckOS
-CheckAdmin
-OnError LogError
-OnExit ExitFunc
-Init
-
 CheckOS() {
-	If A_Is64bitOS && A_PtrSize==4 {
+	If A_Is64bitOS && A_PtrSize==4
 		MsgBoxError("You need the 64-bit version of the software to run on 64-bit Windows.`n`nhttps://github.com/tranht17/WinTune/releases", 1, "Incompatible")
-	}
+    Else If RegKeyExist("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WinPE")
+        MsgBoxError("WinPE not supported", 1, "Incompatible")
 }
+
 LogError(exception, mode) {
 	Debug(exception)
 	try DestroyDlg()
 	return true
 }
+
 ExitFunc(ExitReason, ExitCode) {
 	UnLoadHive()
 }
+
+ArgParse() {
+    for ,param in A_Args {
+        If InStr(param, "/DisableMSDefenderService=")=1 {
+            sparam:=SubStr(param,-1)
+            App.Param.DisableMSDefenderService:=sparam
+        } Else If InStr(param, "/DisableMSDefenderScheduleTask=")=1 {
+            sparam:=SubStr(param,-1)
+            App.Param.DisableMSDefenderScheduleTask:=sparam
+        } Else If InStr(param, "/User=")=1 {
+            User:=SubStr(param,7)
+            App.User:=User
+        } Else If InStr(param, "/LoadConfig=")=1 {
+            sparam:=SubStr(param,13)
+            App.Param.LoadConfig:=sparam
+        } Else If InStr(param, "/SaveConfig")=1 {
+            If param="/SaveConfig"
+                sparam:=App.Name "_OptimizeConfig_" A_Now ".json"
+            Else If InStr(param, "/SaveConfig=")=1
+                sparam:=SubStr(param,13)
+            App.Param.SaveConfig:=sparam
+        }
+    }
+}
+
+ArgProcess() {
+    If App.HasOwnProp("Param") {
+        If App.Param.HasOwnProp("SaveConfig") {
+            SaveOptimizeConfigAll(App.Param.SaveConfig)
+        }
+        If App.Param.HasOwnProp("LoadConfig") {
+            LoadOptimizeConfig(App.Param.LoadConfig)
+        }
+        If App.Param.HasOwnProp("DisableMSDefenderService") {
+            DisableMSDefenderService(App.Param.DisableMSDefenderService)
+            Sleep 1000
+            ExitSafeboot()
+        } Else If App.Param.HasOwnProp("DisableMSDefenderScheduleTask") {
+            DisableMSDefenderScheduleTask(App.Param.DisableMSDefenderScheduleTask)
+        }
+        ExitApp
+    }
+}
+
 Init() {
 	If !App.HasOwnProp("User") || !App.User
 		App.User:=GetActiveUser()
 	App.UserSID:=LookupAccountName(App.User)
+    App.UserProfile:=GetUSERPROFILE()
 	App.HKCU:=GetHKCU()
 	App.SystemInfo:=GetSystemInfo()
 	App.LangSelected:=IniRead("config.ini", "General", "Language", "en")
@@ -71,7 +113,7 @@ GetHKCU() {
 	UnLoadHive()
 	rHKCU:="HKU\" App.UserSID
 	If !RegKeyExist(rHKCU) {
-		HiveFile:=GetUSERPROFILE() "\NTUSER.DAT"
+		HiveFile:=App.UserProfile "\NTUSER.DAT"
 		If !FileExist(HiveFile)
 			MsgBoxError("'" HiveFile "' does not exist", 1)
 		RegLoadKey(HiveFile)
@@ -124,13 +166,15 @@ EnablePrivilege(Privilege) {
 }
 EnvGet2(s) {
 	r:=RegRead( App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", s, "")
-	Return r?StrReplace(r, "%USERPROFILE%", GetUSERPROFILE()):""
+	Return r??StrReplace(r, "%USERPROFILE%", App.UserProfile)
 }
 GetUSERPROFILE() {
-	ProfileImagePath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" App.UserSID, "ProfileImagePath", "")
-	If !ProfileImagePath
-		MsgBoxError('"' App.UserSID '" does not exist', 1)
-	Return ProfileImagePath
+    ProfileUserPath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" App.UserSID, "ProfileImagePath", "")
+    If !ProfileUserPath
+        MsgBoxError('"' App.UserSID '" does not exist', 1)
+    If !DirExist(ProfileUserPath)
+        MsgBoxError('"' ProfileUserPath '" does not exist', 1)
+    Return ProfileUserPath
 }
 GetActiveUser() {
 	wtsapi32 := DllCall("LoadLibrary", "Str", "wtsapi32.dll", "Ptr")
@@ -173,44 +217,36 @@ LookupAccountSid(SID) {
 	r.Name := StrGet(pName), r.Domain := StrGet(pDomain)
 	return r
 }
-
-GetLangName(ItemId, LangId:="") {
+GetLang(ItemId, LangType:="Name", LangId:="") {
 	If !LangId
 		LangId:=App.LangSelected
 	Lang:=LangData.%LangId%
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Name") && Lang.%ItemId%.Name {
-		ItemId:=Lang.%ItemId%.Name
-		If InStr(ItemId, "Text_")==1
-			ItemId:=GetLangText(ItemId)
-	} Else If LangId!="en" {
-		Return GetLangName(ItemId, "en")
+	r:=""
+	If Lang.HasOwnProp(ItemId) && Type(Lang.%ItemId%)="String" && Lang.%ItemId%
+		r:=Lang.%ItemId%
+	Else If Lang.HasOwnProp(ItemId) && IsObject(Lang.%ItemId%) && Lang.%ItemId%.HasOwnProp(LangType) && Lang.%ItemId%.%LangType%
+		r:=Lang.%ItemId%.%LangType%
+	Else If LangId!="en" {
+		r:=GetLang(ItemId, LangType, "en")
 	}
-	Return ItemId
+	
+	If InStr(r, "Text_")==1
+		r:=GetLang(r)
+	Else If !r && InStr(LangType, "Desc")!=1
+		r:=ItemId
+	
+	Return r
+}
+GetLangName(ItemId, LangId:="") {
+	Return GetLang(ItemId, LangType:="Name", LangId)
 }
 GetLangDesc(ItemId, LangId:="", Ex:="") {
-	If !LangId
-		LangId:=App.LangSelected
-	Lang:=LangData.%LangId%
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%.HasOwnProp("Desc" Ex) && Lang.%ItemId%.Desc%Ex% {
-		ItemDesc:=Lang.%ItemId%.Desc%Ex%
-		If InStr(ItemDesc, "Text_")==1
-			ItemDesc:=GetLangText(ItemDesc)
-		Return ItemDesc
-	} Else If LangId!="en" {
-		Return GetLangDesc(ItemId, "en", Ex)
-	}
+	Return GetLang(ItemId, LangType:="Desc" Ex, LangId)
 }
 GetLangText(ItemId, LangId:="") {
-	If !LangId
-		LangId:=App.LangSelected
-	Lang:=LangData.%LangId%
-	If Lang.HasOwnProp(ItemId) && Lang.%ItemId%
-		ItemId:=Lang.%ItemId%
-	Else If LangId!="en" {
-		Return GetLangText(ItemId, "en")
-	}
-	Return ItemId
+	Return GetLang(ItemId, LangType:="Name", LangId)
 }
+
 WinHttpResponseText(Link, Method:="GET", Async:=0, WaitForResponseTimeoutInSeconds:=-2, &Status:=0, &StatusText:="") {
 	whr:=WinHttp(Link, Method, Async, WaitForResponseTimeoutInSeconds, &Status, &StatusText)
 	c:=whr.responseText
@@ -292,18 +328,20 @@ Debug(iErr:="",iErrEx:="", iErrTitle:="", iMode:="x") {
 		t.="`nIs64bitOS          :" A_Is64bitOS
 		t.="`nInstallationType   :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType","")
 		t.="`nEditionID          :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "EditionID","")
-		t.="`n=================================================="
+		t.="`n==================================================`n"
 		IsLog:=1
 		try FileDelete LogFile
 	}
-	t.="`n`n" FormatTime(A_Now, "[yyyy/MM/dd HH:mm:ss]") " [" iMode "]" (iErrTitle?" [" iErrTitle "]":"")
+	t.="`n" FormatTime(A_Now, "[yyyy/MM/dd HH:mm:ss]") " [" iMode "]" (iErrTitle?" [" iErrTitle "] ":" ")
 	If Type(iErr)="String" {
-		t.="`n" iErr
+		t.=iErr
+		try Msg(iErr,iErrTitle,"Icon" iMode,1)
 	} Else {
 		t.=iErrEx?"`n" iErrEx:""
 		t.="`nMessage            :" iErr.Message
 		t.="`nExtra              :" iErr.Extra
 		t.="`nStack              :" iErr.Stack
+		try Msg(iErr.Message,iErrTitle,"Icon" iMode,1)
 	}
 	FileAppend t, LogFile
 }

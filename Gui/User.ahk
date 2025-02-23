@@ -34,6 +34,7 @@ CreatePopupUser(Ctr, *) {
 			Return
 		}
 		App.UserSID:=UserClicked
+        App.UserProfile:=GetUSERPROFILE()
 		App.HKCU:=GetHKCU()
 		App.User:=LookupAccountSid(App.UserSID).Name
 		SpaceName:="            "

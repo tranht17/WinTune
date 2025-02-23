@@ -321,6 +321,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				, "FamilyName"
 				, "FullName"
 				, "PublisherDisplayName"
+				, "InstalledDate"
 				, "Architecture"
 				, "Version"
 				, "SignatureKind"
@@ -343,7 +344,9 @@ BtnPackageManager_Click(g, NavIndex) {
 				s:=DisplayStatus(aList[id])
 			Else If tID="Architecture" || tID="SignatureKind"
 				s:=Display%tID%(aList[id].%tID%)
-			Else
+			Else If tID="InstalledDate" {
+				try s:=FormatTime(aList[id].%tID%, "ShortDate")
+			} Else
 				s:=aList[id].%tID%
 			b:=g2.AddEdit("-vscroll -E0x200 ReadOnly w400 yp Background"  Themes.%App.ThemeSelected%.BackColor, s)
 		}

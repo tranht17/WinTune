@@ -21,7 +21,7 @@ DisableAutoSuggest: {Act: [
 DisableAppendCompletion: {Act: [
 	{Type: "RegAdd",RegKey: "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\AutoComplete",RegType: "REG_SZ",RegValue1: "no",RegValueDefault: "yes",RegValueName: "Append Completion"}
 ]},
-DisableCortana: {Act: [
+DisableCustomInking: {Act: [
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\Personalization\Settings",RegType: "REG_DWORD",RegValue1: "0",RegValue0: "1",RegValueName: "AcceptedPrivacyPolicy"},
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\InputPersonalization",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "RestrictImplicitTextCollection"},
 	{Type: "RegChange",RegKey: "HKCU\SOFTWARE\Microsoft\InputPersonalization",RegType: "REG_DWORD",RegValue1: "1",RegValue0: "0",RegValueName: "RestrictImplicitInkCollection"},
@@ -324,7 +324,7 @@ Layout:=[
 "DisableAutoDefragIdle",
 "DisableBackgroundApps",
 "DisableBootOptimize",
-"DisableCortana",
+"DisableCustomInking",
 "DisableCrashAutoReboot",
 "DisableErrorReporting",
 "DisableGoogleUpdateTask",
@@ -419,7 +419,8 @@ Layout:=[
 {ID: "BtnPackageManager",Icon: "*icon1 C:\WINDOWS\diagnostics\system\Apps\DiagPackage.dll", Fn: "BtnPackageManager_Click", hr:"Text_HR_Tools"},
 {ID: "BtnStartupManager",Icon: "*icon281 imageres.dll",Icon10: "*icon280 imageres.dll",Fn: "BtnStartupManager_Click"},
 {ID: "BtnHostsEdit",Icon: "*icon291 imageres.dll",Icon10: "*icon290 imageres.dll",Fn: "BtnHostsEdit_Click"},
-{ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1}
+{ID: "BtnRestartExplorer",Icon: "*icon294 imageres.dll",Icon10: "*icon293 imageres.dll",Fn: "BtnRestartExplorer_Click",NotSelected:1},
+{ID: "Search",Fn: "OptimizeTab",Hidden:1}
 ]
 
 Themes:={

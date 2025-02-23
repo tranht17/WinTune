@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         2.6.1
+;@Ahk2Exe-SetVersion         2.7.0
 ;@Ahk2Exe-SetMainIcon        Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Off
 #Warn
 
-App:={Name: "WinTune", Ver: "2.6.1"}
+App:={Name: "WinTune", Ver: "2.7.0"}
 
 SetTitleMatchMode 3
 If WinExist(App.Name) {
@@ -32,7 +32,6 @@ tray.Add("Exit", (*) => ExitApp())
 #Include Inc/Optimizer.ahk
 #Include Inc/CustomFn.ahk
 #Include Inc/OptimizeConfig.ahk
-#Include Inc/CommandLineParam.ahk
 
 #include <Gdip_All>
 #Include <ToolTipOptions>
@@ -48,7 +47,16 @@ tray.Add("Exit", (*) => ExitApp())
 #Include Gui/PackageManager.ahk
 #Include Gui/CheckUpdate.ahk
 
+CheckOS
+CheckAdmin
+OnError LogError
+OnExit ExitFunc
+ArgParse
+Init
+ArgProcess
+
 OnMessage 0x0111, ON_EN_SETFOCUS
-CreateGui()
+CreateGui
 OnMessage 0x0200, WM_MOUSEMOVE
 OnMessage 0x0201, WM_LBUTTONDOWN
+OnMessage 0x47, WM_WINDOWPOSCHANGED

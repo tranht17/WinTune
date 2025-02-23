@@ -59,6 +59,10 @@ CreateGui() {
 	DeleteObject(hFlag)
 	BtnSys_Language.OnEvent("Click",CreatePopupLang)
 	
+	BtnSys_Search:=g.AddText('vBtnSys_Search BackgroundTrans x' (BtnSysX+=25) ' ym w30 h20 0x200 Center Border',Chr(0xE11A))
+	BtnSys_Search.Opt("-Border")
+	BtnSys_Search.OnEvent("Click",(*)=>NavItem_Click(g,10))
+
 	g.AddText("vHRLine_3 x" (BtnSysX+=35) " ym+3 w1 h15 Background" Themes.%App.ThemeSelected%.HrColor)
 	
 	BtnSys_ReloadTab:=g.AddText('vBtnSys_ReloadTab BackgroundTrans x' (BtnSysX+=10) ' ym w30 h20 0x200 0x100 Center Border',Chr(0xE117))
@@ -95,7 +99,7 @@ CreateGui() {
 	
 	g.SetFont("s" App.MainFontSize+2 " bold c" Themes.%App.ThemeSelected%.TextColor, App.MainFont)
 	
-	VerCtrl:=g.AddText('vVerCtrl xm85 y' (PanelY+PanelH-75+15) ' w110 BackgroundTrans')
+	VerCtrl:=g.AddText('vVerCtrl xm85 y' (PanelY+PanelH-75+15) ' w170 BackgroundTrans')
 	VerCtrl.SetFont("underline")
 	VerCtrl.OnEvent("Click",(*)=>CheckUpdate(g))
 	VerCtrl.Text:="v" App.Ver
@@ -113,9 +117,11 @@ CreateGui() {
 			aIcon:=g.AddPic("BackgroundTrans h22 w22 xm12 ym" (y+8))
 			aIcon.Value:=(!App.IsWin11 && NavItem.HasOwnProp("Icon10") && NavItem.Icon10)?NavItem.Icon10:NavItem.Icon
 		}
-		NavItemText:=g.AddText("BackgroundTrans 0x200 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index)
-		SetNavLang(g, A_Index)
-		y+=(NavSelectH+4)
+		NavItemText:=g.AddText("BackgroundTrans 0x200 h" NavSelectH " w" NavSelectW " xm ym" y " vNavItem_" A_Index (NavItem.HasOwnProp("Hidden")?" Hidden":""))
+		If !NavItem.HasOwnProp("Hidden") {
+			SetNavLang(g, A_Index)
+			y+=(NavSelectH+4)
+		}
 		If NavItem.HasOwnProp("Fn") && NavItem.Fn {
 			Fn:=NavItem.Fn
 			If NavItem.HasOwnProp("NotSelected") && NavItem.NotSelected
@@ -125,7 +131,7 @@ CreateGui() {
 			NavItemText.OnEvent("Click", FnClick)
 		}
 	}
-	g.SetFont("s" App.MainFontSize)
+	g.SetFont("norm s" App.MainFontSize)
 	NavItem_Click(g, IniRead("config.ini", "General", "LastTab", 1))
 	g.Show
 	App.HwndMain:=g.Hwnd
@@ -219,8 +225,20 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 WM_LBUTTONDOWN(wParam,lParam,msg,hwnd) {
 	If App.HwndMain==hwnd {
 		thisGui := GuiFromHwnd(hwnd)
-		If thisGui
+		If thisGui {
 			PostMessage 0xA1, 2
+			DestroyDlg()
+		}
+	}
+}
+WM_WINDOWPOSCHANGED(wParam,lParam,msg,hwnd) {
+	If IsSet(App) && App.HasOwnProp("HwndMain") && App.HwndMain && App.HwndMain==hwnd
+	&& App.HasOwnProp("HwndMsg") && App.HwndMsg {
+		g:=GuiFromHwnd(App.HwndMain)
+		g2:=GuiFromHwnd(App.HwndMsg)
+		g.GetPos(&gX, &gY, &gW, &gH)
+		g2.GetPos(,,&g2W, &g2H)
+		g2.Move(gX+8, gY+gH-g2H-8)
 	}
 }
 ON_EN_SETFOCUS(wParam,lParam,msg,hwnd) { ;by jNizM
@@ -295,6 +313,71 @@ SetPreventDestroyDlg(MilliSeconds:=0) {
 		App.PreventDestroyDlg:=1
 		SetTimer SetPreventDestroyDlg, -MilliSeconds
 	}
+}
+Msg(args*) {
+	tMsg:=MsgUI.Bind(args*)
+	SetTimer tMsg, -1
+}
+MsgUI(MsgText, MsgTitle:="", Mode:="Icon!", IsViewLogFile:=0, DestroyMsgTime:=5000) {
+	If !App.HasOwnProp("HwndMain") || !App.HwndMain
+		Return
+	g:=GuiFromHwnd(App.HwndMain)
+	BGColor:=TextColor:=Icon:=""
+	Switch Mode {
+	Case "!", "Icon!": 
+		BGColor:="F2C40C"
+		TextColor:="FFFFFF"
+		If Mode="Icon!"
+			Icon:=0xE783
+			; Icon:=0xE814
+	Case "x", "Iconx": 
+		BGColor:="D42525"
+		TextColor:="FFFFFF"
+		If Mode="IconX"
+			Icon:=0xEA39
+			; Icon:=0xEB90
+	Default:
+		BGColor:=Themes.%App.ThemeSelected%.TextColorHover
+		TextColor:="FFFFFF"
+		If Mode="Icon?"
+			Icon:=0xE9CE
+		Else If Mode="Iconi"
+			Icon:=0xE946
+			; Icon:=0xF167
+		Else If Mode="Iconv"
+			Icon:=0xE930
+			; Icon:=0xEC61
+	}
+	g2:=CreateDlg(g, 0, BGColor, TextColor, "HwndMsg")
+	If Icon
+		g2.AddText("w24 h24 ",Chr(Icon)).SetFont("s18", App.IconFont)
+	If MsgTitle {
+		g2.SetFont("s" App.MainFontSize+2 " bold")
+		g2.AddText("yp ",MsgTitle)
+		g2.MarginY:=0
+	}
+	g2.SetFont("s" App.MainFontSize+1 " norm")
+	g2.AddText((MsgTitle || !Icon?"":" yp"),MsgText)
+	
+	If IsViewLogFile {
+		; g2.AddText("underline c" Themes.%App.ThemeSelected%.TextColorHover,"View details")
+	}
+	
+	g.GetPos(&gX, &gY, &gW, &gH)
+	g2.MarginY:=6
+	BtnSys_Close2:=g2.AddText('vBtnSys_Close2 x' gW-16-36 ' ym w30 h20 0x200 Center Border',Chr(0xE10A))
+	BtnSys_Close2.SetFont("s11",App.IconFont)
+	BtnSys_Close2.Opt("-Border")
+	BtnSys_Close2.OnEvent("Click",DestroyMsg)
+	g2.Show("Hide w" gW-16)
+	WinSetTransparent 240, g2
+	g2.GetPos(&g2X, &g2Y, &g2W, &g2H)
+	g2.Show("x" gX+8 " y" gY+gH-g2H-8)
+	SetTimer DestroyMsg, -DestroyMsgTime
+}
+DestroyMsg(*) {
+	SetTimer DestroyMsg, 0
+	DestroyDlg(0, "HwndMsg")
 }
 BtnSys_SaveOptimizeConfigTab_Click(Ctr, *) {
 	g:=Ctr.Gui
