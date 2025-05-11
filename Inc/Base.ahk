@@ -17,6 +17,7 @@ ExitFunc(ExitReason, ExitCode) {
 
 ArgParse() {
     for ,param in A_Args {
+		App.Param:={}
         If InStr(param, "/DisableMSDefenderService=")=1 {
             sparam:=SubStr(param,-1)
             App.Param.DisableMSDefenderService:=sparam
@@ -40,7 +41,7 @@ ArgParse() {
 }
 
 ArgProcess() {
-    If App.HasOwnProp("Param") {
+    If App.HasOwnProp("Param") && ObjOwnPropCount(App.Param) {
         If App.Param.HasOwnProp("SaveConfig") {
             SaveOptimizeConfigAll(App.Param.SaveConfig)
         }
