@@ -1,12 +1,12 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         2.7.0
+;@Ahk2Exe-SetVersion         2.7.2
 ;@Ahk2Exe-SetMainIcon        Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Off
 #Warn
 
-App:={Name: "WinTune", Ver: "2.7.0"}
+App:={Name: "WinTune", Ver: "2.7.2"}
 
 SetTitleMatchMode 3
 If WinExist(App.Name) {
