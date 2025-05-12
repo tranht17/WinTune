@@ -165,9 +165,9 @@ EnablePrivilege(Privilege) {
         DllCall("CloseHandle", "Ptr", hToken)
     Return LastError
 }
-EnvGet2(s) {
+EnvGet2(s, ExpandUserProfile:=1) {
 	r:=RegRead( App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", s, "")
-	Return r??StrReplace(r, "%USERPROFILE%", App.UserProfile)
+	Return (ExpandUserProfile?StrReplace(r, "%USERPROFILE%", App.UserProfile):r)
 }
 GetUSERPROFILE() {
     ProfileUserPath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" App.UserSID, "ProfileImagePath", "")
