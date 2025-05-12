@@ -169,12 +169,23 @@ EnvGet2(s, ExpandUserProfile:=1) {
 	r:=RegRead( App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", s, "")
 	Return (ExpandUserProfile?StrReplace(r, "%USERPROFILE%", App.UserProfile):r)
 }
+ExpandEnvironmentStrings(str, ExpandUserProfile:=1) {
+	str:=ExpandUserProfile?StrReplace(str, "%USERPROFILE%", App.UserProfile):str
+    cc := DllCall("ExpandEnvironmentStrings", "str", str, "ptr", 0, "uint", 0)
+    buf := Buffer(cc*2)
+    DllCall("ExpandEnvironmentStrings", "str", str, "ptr", buf, "uint", cc)
+    return StrGet(buf)
+}
 GetUSERPROFILE() {
     ProfileUserPath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" App.UserSID, "ProfileImagePath", "")
     If !ProfileUserPath
         MsgBoxError('"' App.UserSID '" does not exist', 1)
-    If !DirExist(ProfileUserPath)
-        MsgBoxError('"' ProfileUserPath '" does not exist', 1)
+    If !DirExist(ProfileUserPath) {
+		ProfileUserPath2:=ExpandEnvironmentStrings(ProfileUserPath, 0)
+		If !DirExist(ProfileUserPath2)
+			MsgBoxError('"' ProfileUserPath '" does not exist', 1)
+		Return ProfileUserPath2
+	}
     Return ProfileUserPath
 }
 GetActiveUser() {

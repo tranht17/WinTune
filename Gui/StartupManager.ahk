@@ -211,11 +211,6 @@ BtnStartupManager_Click(g, NavIndex) {
 			StartPos := fpo + StrLen(m[])
 		}
 	}
-	ExpandEnvironmentStrings(str) {
-		rExpanded:=Buffer(2000) 
-		DllCall("ExpandEnvironmentStrings", "str", str, "ptr", rExpanded, "int", 1999)
-		return StrGet(rExpanded)
-	}
 	LVStartupManager_Click(GuiCtrlObj, Item) {
 		If Item {
 			iTarget:=GuiCtrlObj.GetText(Item , 4)
