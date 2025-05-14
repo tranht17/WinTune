@@ -179,7 +179,7 @@ WM_MOUSEMOVE(wParam, lParam, msg, Hwnd) {
 					currControl.SetFont("c" Themes.%App.ThemeSelected%.TextColorHover)
 				currControl.Opt("+Border")
 			} Else If InStr(currControl.Name, "NavItem_")=1 {
-				If currControl.Name="NavItem_UserName" && (UserCount()==1 || WinExist(App.HwndPopup))
+				If currControl.Name="NavItem_UserName" && (UserCount()==1 || (App.HasOwnProp("HwndPopup") && WinExist(App.HwndPopup)))
 					Return
 				currControl.GetPos(&x, &y)
 				thisGui["NavBGHover"].Move(x, y)

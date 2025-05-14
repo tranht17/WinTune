@@ -116,10 +116,10 @@ BtnHostsEdit_Click(g, NavIndex) {
 					g["HostsEdit_BtnSave"].Enabled:=True
 					ControlSend "^{End}", g["HostsEdit"]
 				} Else {
-					MsgBox(StatusText,,"Icon!")
+					Msg(StatusText,"Hosts Edit","Icon!")
 				}
 			} Catch as err {
-				MsgBox(err.Message,,"Icon!")
+				Msg(err.Message,"Hosts Edit","Icon!")
 			} Finally {
 				DestroyDlg()
 			}
