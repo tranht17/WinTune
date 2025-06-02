@@ -178,8 +178,10 @@ ExpandEnvironmentStrings(str, ExpandUserProfile:=1) {
 }
 GetUSERPROFILE() {
     ProfileUserPath := RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\" App.UserSID, "ProfileImagePath", "")
-    If !ProfileUserPath
+    If !ProfileUserPath {
+		Debug_LookupAccountName(App.User)
         MsgBoxError('"' App.UserSID '" does not exist', 1)
+	}
     If !DirExist(ProfileUserPath) {
 		ProfileUserPath2:=ExpandEnvironmentStrings(ProfileUserPath, 0)
 		If !DirExist(ProfileUserPath2)
@@ -208,6 +210,22 @@ GetActiveUser() {
 	DllCall("FreeLibrary", "Ptr", wtsapi32)
 	Return UserName
 }
+Debug_LookupAccountName(UserName) {
+	r:="Debug_LookupAccountName"
+	Lookup(1)
+	Lookup(2)
+	Lookup(4)
+	Lookup(n) {
+		DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "Ptr", 0, "PtrP", &nSizeSID:=0, "Ptr", 0, "PtrP", &nSizeDomain:=0, "PtrP", &eUser:=0)
+		SID:=Buffer(nSizeSID*n)
+		pDomain:=Buffer(nSizeDomain)
+		DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "Ptr", SID, "PtrP", &nSizeSID, "Ptr", pDomain, "PtrP", &nSizeDomain, "PtrP", &eUser:=0)
+		r.="`nBufferSID-" nSizeSID*n ": " Bin2Hex(SID, nSizeSID*n)
+		DllCall("advapi32\ConvertSidToStringSid", "Ptr", SID, "UIntP", &pString:=0)
+		r.="`nSID-" nSizeSID*n ": " StrGet(pString, "UTF-16")
+	}
+	Debug(r)
+}
 LookupAccountName(UserName) {
 	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "Ptr", 0, "PtrP", &nSizeSID:=0, "Ptr", 0, "PtrP", &nSizeDomain:=0, "PtrP", &eUser:=0)
 	SID:=Buffer(nSizeSID*2)
@@ -216,7 +234,7 @@ LookupAccountName(UserName) {
 	DllCall("advapi32\ConvertSidToStringSid", "Ptr", SID, "UPtrP", &pString:=0)
 	If !pString
 		MsgBoxError("User '" UserName "' does not exist", 1)
-	Return StrGet(pString)
+	Return StrGet(pString, "UTF-16")
 }
 LookupAccountSid(SID) {
 	r := {}
@@ -326,16 +344,20 @@ MsgBoxError(iText, IsExitApp:=0, title:="Error") {
 	If IsExitApp
 		ExitApp
 }
+
+App.MDebug:="x|!"
 Debug(iErr:="",iErrEx:="", iErrTitle:="", iMode:="x") {
+	if !MDebug:=IsSet(App)&&App.HasOwnProp("MDebug")?(App.MDebug="All"?"x|!|i":(App.MDebug=1?"x|!":App.MDebug)):"x|!"
+		Return
+	DebugModeRegEx:="i)\A(" MDebug ")\z"
+	If !(iMode ~= DebugModeRegEx) {
+		Return
+	}
 	static IsLog:=0
 	LogFile:="WinTune.log"
 	t:=""
-	If !IsLog {
-		If IsSet(App) {
-			t.="================= " App.Name " v" App.Ver " ================="
-		} Else {
-			t.="=================================================="
-		}
+	If !IsLog || !FileExist(LogFile) {
+		t.="=================" (IsSet(App)?" " App.Name " v" App.Ver " ":"================") "================="
 		t.="`nOSVersion          :" A_OSVersion
 		t.="`nIs64bitOS          :" A_Is64bitOS
 		t.="`nInstallationType   :" RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "InstallationType","")
@@ -347,13 +369,17 @@ Debug(iErr:="",iErrEx:="", iErrTitle:="", iMode:="x") {
 	t.="`n" FormatTime(A_Now, "[yyyy/MM/dd HH:mm:ss]") " [" iMode "]" (iErrTitle?" [" iErrTitle "] ":" ")
 	If Type(iErr)="String" {
 		t.=iErr
-		try Msg(iErr,iErrTitle,"Icon" iMode,1)
+		If !(("NoMsg" iMode) ~= DebugModeRegEx) {
+			try Msg(iErr,iErrTitle,"Icon" iMode,1)
+		}
 	} Else {
 		t.=iErrEx?"`n" iErrEx:""
 		t.="`nMessage            :" iErr.Message
 		t.="`nExtra              :" iErr.Extra
 		t.="`nStack              :" iErr.Stack
-		try Msg(iErr.Message,iErrTitle,"Icon" iMode,1)
+		If !(("NoMsg" iMode) ~= DebugModeRegEx) {
+			try Msg(iErr.Message,iErrTitle,"Icon" iMode,1)
+		}
 	}
 	FileAppend t, LogFile
 }
