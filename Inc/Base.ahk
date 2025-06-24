@@ -230,20 +230,21 @@ GetActiveUser() {
 }
 Debug_LookupAccountName(UserName) {
 	r:="Debug_LookupAccountName"
-	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", 0, "PtrP", &nSizeSID:=0, "Ptr", 0, "PtrP", &nSizeDomain:=0, "PtrP",0)
+	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", 0, "UIntP", &nSizeSID:=0, "Ptr", 0, "UIntP", &nSizeDomain:=0, "PtrP",0)
 	SID:=Buffer(nSizeSID*=2)
 	pDomain:=Buffer(nSizeDomain*=2)
-	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", SID.ptr, "PtrP", &nSizeSID, "Ptr", pDomain, "PtrP", &nSizeDomain, "PtrP", 0)
+	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", SID.ptr, "UIntP", &nSizeSID, "Ptr", pDomain, "UIntP", &nSizeDomain, "PtrP", 0)
 	r.="`nBufferSID-" nSizeSID ": " Bin2Hex(SID, nSizeSID)
 	DllCall("advapi32\ConvertSidToStringSid", "UPtr", SID.ptr, "PtrP", &pString:=0)
 	r.="`nSID-" nSizeSID ": " StrGet(pString, "UTF-16")
 	Debug(r)
 }
 LookupAccountName(UserName) {
-	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", 0, "PtrP", &nSizeSID:=0, "Ptr", 0, "PtrP", &nSizeDomain:=0, "PtrP",0)
-	SID:=Buffer(nSizeSID*=2)
+	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", 0, "UIntP", 0, "Ptr", 0, "UIntP", &nSizeDomain:=0, "PtrP",0)
+	nSizeSID:=68
+	SID:=Buffer(nSizeSID)
 	pDomain:=Buffer(nSizeDomain*=2)
-	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", SID.ptr, "PtrP", &nSizeSID, "Ptr", pDomain, "PtrP", &nSizeDomain, "PtrP", 0)
+	DllCall("advapi32\LookupAccountName", "Str", "", "Str", UserName, "UPtr", SID.ptr, "UIntP", &nSizeSID, "Ptr", pDomain, "UIntP", &nSizeDomain, "PtrP", 0)
 	DllCall("advapi32\ConvertSidToStringSid", "UPtr", SID.ptr, "PtrP", &pString:=0)
 	If !pString
 		MsgBoxError("User '" UserName "' does not exist", 1)
@@ -252,10 +253,10 @@ LookupAccountName(UserName) {
 LookupAccountSid(SID) {
 	r := {}
 	DllCall("advapi32\ConvertStringSidToSid", "Str", SID, "UPtr*", &pSID:=0)
-	DllCall("advapi32\LookupAccountSid", "Ptr", 0, "UPtr", pSID, "Ptr", 0, "PtrP", &nSizeName:=0, "Ptr", 0, "PtrP", &nSizeDomain:=0, "PtrP", 0)
+	DllCall("advapi32\LookupAccountSid", "Ptr", 0, "UPtr", pSID, "Ptr", 0, "UIntP", &nSizeName:=0, "Ptr", 0, "UIntP", &nSizeDomain:=0, "PtrP", 0)
 	pName:=Buffer(nSizeName*=2)
 	pDomain:=Buffer(nSizeDomain*=2)
-	if !(DllCall("advapi32\LookupAccountSid", "Ptr", 0, "UPtr", pSID, "Ptr", pName, "PtrP", &nSizeName, "Ptr", pDomain, "PtrP", &nSizeDomain, "PtrP", 0))
+	if !(DllCall("advapi32\LookupAccountSid", "Ptr", 0, "UPtr", pSID, "Ptr", pName, "UIntP", &nSizeName, "Ptr", pDomain, "UIntP", &nSizeDomain, "PtrP", 0))
 		return 0
 	r.Name := StrGet(pName, "UTF-16"), r.Domain := StrGet(pDomain, "UTF-16")
 	return r
