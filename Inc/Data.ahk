@@ -324,7 +324,6 @@ Order: ["System",
 	    "PackageManager", 
 	    "StartupManager", 
 	    "HostsEdit",
-	    "WindowsTools",
 	    "RestartExplorer"],
 List: {
 	System: {Icon: "*icon106 imageres.dll",Fn: "OptimizeTab", hr:"Text_HR_Optimize",Items: [
@@ -378,7 +377,6 @@ List: {
 		"DisableTipsAndSuggestions",
 		"DisableWCE",
 		"DisableVisualStudioTelemetry",
-		; "DisableWebSearchStartMenu",
 		"DisableWindowsFeedback"]},
 	Explorer: {Icon: "*icon266 imageres.dll",Icon10: "*icon265 imageres.dll",Fn: "OptimizeTab",Items: [
 		"DisableAutoSuggest",
@@ -392,17 +390,6 @@ List: {
 		"DisableRecentFiles",
 		"DisableFrequentFolders",
 		"DisableSyncProviderNotifications"]},
-		; "UnpinFileExplorer",
-		; "UnpinEdge",
-		; "UnpinSearch",
-		; "UnpinTaskView",
-		; "UnpinChat",
-		; "UnpinCortana",
-		; "UnpinMail",
-		; "UnpinNewsandInterests",
-		; "UnpinStore",
-		; "UnpinCopilot",
-		; "UnpinWidgets"]},
 	StartMenu: {Icon: "*icon190 imageres.dll",Fn: "OptimizeTab",Items: [
 		"DisableStartMenuAppSuggestions",
 		"HideMostUsedApps",
