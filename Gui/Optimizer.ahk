@@ -1,17 +1,17 @@
-OptimizeTab(g, NavIndex) {
-	Static sXCBT,sYCBT
+OptimizeTab(g, NavID) {
+	static sXCBT,sYCBT
 	WICB:=20,SpaceItem:=16,C:=App.LangSelected~="en|zh_cn"?3:2
-	IsSearchTab:=Layout[NavIndex].ID="Search"?1:0
-	If IsSearchTab {
+	IsSearchTab:=NavID="Search"?1:0
+	if IsSearchTab {
 		g["NavBGActive"].Visible:=0
-	} Else
+	} else
 		g["BtnSys_SaveOptimizeConfigTab"].Visible:=1
 	
 	g["BGPanel"].GetPos(&PanelX, &PanelY, &PanelW)
 		
 	try {
 		g["HRLine_1"].Visible:=1
-	} Catch {
+	} catch {
 		sXCBT:=PanelX
 		sYCBT:=PanelY
 		
@@ -39,33 +39,33 @@ OptimizeTab(g, NavIndex) {
 	
 	sWCBT:=(PanelW-SpaceItem)/C-SpaceItem
 	
-	If Layout[NavIndex].ID="StartMenu"
+	if NavID="StartMenu"
 		g["Link_ClearStartMenu"].Visible:=1
 	
 	CurrentTabCtrls:=Array()
 	
-	If IsSearchTab {
+	if IsSearchTab {
 		g["EditSearch"].Visible:=1
 		g["EditSearch"].Focus()
 		ShowListBySearch
 		CurrentTabCtrls.Push "EditSearch"
-		If !App.TabLangLoaded.HasOwnProp(NavIndex) {
+		if !App.TabLangLoaded.HasOwnProp(NavID) {
 			SendMessage(0x1501, 1, StrPtr(GetLangDesc("BtnSys_Search")), g["EditSearch"].hwnd)
-			App.TabLangLoaded.%NavIndex%:=1
+			App.TabLangLoaded.%NavID%:=1
 		}
-	} Else {
+	} else {
 		g["Link_SelectAll"].Visible:=1
 		g["Link_DeselectAll"].Visible:=1
 		ShowListByLayout
 		CurrentTabCtrls.Push "Link_ClearStartMenu"
 		CurrentTabCtrls.Push "Link_SelectAll"
 		CurrentTabCtrls.Push "Link_DeselectAll"
-		If !App.TabLangLoaded.HasOwnProp(NavIndex) {
+		if !App.TabLangLoaded.HasOwnProp(NavID) {
 			Loop CurrentTabCtrls.Length {
 				tCtrlID:=CurrentTabCtrls[A_Index]
 				g[tCtrlID].Text:=GetLangName(tCtrlID)
 			}
-			App.TabLangLoaded.%NavIndex%:=1
+			App.TabLangLoaded.%NavID%:=1
 		}
 		CurrentTabCtrls.Push "BtnSys_SaveOptimizeConfigTab"
 	}	
@@ -75,32 +75,31 @@ OptimizeTab(g, NavIndex) {
 	
 	ShowListBySearch(*) {
 		static sCtrls:=[]
-		If sCtrls.Length {
+		if sCtrls.Length {
 			Loop sCtrls.Length
 				g[sCtrls[A_Index]].Visible:=0
 			sCtrls:=[]
 		}
 		SearchText:=g["EditSearch"].Value
-		If !SearchText {
+		if !SearchText {
 			App.CurrentTabCtrls:=["EditSearch"]
-			Return
+			return
 		}
 		x:=sXCBT
 		y:=sYCBT
 		w:=sWCBT
 		i:=0
-		Loop Layout.Length {
-			If !Layout[A_Index].ID || !Layout[A_Index].HasOwnProp("Items")
-				Continue
-			Items:=Layout[A_Index].Items
-			Loop Items.Length {
-				ItemId:=Items[A_Index]
-				If SearchText=ItemId 
+		for NavID in TabLayout.Order {
+			if !TabLayout.List.%NavID%.HasOwnProp("Items")
+				continue
+			Items:=TabLayout.List.%NavID%.Items
+			for ItemId in Items {
+				if SearchText=ItemId 
 					|| ((ItemName:=GetLangName(ItemId)) && ItemName!=ItemId && InStr(ItemName, SearchText))
 					|| ((ItemDesc:=GetLangDesc(ItemId)) && ItemDesc && InStr(ItemDesc, SearchText)) {
-					If ShowCB(ItemId,&x,&y,w,&i,&sCtrls)
+					if ShowCB(ItemId,&x,&y,w,&i,&sCtrls)
 						g[ItemId].Text:=GetLangName(ItemId)
-					If i>=C*16
+					if i>=C*16
 						Break 2
 				}
 			}
@@ -114,7 +113,7 @@ OptimizeTab(g, NavIndex) {
 		x:=sXCBT
 		y:=sYCBT
 		w:=sWCBT
-		ItemList:=Layout[NavIndex].Items
+		ItemList:=TabLayout.List.%NavID%.Items
 		Loop ItemList.Length {
 			ItemId:=ItemList[A_Index]
 			ShowCB(ItemId,&x,&y,w,&i,&CurrentTabCtrls)
@@ -124,13 +123,13 @@ OptimizeTab(g, NavIndex) {
 	ShowCB(ItemId,&x,&y,w,&i, &sCtrls) {
 		CtrlVisibled:=0
 		try {
-			If g[ItemId].Name!=ItemId
+			if g[ItemId].Name!=ItemId
 				Throw UnsetItemError()
 			s:=CheckStatusItem(ItemId, Data.%ItemId%)
-			If s>=0 {
+			if s>=0 {
 				g[ItemId].Value:=s
 				CtrlVisibled:=1
-				If !App.TabLangLoaded.HasOwnProp(NavIndex)
+				if !App.TabLangLoaded.HasOwnProp(NavID)
 					g[ItemId].Visible:=False
 			}
 		} catch UnsetItemError {
@@ -138,30 +137,30 @@ OptimizeTab(g, NavIndex) {
 		} catch as err {
 			Debug(err)
 		} Finally {
-			If CtrlVisibled {
+			if CtrlVisibled {
 				i++
-				If i=1 {
-				} Else If Mod(i,C)=1
+				if i=1 {
+				} else if Mod(i,C)=1
 					y+=30,x-=((C-1)*(SpaceItem+w))
-				Else
+				else
 					x+=(SpaceItem+w)
 				g[ItemId].Move(x, y, w)			
 				g[ItemId].Visible:=True
 				sCtrls.Push ItemId
 			}
 		}
-		Return CtrlVisibled
+		return CtrlVisibled
 	}
 	
 	CreateCB(g,ItemId, W) {
 		s:=CheckStatusItem(ItemId, Data.%ItemId%)
-		If s<=-1
-			Return 0
+		if s<=-1
+			return 0
 		
-		Static m:=Map()
-		If m.Count=0 {	
-			m["SWidth"]:=20
-			m["SHeight"]:=20
+		static m:=Map()
+		if m.Count=0 {	
+			m["Width"]:=20
+			m["Height"]:=20
 			pToken:=Gdip_Startup()
 			hValue1Icon:=Gdip_CreateARGBHBITMAPFromBase64('iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKaWlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4xLWMwMDIgNzkuYTZhNjM5NiwgMjAyNC8wMy8xMi0wNzo0ODoyMyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI1LjEgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMy0xMS0xMVQxMDo1NToyNiswNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wNy0zMFQwODo0MzoyNyswNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjQtMDctMzBUMDg6NDM6MjcrMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmU2Mzg1NDA3LWM5NzItNWQ0Yy1hMjIwLWM2YmE3YjQyYTM1ZiIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjZiMDFlOTljLTE0YjEtODc0YS1iYTQ0LTAxZDk2MGQxN2M4OCIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iNjU1MzUiIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSIzODUiIGV4aWY6UGl4ZWxZRGltZW5zaW9uPSIzODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIgc3RFdnQ6d2hlbj0iMjAyMy0xMS0xMVQxMDo1NToyNiswNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI1LjEgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo2NDM2M2UyYS0xOGYxLTg5NDYtODVjMy1mNDY1NTlkNjE0NTUiIHN0RXZ0OndoZW49IjIwMjQtMDctMzBUMDg6MjU6MjArMDc6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyNS4xMSAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjNiYTA2NWIwLWQ2OTktYzk0OC04YzkyLWUxN2Q4ZjRiMmZlYyIgc3RFdnQ6d2hlbj0iMjAyNC0wNy0zMFQwODo0MzoyNyswNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI1LjExIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY29udmVydGVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJmcm9tIGFwcGxpY2F0aW9uL3ZuZC5hZG9iZS5waG90b3Nob3AgdG8gaW1hZ2UvcG5nIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJkZXJpdmVkIiBzdEV2dDpwYXJhbWV0ZXJzPSJjb252ZXJ0ZWQgZnJvbSBhcHBsaWNhdGlvbi92bmQuYWRvYmUucGhvdG9zaG9wIHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6ZTYzODU0MDctYzk3Mi01ZDRjLWEyMjAtYzZiYTdiNDJhMzVmIiBzdEV2dDp3aGVuPSIyMDI0LTA3LTMwVDA4OjQzOjI3KzA3OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjUuMTEgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDwvcmRmOlNlcT4gPC94bXBNTTpIaXN0b3J5PiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDozYmEwNjViMC1kNjk5LWM5NDgtOGM5Mi1lMTdkOGY0YjJmZWMiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ZjBlYTdlZWYtZGRmYi1jNTQ3LTliMjItNjE5MzdjNzhlOWYyIiBzdFJlZjpvcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ZjBlYTdlZWYtZGRmYi1jNTQ3LTliMjItNjE5MzdjNzhlOWYyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+zEE+wAAAAUlJREFUOBFjYFjxholc/P//fwYQBrIZgXgCEDcyUMEwOyD+AMT/gdgMJCAGxGuB+AdUkBD+jGRYMZI4D1gMyNgMFbgFxGcIYJBaTqhhPUiGyUHFmEDELyC+CsTMRHiVAYo7kQxzgBsGNRAkeJgIwxihhuUhGVaBFCk4DYRpxOY6ZyTDDkLVMqKoQzOQAQuGiQsA8Teo+t9AzAc1rAmXgYzQGO8G4jlQ1yAbfBTJdWFQsV4oH6uBIHYqWhJxxxJuu5AsOYzPQJAANxD7I2m+hRZuf4FYCCkoCBoIs7kdR6LOg8ozEmsgsqGf0Ax7iBZRRBsISzZz0Qz0wpKciDIQW5q7jMV1JBkIc+V+IH4JxLo4EjtWA0F5+QqefMuBwzBQ3r8GKn3QDdwGteUGEaUNMr4B1bcB3UBpqKG/iCwPYfgXtDgTRzeQiZoYAGmMGsR7MoJVAAAAAElFTkSuQmCC')
 			hValue0Icon:=Gdip_CreateARGBHBITMAPFromBase64('iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAJm2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4xLWMwMDIgNzkuYTZhNjM5NiwgMjAyNC8wMy8xMi0wNzo0ODoyMyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIgeG1sbnM6ZXhpZj0iaHR0cDovL25zLmFkb2JlLmNvbS9leGlmLzEuMC8iIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIDI1LjEgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAyMy0xMS0xMVQxMDo1NToyNiswNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0wNy0zMFQwNzo1ODoxNCswNzowMCIgeG1wOk1vZGlmeURhdGU9IjIwMjQtMDctMzBUMDc6NTg6MTQrMDc6MDAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE5YmUzYTUyLTI4MTktNGU0Ny04YWFlLTM3ZWIzNWJmNTMwZiIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmJiYWY2MGEwLTkyMzctMjU0Ni04OTZhLTZiYWNmMTE5MjUxMiIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgdGlmZjpPcmllbnRhdGlvbj0iMSIgdGlmZjpYUmVzb2x1dGlvbj0iNzIwMDAwLzEwMDAwIiB0aWZmOllSZXNvbHV0aW9uPSI3MjAwMDAvMTAwMDAiIHRpZmY6UmVzb2x1dGlvblVuaXQ9IjIiIGV4aWY6Q29sb3JTcGFjZT0iNjU1MzUiIGV4aWY6UGl4ZWxYRGltZW5zaW9uPSIzODUiIGV4aWY6UGl4ZWxZRGltZW5zaW9uPSIzODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIgc3RFdnQ6d2hlbj0iMjAyMy0xMS0xMVQxMDo1NToyNiswNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI1LjEgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoxNDA1NjcwZS01NjZkLWZjNDYtODgyOS02MWQ2ZGI3YTg3MWEiIHN0RXZ0OndoZW49IjIwMjQtMDctMzBUMDc6NTg6MTQrMDc6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyNS4xMSAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNvbnZlcnRlZCIgc3RFdnQ6cGFyYW1ldGVycz0iZnJvbSBhcHBsaWNhdGlvbi92bmQuYWRvYmUucGhvdG9zaG9wIHRvIGltYWdlL3BuZyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iZGVyaXZlZCIgc3RFdnQ6cGFyYW1ldGVycz0iY29udmVydGVkIGZyb20gYXBwbGljYXRpb24vdm5kLmFkb2JlLnBob3Rvc2hvcCB0byBpbWFnZS9wbmciLz4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjE5YmUzYTUyLTI4MTktNGU0Ny04YWFlLTM3ZWIzNWJmNTMwZiIgc3RFdnQ6d2hlbj0iMjAyNC0wNy0zMFQwNzo1ODoxNCswNzowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDI1LjExIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MTQwNTY3MGUtNTY2ZC1mYzQ2LTg4MjktNjFkNmRiN2E4NzFhIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIgc3RSZWY6b3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmYwZWE3ZWVmLWRkZmItYzU0Ny05YjIyLTYxOTM3Yzc4ZTlmMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pv+Vn28AAAB6SURBVDgRY/j//z8DNTED1Q1kWPGGDYiXAfF/MvBaIOZBN3AtVPItEN8iAb+E6tuNbiBI8AUQM5CB74P0YzPwCpkGnsBl4C0yDTw/auCogYPZQKrnlOdkGngXm4HboIY+gnqBWHwfqu8wuoHcQLyBzPJwOxAL0bTEBgBZ4n0V0qf7fgAAAABJRU5ErkJggg==')
@@ -171,9 +170,9 @@ OptimizeTab(g, NavIndex) {
 		}
 		ThisCheckBox := g.AddPicSwitch("Hidden x0 y0 0x80 w" W " v" ItemId,"",,m)
 		g[ItemId].OnEvent("Click",CB_Click)
-		g[ItemId].SPic.OnEvent("Click",(*)=>CB_Click(g[ItemId],""))
+		g[ItemId].Pic.OnEvent("Click",(*)=>CB_Click(g[ItemId],""))
 		g[ItemId].Value:=s
-		Return 1
+		return 1
 	}
 	CB_Click(Ctr,Info) {
 		g:=Ctr.Gui
@@ -194,7 +193,7 @@ OptimizeTab(g, NavIndex) {
 		g2:=CreateWaitDlg(g)
 		CurrentTabCtrls:=App.CurrentTabCtrls
 		Loop CurrentTabCtrls.Length {
-			If g[CurrentTabCtrls[A_Index]].Type="PicSwitch" && g[CurrentTabCtrls[A_Index]].Value!=ID {
+			if g[CurrentTabCtrls[A_Index]].Type="PicSwitch" && g[CurrentTabCtrls[A_Index]].Value!=ID {
 				g[CurrentTabCtrls[A_Index]].Value:=ID
 				ProgNowCtr(g[CurrentTabCtrls[A_Index]],Data.%CurrentTabCtrls[A_Index]%,1)
 			}
@@ -227,7 +226,7 @@ OptimizeTab(g, NavIndex) {
 			CurrentTabCtrls:=App.CurrentTabCtrls
 			Loop CurrentTabCtrls.Length {
 				ItemID:=CurrentTabCtrls[A_Index]
-				If g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
+				if g[ItemID].Type="PicSwitch" && Data.HasOwnProp(ItemID)
 					Config.%ItemID%:=g[ItemID].Value
 			}
 

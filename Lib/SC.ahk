@@ -14,25 +14,21 @@
 	; SERVICE_DEMAND_START:=0x00000003
 	; SERVICE_DISABLED:=0x00000004
 	; SERVICE_NO_CHANGE:=0xFFFFFFFF
-Service_State(ServiceName, textResult:=false) { ; Return Values			  
+Service_State(ServiceName, &textResult:="") { ; return Values			  
 	SCM_HANDLE := OpenSCManager(0x1)
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x4)
     
-    If (!hSvc)
-        result := 0
-    Else {
+    if (!hSvc)
+        r := 0
+    else {
         SC_STATUS := Buffer(28, 0)
 		QueryServiceStatus(hSvc, SC_STATUS)
-        result := NumGet(SC_STATUS,4,"UInt")
+        r := NumGet(SC_STATUS,4,"UInt")
 		CloseServiceHandle(hSvc)
     }
     CloseServiceHandle(SCM_HANDLE)
-    
-    If (textResult) {
-        r := result
-        result := (r=1) ? "Stopped" : (r=2) ? "Start Pending" : (r=3) ? "Stop Pending" : (r=4) ? "Running" : (r=5) ? "Continue Pending" : (r=6) ? "Pause Pending" : (r=7) ? "Paused" : "Unknown"
-    }
-    return result
+    textResult := (r=0) ? "Not Exist" : (r=1) ? "Stopped" : (r=2) ? "Start Pending" : (r=3) ? "Stop Pending" : (r=4) ? "Running" : (r=5) ? "Continue Pending" : (r=6) ? "Pause Pending" : (r=7) ? "Paused" : "Unknown"
+    return r
 }
 
 Service_Info(ServiceName) {
@@ -40,14 +36,14 @@ Service_Info(ServiceName) {
 	SCM_HANDLE := OpenSCManager(0xF003F)
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x0001)
 
-	If (!hSvc) {
+	if (!hSvc) {
 		result := 0
-	} Else {
+	} else {
 		QueryServiceConfig(hSvc,,,&bSize:=0)				
 		QUERY_SERVICE_CONFIG := Buffer(bSize,0)
 		QueryServiceConfig(hSvc,QUERY_SERVICE_CONFIG,bSize)
 		
-		If (bSize) {
+		if (bSize) {
 			svcType := NumGet(QUERY_SERVICE_CONFIG,0,"UInt")
 			svcStartMode := NumGet(QUERY_SERVICE_CONFIG,4,"UInt")
 			svcErrCtl := NumGet(QUERY_SERVICE_CONFIG,8,"UInt")
@@ -85,7 +81,7 @@ Service_Info(ServiceName) {
 			
 			SERVICE_CONFIG_TRIGGER_INFO:=8
 			QueryServiceConfig2(hSvc, SERVICE_CONFIG_TRIGGER_INFO,,, &bSize:=0)	
-			If (bSize) {
+			if (bSize) {
 				SERVICE_TRIGGER_INFO := Buffer(bSize,0)
 				QueryServiceConfig2(hSvc, SERVICE_CONFIG_TRIGGER_INFO,SERVICE_TRIGGER_INFO,bSize)
 				svcTrigger := NumGet(SERVICE_TRIGGER_INFO,"UInt")
@@ -97,7 +93,7 @@ Service_Info(ServiceName) {
 					 ,"svcTrigger",svcTrigger,"svcDelayed",svcDelayed)
 	}
 	CloseServiceHandle(SCM_HANDLE)
-	Return result
+	return result
 }
 
 Service_List(State:="", SvcType:="") {  
@@ -124,7 +120,7 @@ Service_List(State:="", SvcType:="") {
         svcObjList[svcName] := svcObj
     }
     CloseServiceHandle(SCM_HANDLE)
-    Return svcObjList
+    return svcObjList
 }
 
 Service_Start(ServiceName) {
@@ -132,7 +128,7 @@ Service_Start(ServiceName) {
 	SCM_HANDLE := OpenSCManager(0x1) ;SC_MANAGER_CONNECT
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x10) ;SC_MANAGER_QUERY_LOCK_STATUS 0x10
     result := 0
-    If (hSvc) {
+    if (hSvc) {
 		result := StartService(hSvc)
 		CloseServiceHandle(hSvc)
     }
@@ -144,9 +140,9 @@ Service_Stop(ServiceName) {
 	SCM_HANDLE := OpenSCManager(0x1) ;SC_MANAGER_CONNECT
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x0020) ;SERVICE_STOP (0x0020)
     result := 0
-    If (!hSvc)
+    if (!hSvc)
         LastErr := 0
-    Else {
+    else {
         SERVICE_STATUS := Buffer((A_PtrSize=4)?28:32,0)
 		result := ControlService(hSvc, SERVICE_STATUS)
         LastErr := A_LastError
@@ -161,7 +157,7 @@ Service_Stop(ServiceName) {
 ; StartType: [Auto/AutoMatic], [Demand/OnDemand], Disabled 
 Service_Add(ServiceName, BinaryPath, StartType:="", DisplayName:="") {
     if !A_IsAdmin
-        Return False
+        return False
    
 	SCM_HANDLE := OpenSCManager(0x2)
     StartType := (StartType="Auto" Or StartType="Automatic") ? 0x2 : (StartType="Demand" Or StartType="OnDemand") ? 0x3 : 0x4 ; 0x4 = Disabled   
@@ -169,61 +165,61 @@ Service_Add(ServiceName, BinaryPath, StartType:="", DisplayName:="") {
     result := A_LastError ? SC_HANDLE "," A_LastError : 1
 	CloseServiceHandle(SC_HANDLE)
     CloseServiceHandle(SCM_HANDLE)
-    Return result
+    return result
 }
 
 Service_Delete(ServiceName) {
     if !A_IsAdmin ;Requires Administrator rights
-        Return False
+        return False
     
 	SCM_HANDLE := OpenSCManager(0x1)
     result := 0
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0xF01FF) ;SERVICE_ALL_ACCESS (0xF01FF)
-    If !hSvc
+    if !hSvc
         result := -4 ;Service Not Found
 
     if !result
         result := DeleteService(hSvc)
 	CloseServiceHandle(SCM_HANDLE)
-    Return result    
+    return result    
 }
 
 Service_Change_StartType(ServiceName, sStartType) {
 	if !A_IsAdmin ;Requires Administrator rights
-        Return False
+        return False
 	SCM_HANDLE := OpenSCManager(0xF003F)
 	hSvc := OpenService(SCM_HANDLE,ServiceName,0x0002)
 
-	If (!hSvc) {
+	if (!hSvc) {
 		result := 0
-	} Else {
+	} else {
 		result := ChangeServiceConfig(hSvc,,sStartType)
 		CloseServiceHandle(hSvc)
 	}
 	CloseServiceHandle(SCM_HANDLE)
-	Return result
+	return result
 }
 
 ;SC_MANAGER_ALL_ACCESS := 0xF003F
 OpenSCManager(AR) {
 	f := (!StrLen(Chr(0xFFFF))) ? "OpenSCManagerA" : "OpenSCManagerW"
-	Return DllCall("advapi32\" f, "Ptr", 0, "Ptr", 0, "UInt", AR)
+	return DllCall("advapi32\" f, "Ptr", 0, "Ptr", 0, "UInt", AR)
 }
 
 ;SERVICE_CHANGE_CONFIG (0x0002)
 OpenService(SCM_HANDLE,ServiceName,AR) {
 	f := (!StrLen(Chr(0xFFFF))) ? "OpenServiceA" : "OpenServiceW"
-	Return DllCall("advapi32\" f, "UInt", SCM_HANDLE, "Str", ServiceName, "UInt", AR)
+	return DllCall("advapi32\" f, "UInt", SCM_HANDLE, "Str", ServiceName, "UInt", AR)
 }
 
 QueryServiceConfig(hService, ServiceConfig:=0, BufSize:=0, &BytesNeeded:=0) {
 	f := (!StrLen(Chr(0xFFFF))) ? "QueryServiceConfigA" : "QueryServiceConfigW"
-	Return DllCall("advapi32\" f, "Ptr", hService, "Ptr", (ServiceConfig?ServiceConfig.Ptr:0), "UInt", BufSize, "UInt*", &BytesNeeded)
+	return DllCall("advapi32\" f, "Ptr", hService, "Ptr", (ServiceConfig?ServiceConfig.Ptr:0), "UInt", BufSize, "UInt*", &BytesNeeded)
 }
 
 QueryServiceConfig2(hService, InfoLevel:=0, Buff:=0, BufSize:=0, &BytesNeeded:=0) {
 	f := (!StrLen(Chr(0xFFFF))) ? "QueryServiceConfig2A" : "QueryServiceConfig2W"
-	Return DllCall("advapi32\" f,"Ptr",hService, "UInt", InfoLevel,"Ptr",(Buff?Buff.Ptr:0), "UInt", BufSize, "UInt*", &BytesNeeded)
+	return DllCall("advapi32\" f,"Ptr",hService, "UInt", InfoLevel,"Ptr",(Buff?Buff.Ptr:0), "UInt", BufSize, "UInt*", &BytesNeeded)
 }
 
 ChangeServiceConfig(hService,sType:=0xFFFFFFFF,sStartType:=0xFFFFFFFF) {
@@ -234,33 +230,33 @@ ChangeServiceConfig(hService,sType:=0xFFFFFFFF,sStartType:=0xFFFFFFFF) {
 	;SERVICE_DISABLED:=0x00000004
 	;SERVICE_NO_CHANGE:=0xFFFFFFFF
 	f := (!StrLen(Chr(0xFFFF))) ? "ChangeServiceConfigA" : "ChangeServiceConfigW"
-	Return DllCall("advapi32\" f, "Ptr", hService, "UInt", sType, "UInt", sStartType, "UInt", 0xFFFFFFFF, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0)
+	return DllCall("advapi32\" f, "Ptr", hService, "UInt", sType, "UInt", sStartType, "UInt", 0xFFFFFFFF, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0, "Ptr", 0)
 }
 
 EnumServicesStatus(hService, sType, sState, lpServices:=0, BufSize:=0, &BytesNeeded:=0, &sCount:=0, &ResumeHandle:=0) {
 	f := (!StrLen(Chr(0xFFFF))) ? "EnumServicesStatusA" : "EnumServicesStatusW"
-    Return DllCall("advapi32\" f
+    return DllCall("advapi32\" f
            ,"Ptr", hService,"UInt", sType,"UInt", sState,"Ptr", (lpServices?lpServices.Ptr:0)
            ,"UInt", BufSize,"UInt*", &BytesNeeded,"UInt*", &sCount,"UInt*", ResumeHandle)
 }
 
 QueryServiceStatus(hService, SC_STATUS) {
-	Return DllCall("advapi32\QueryServiceStatus", "Ptr", hService, "Ptr", SC_STATUS.ptr)
+	return DllCall("advapi32\QueryServiceStatus", "Ptr", hService, "Ptr", SC_STATUS.ptr)
 }
 
 StartService(hService) {
 	f := (!StrLen(Chr(0xFFFF))) ? "StartServiceA" : "StartServiceW"
-	Return DllCall("advapi32\" f, "UPtr", hService, "UInt", 0, "Ptr", 0)
+	return DllCall("advapi32\" f, "UPtr", hService, "UInt", 0, "Ptr", 0)
 }
 
 ControlService(hService, SERVICE_STATUS) {
-	Return DllCall("advapi32\ControlService", "UPtr", hService, "UInt", 1, "Ptr", SERVICE_STATUS.ptr)
+	return DllCall("advapi32\ControlService", "UPtr", hService, "UInt", 1, "Ptr", SERVICE_STATUS.ptr)
 }
 
 CreateService(SCM_HANDLE, ServiceName, DisplayName:="", dwDesiredAccess:=0xF01FF, dwServiceType:=0x00000010, dwStartType:=2, dwErrorControl:=0x00000001, lpBinaryPathName:=0) {
   funcName2 := (!StrLen(Chr(0xFFFF))) ? "CreateServiceA" : "CreateServiceW"
  
-	Return DllCall("advapi32\" funcName2
+	return DllCall("advapi32\" funcName2
                    , "Ptr", SCM_HANDLE ; UInt?
                    , "Ptr", StrPtr(ServiceName)
                    , "Ptr", (!DisplayName ? StrPtr(ServiceName) : StrPtr(DisplayName))
@@ -279,7 +275,7 @@ CreateService(SCM_HANDLE, ServiceName, DisplayName:="", dwDesiredAccess:=0xF01FF
 }
 
 DeleteService(hService) {
-	Return DllCall("advapi32\DeleteService", "Ptr", hService)
+	return DllCall("advapi32\DeleteService", "Ptr", hService)
 }
 
 CloseServiceHandle(Handle) {

@@ -41,14 +41,17 @@ Class PackageManager {
 		Name {
 			get => (ComCall(6, this.Id, "Ptr*", &value:=0), PackageManager.HStringToStr(value))
 		}
-		Version {	
+		Version {
+			get {
+				v := this.VersionMap
+				return v["Major"] "." v["Minor"] "." v["Build"] "." v["Revision"]
+			}
+		}
+		VersionMap {
 			get {
 				PackageVersion := Buffer(8)
 				ComCall(7, this.Id, 'Ptr', PackageVersion)
-				Return Major:=NumGet(PackageVersion, "UShort") "." 
-					. Minor:=NumGet(PackageVersion,2, "UShort") "."
-					. Build:=NumGet(PackageVersion,4, "UShort") "."
-					. Revision:=NumGet(PackageVersion,6, "UShort")
+				return Map("Major", NumGet(PackageVersion, "UShort"), "Minor", NumGet(PackageVersion,2, "UShort"), "Build", NumGet(PackageVersion,4, "UShort"), "Revision", NumGet(PackageVersion,6, "UShort"))
 			}
 		}
 		Architecture {
@@ -125,7 +128,7 @@ Class PackageManager {
 		UriLogo {
 			get {
 				ComCall(9, this.IPackage2, 'Ptr*', IUriRuntimeClass:=ComValue(13, 0)) ;get_Logo
-				Return ComObjQuery(IUriRuntimeClass, "{9e365e57-48b2-4160-956f-c7385120bbfc}")
+				return ComObjQuery(IUriRuntimeClass, "{9e365e57-48b2-4160-956f-c7385120bbfc}")
 			}
 		}
 		DisplayUri {
@@ -139,17 +142,18 @@ Class PackageManager {
 				InstalledPath:=this.InstalledPath
 				rLogo:=""
 				try rLogo:=this.RawUri
-				If !FileExist(rLogo) && FileExist(InstalledPath "\AppxManifest.xml") {
+				if !FileExist(rLogo) && FileExist(InstalledPath "\AppxManifest.xml") {
 					AppxManifest:=FileRead(InstalledPath "\AppxManifest.xml")
-					If RegExMatch(AppxManifest, 'Square44x44Logo="(.*?)"', &SubPat) {
+					if RegExMatch(AppxManifest, 'Square44x44Logo="(.*?)"', &SubPat) {
 						rLogo:= InstalledPath "\" SubPat[1]
-						If !FileExist(rLogo) {
+						if !FileExist(rLogo) {
 							SplitPath rLogo,, &dir, &ext, &name_no_ext
 							rLogo:=dir "\" name_no_ext ".scale-100." ext
 						}
 					}
+					
 				}
-				Return rLogo
+				return rLogo
 			}
 		}
 		
@@ -183,7 +187,7 @@ Class PackageManager {
 			, 'Ptr', dependencyPackageUris
 			, 'Ptr', deploymentOptions
 			, 'Ptr*', DeploymentOperation := ComValue(13, 0))
-		Return this.WaitForAsync(DeploymentOperation)
+		return this.WaitForAsync(DeploymentOperation)
 	}
 	static RegisterPackageByFullName(mainPackageFullName, dependencyPackageFullNames:=0, deploymentOptions:=0) {
 		ComCall(8, this.IPackageManager2
@@ -191,10 +195,10 @@ Class PackageManager {
 			, 'Ptr', dependencyPackageFullNames
 			, 'Ptr', deploymentOptions
 			, 'Ptr*', DeploymentOperation := ComValue(13, 0))
-		Return this.WaitForAsync(DeploymentOperation)
+		return this.WaitForAsync(DeploymentOperation)
 	}
 	static RemovePackage(packageFullName, removalOptions:=0) {
-		If removalOptions {
+		if removalOptions {
 			; RemovalOptions_None = 0,
 			; RemovalOptions_PreserveApplicationData = 0x1000,
 			; RemovalOptions_PreserveRoamableApplicationData = 0x80,
@@ -203,34 +207,34 @@ Class PackageManager {
 				, 'Ptr', this.HString(packageFullName)
 				, 'UInt', removalOptions
 				, 'Ptr*', DeploymentOperation := ComValue(13, 0)) ;RemovePackageWithOptionsAsync
-		} Else {
+		} else {
 			ComCall(8, this.IPackageManager
 				, 'Ptr', this.HString(packageFullName)
 				, 'Ptr*', DeploymentOperation := ComValue(13, 0)) ;RemovePackageAsync
 		}
-		Return this.WaitForAsync(DeploymentOperation)
+		return this.WaitForAsync(DeploymentOperation)
 		; 0x80073D19 : An error occurred because a user was logged off.
 		; 0x8a15000f : Data required by the source is missing. No packages were found among the working sources.
 		; 0x80073cfa
 	}
 	static FindPackages(UserSID:="", IncludeFramework:=0, IncludeSignatureKindSystem:=0) {
 		; UserSID="": Current UserSID
-		If UserSID="All"
+		if UserSID="All"
 			ComCall(11, this.IPackageManager, 'Ptr*', PackageCollection := ComValue(13, 0)) ;FindPackages
-		Else
+		else
 			ComCall(12, this.IPackageManager
 				, 'Ptr', (UserSID?this.HString(UserSID):0)
 				, 'Ptr*', PackageCollection := ComValue(13, 0)) ;FindPackagesByUserSecurityId
 		ComCall(6, PackageCollection, 'Ptr*', CPackage:=ComValue(13, 0)) ;First
 		arr := Array()
 		Loop {
-			Try {
+			try {
 				obj:={}
 				ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
 				SignatureKind:=IPackage.SignatureKind
 				IsFramework:=IPackage.IsFramework
 				FamilyName:=IPackage.FamilyName
-				If (IncludeSignatureKindSystem 
+				if (IncludeSignatureKindSystem 
 						|| (!IncludeSignatureKindSystem 
 							&& SignatureKind!=4 
 							&& FamilyName != "Microsoft.SecHealthUI_8wekyb3d8bbwe" 
@@ -240,13 +244,13 @@ Class PackageManager {
 					arr.Push IPackage
 				}
 				ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
-				If !IsMoveNext {
+				if !IsMoveNext {
 					IPackage:=""
 					CPackage:=""
 					PackageCollection:=""
 					Break
 				}
-			} Catch {
+			} catch {
 				IPackage:=""
 				CPackage:=""
 				PackageCollection:=""
@@ -256,11 +260,11 @@ Class PackageManager {
 		return arr
 	}
 	static FindPackagesByPackageFamilyName(packageFamilyName, UserSID:="") {
-		If UserSID && UserSID="All"
+		if UserSID && UserSID="All"
 			ComCall(19, this.IPackageManager
 				, 'Ptr', this.HString(packageFamilyName)
 				, 'Ptr*', PackageCollection := ComValue(13, 0)) ;FindPackagesByPackageFamilyName
-		Else
+		else
 			ComCall(20, this.IPackageManager
 				, 'Ptr', (UserSID?this.HString(UserSID):0)
 				, 'Ptr', this.HString(packageFamilyName)
@@ -268,17 +272,17 @@ Class PackageManager {
 		ComCall(6, PackageCollection, 'Ptr*', CPackage:=ComValue(13, 0)) ;First
 		arr := Array()
 		Loop {
-			Try {
+			try {
 				ComCall(6, CPackage, 'Ptr*', IPackage:=this.IPackage()) ;get_Current
 				arr.Push IPackage
 				ComCall(8, CPackage, 'Char*', &IsMoveNext:=0) ;MoveNext
-				If !IsMoveNext {
+				if !IsMoveNext {
 					IPackage:=""
 					CPackage:=""
 					PackageCollection:=""
 					Break
 				}
-			} Catch {
+			} catch {
 				IPackage:=""
 				CPackage:=""
 				PackageCollection:=""
@@ -306,7 +310,7 @@ Class PackageManager {
 		ComCall(6, this.IPackageManager8
 			, 'Ptr', this.HString(packageFamilyName)
 			, 'Ptr*', DeploymentOperation := ComValue(13, 0))
-		Return this.WaitForAsync(DeploymentOperation)
+		return this.WaitForAsync(DeploymentOperation)
 	}
 	
 	static SetPackageStatus(packageFullName, PackageStatus:=0) {
@@ -328,7 +332,7 @@ Class PackageManager {
 		s:=0
 		Loop {
 			ComCall(7, Iterator_User, 'Char*', &HasCurrent:=0) ;get_HasCurrent
-			If !HasCurrent
+			if !HasCurrent
 				Break
 			ComCall(6, Iterator_User, 'Ptr*', ABI_User:=ComValue(13, 0)) ;get_Current
 			ComCall(6, ABI_User, 'Ptr*', &UserSecurityId:=0) ;get_UserSecurityId
@@ -338,19 +342,19 @@ Class PackageManager {
 			; PackageInstallState_Installed = 2 ;The package is ready for use.
 			; PackageInstallState_Paused = 6 ;The installation of the package has been paused.
 
-			If this.HStringToStr(UserSecurityId)=UserSID_Need_Search && PackageInstallState==InstallState {
+			if this.HStringToStr(UserSecurityId)=UserSID_Need_Search && PackageInstallState==InstallState {
 				s:=1
 				Break
 			}
 			ComCall(8, Iterator_User, 'Char*', &IsMoveNext:=0) ;MoveNext
-			If !IsMoveNext
+			if !IsMoveNext
 				Break
 		}
 		ABI_User:=""
 		UserSecurityId:=""
 		Iterator_User:=""
 		Iterable_Users:=""
-		Return s
+		return s
 	}
 	
 	static WaitForAsync(obj, rIndex:=0, rType:="Ptr*", &rArg:=ComValue(13, 0)) {
@@ -371,11 +375,11 @@ Class PackageManager {
 			}
 		  Sleep 10
 		}
-		If rIndex!=0 {
+		if rIndex!=0 {
 			ComCall(rIndex, obj, rType, rArg) ;GetResults
 		}
 		ComCall(10, AsyncInfo)
-		Return status
+		return status
 	}
 	
 	static CreateUri(str) {
@@ -384,7 +388,7 @@ Class PackageManager {
 				, "Ptr", this.CLSIDFromString("{44A9796F-723E-4FDF-A218-033E75B0C084}")
 				, "Ptr*", IUriRuntimeClassFactory:=ComValue(13, 0), "HRESULT")
 		ComCall(6, IUriRuntimeClassFactory, "Ptr", this.HString(str), "Ptr*", IUriRuntimeClass2:=ComValue(13, 0))
-		Return IUriRuntimeClass2
+		return IUriRuntimeClass2
 	}
 
 	class HString {
@@ -395,12 +399,12 @@ Class PackageManager {
 
 	static HStringToStr(HS) {
 		bStr:=DllCall("Combase.dll\WindowsGetStringRawBuffer", "Ptr", HS, "uint*", &length:=0, "Ptr")
-		Return StrGet(bStr)
+		return StrGet(bStr)
 	}
 	static CLSIDFromString(IID) {
 		local CLSID := Buffer(16), res
 		if res := DllCall("ole32\CLSIDFromString", "WStr", IID, "Ptr", CLSID, "UInt")
 		   throw Error("CLSIDFromString failed. Error: " . Format("{:#x}", res))
-		Return CLSID
+		return CLSID
 	}
 }

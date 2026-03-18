@@ -1,17 +1,17 @@
 ;@Ahk2Exe-SetName            WinTune
 ;@Ahk2Exe-SetCopyright       tranht17
-;@Ahk2Exe-SetVersion         2.7.5
+;@Ahk2Exe-SetVersion         2.8.0
 ;@Ahk2Exe-SetMainIcon        Icon.ico
 #Requires AutoHotkey 2.0
 #SingleInstance Off
 #Warn
 
-App:={Name: "WinTune", Ver: "2.7.5"}
+App:={Name: "WinTune", Ver: "2.8.0", MDebug: 1}
 
 SetTitleMatchMode 3
-If WinExist(App.Name) {
+if WinExist(App.Name) {
 	WinActivate
-	Return
+	return
 }
 
 A_IconTip:= App.Name
@@ -19,10 +19,11 @@ tray := A_TrayMenu
 tray.delete
 tray.Add("Exit", (*) => ExitApp())
 
-#include <RunTerminal>
-#include <Powrprof>
-#include <SC>
-#include <Hex>
+#Include <MDebug>
+#Include <RunTerminal>
+#Include <Powrprof>
+#Include <SC>
+#Include <Hex>
 #Include <JSON>
 #Include <PackageManager>
 
@@ -33,7 +34,7 @@ tray.Add("Exit", (*) => ExitApp())
 #Include Inc/CustomFn.ahk
 #Include Inc/OptimizeConfig.ahk
 
-#include <Gdip_All>
+#Include <Gdip_All>
 #Include <ToolTipOptions>
 #Include <PicSwitch>
 

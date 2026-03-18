@@ -1,31 +1,33 @@
 ;================================================================================
 ; PicSwitch - Switch, Checkbox controls with picture
 ; tranht17
-; 2024/01/14
+; 2025/11/27
 ;================================================================================
 Class PicSwitch Extends Gui.Text {
-    Static __New() {
+    static __New() {
         Gui.Prototype.AddPicSwitch:=this.AddPicSwitch
     }
-	Static AddPicSwitch(Options:="", sText:="", iValue:=0, SOptions:="") {
-		hPic:=SOptions && SOptions.Has("SHeight")?SOptions["SHeight"]:20
-		wPic:=SOptions && SOptions.Has("SWidth")?SOptions["SWidth"]:20
-		TextOpt:=""
-		PicOpt:=""
+	static AddPicSwitch(Options:="", sText:="", iValue:=0, iPicOpt:="") {
+		hPic:=iPicOpt && iPicOpt.Has("Height")?iPicOpt["Height"]:20
+		wPic:=iPicOpt && iPicOpt.Has("Width")?iPicOpt["Width"]:20
+		sTextOpt:=""
+		sPicOpt:=""
 		Loop parse, Options, A_Space A_Tab {
-			If SubStr(A_LoopField,1,1) = 'w' && IsNumber(n:=SubStr(A_LoopField,2)) {
-				TextOpt.=" w" n-wPic-3
-			} Else If SubStr(A_LoopField,1,1) = 'x' {
-				PicOpt.=" " A_LoopField
-			} Else If SubStr(A_LoopField,1,1) = 'y' {
-				PicOpt.=" " A_LoopField
-			} Else {
-				TextOpt.=" " A_LoopField
+			if A_LoopField=""
+				continue
+			if SubStr(A_LoopField,1,1) = 'w' && IsNumber(n:=SubStr(A_LoopField,2)) {
+				sTextOpt.=" w" n-wPic-3
+			} else if SubStr(A_LoopField,1,1) = 'x' {
+				sPicOpt.=" " A_LoopField
+			} else if SubStr(A_LoopField,1,1) = 'y' {
+				sPicOpt.=" " A_LoopField
+			} else {
+				sTextOpt.=" " A_LoopField
 			}
 		}
-		ctlPic:=this.AddPic("BackgroundTrans" PicOpt " w" wPic " h" hPic)
+		ctlPic:=this.AddPic("BackgroundTrans" sPicOpt " w" wPic " h" hPic)
 		ctlPic.GetPos(&X, &Y)
-		ctlTxt:=this.AddText("BackgroundTrans yp 0x200" TextOpt " h" hPic,sText)
+		ctlTxt:=this.AddText("BackgroundTrans yp 0x200" sTextOpt " h" hPic,sText)
 
 		ctlEnabled:=ctlTxt.Enabled
 		ctlVisible:=ctlTxt.Visible
@@ -33,7 +35,7 @@ Class PicSwitch Extends Gui.Text {
 		ctlPic.Visible:=ctlVisible
 
         ctlTxt.base:=PicSwitch.Prototype
-		ctlTxt.SPic:=ctlPic
+		ctlTxt.Pic:=ctlPic
 		ctlTxt._Value:=iValue
 		ctlTxt._Enabled:=ctlEnabled
 		ctlTxt._Visible:=ctlVisible
@@ -41,13 +43,13 @@ Class PicSwitch Extends Gui.Text {
 		ctlTxt.OnEvent("click",ObjBindMethod(ctlTxt,"_ClickChangeValue"))
 		ctlPic.OnEvent("click",ObjBindMethod(ctlTxt,"_ClickChangeValue"))
 		
-		ctlTxt.SOpt:=Map()
-		If SOptions
-			ctlTxt.SOpt:=SOptions
-		If !ctlTxt.SOpt.Has("SWidth")
-			ctlTxt.SOpt["SWidth"]:=wPic
-		If !ctlTxt.SOpt.Has("SHeight")
-			ctlTxt.SOpt["SHeight"]:=hPic
+		ctlTxt.PicOpt:=Map()
+		if iPicOpt
+			ctlTxt.PicOpt:=iPicOpt
+		if !ctlTxt.PicOpt.Has("Width")
+			ctlTxt.PicOpt["Width"]:=wPic
+		if !ctlTxt.PicOpt.Has("Height")
+			ctlTxt.PicOpt["Height"]:=hPic
 		ctlTxt.RefreshStatusIcon
         return ctlTxt
     }
@@ -59,7 +61,7 @@ Class PicSwitch Extends Gui.Text {
 				this._Value:=value
 				this.RefreshStatusIcon
 			}
-			Return value
+			return value
 		}
     }
 	Enabled	{
@@ -67,11 +69,11 @@ Class PicSwitch Extends Gui.Text {
         set {
 			if (this._Enabled!=value) {
 				super.Enabled:=value
-				this.SPic.Enabled:=value
+				this.Pic.Enabled:=value
 				this._Enabled:=value
 				this.RefreshStatusIcon
 			}
-			Return value
+			return value
 		}
 	}
 	Visible	{
@@ -79,26 +81,26 @@ Class PicSwitch Extends Gui.Text {
         set {
 			if (this._Visible!=value) {
 				super.Visible:=value
-				this.SPic.Visible:=value
+				this.Pic.Visible:=value
 				this._Visible:=value
 			}
-			Return value
+			return value
 		}
 	}
 	Move(X?, Y?, W?, H?) {
-		wSPic:=this.SOpt["SWidth"]
-		hSPic:=this.SOpt["SHeight"]
-		If IsSet(H) {
-			wSPic+=(H-hSPic)
-			this.SOpt["SHeight"]:=H
-			this.SOpt["SWidth"]:=wSPic
+		wPic:=this.PicOpt["Width"]
+		hPic:=this.PicOpt["Height"]
+		if IsSet(H) {
+			wPic+=(H-hPic)
+			this.PicOpt["Height"]:=H
+			this.PicOpt["Width"]:=wPic
 		}
-		this.SPic.Move(X?, Y?, IsSet(H)?wSPic:unset, H?)
-		this.SPic.GetPos(&wX)
-		super.Move((IsSet(X)||IsSet(H))?(wX+wSPic+3):unset, Y?, IsSet(W)?W-wSPic-3:unset, H?)
+		this.Pic.Move(X?, Y?, IsSet(H)?wPic:unset, H?)
+		this.Pic.GetPos(&wX)
+		super.Move((IsSet(X)||IsSet(H))?(wX+wPic+3):unset, Y?, IsSet(W)?W-wPic-3:unset, H?)
 	}
 	GetPos(&X?, &Y?, &W?, &H?) {
-		this.SPic.GetPos(&X, &Y, &sW)
+		this.Pic.GetPos(&X, &Y, &sW)
 		super.GetPos(,, &tW, &H)
 		W:=sW+tW+3
 	}
@@ -107,15 +109,15 @@ Class PicSwitch Extends Gui.Text {
 		this.RefreshStatusIcon
 	}
 	RefreshStatusIcon(*) {
-		this.SPic.GetPos(&sX,, &sW, &sH)
-		If sW!=this.SOpt["SWidth"] {
-			this.SPic.Move(,, this.SOpt["SWidth"])
-			super.Move(sX+this.SOpt["SWidth"]+3)
+		this.Pic.GetPos(&sX,, &sW, &sH)
+		if sW!=this.PicOpt["Width"] {
+			this.Pic.Move(,, this.PicOpt["Width"])
+			super.Move(sX+this.PicOpt["Width"]+3)
 		}
-		If sH!=this.SOpt["SHeight"] {
-			this.Move(,,, this.SOpt["SHeight"])
+		if sH!=this.PicOpt["Height"] {
+			this.Move(,,, this.PicOpt["Height"])
 		}
 		nOpt:="Value" this._Value (this._Enabled?"":"Disabled") "Icon"
-		this.SPic.Value:=(this.SOpt.Has(nOpt) && this.SOpt[nOpt])?this.SOpt[nOpt]:""
+		this.Pic.Value:=(this.PicOpt.Has(nOpt) && this.PicOpt[nOpt])?this.PicOpt[nOpt]:""
    }
 }

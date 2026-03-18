@@ -1,4 +1,4 @@
-BtnHostsEdit_Click(g, NavIndex) {
+BtnHostsEdit_Click(g, NavID) {
 	Hosts:=LoadHostsFile()
 	CurrentTabCtrls:=[	"HostsEdit" ,
 						"HostsEdit_BtnImportFromFile",
@@ -26,15 +26,14 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 		
 		HostListData:=[
-			{Author: "crazy-max", Source: "github.com/crazy-max/WindowsSpyBlocker", Items:[
-					{Name: "Windows spying and tracking IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt"},
-					{Name: "Windows spying and tracking IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy_v6.txt"},
-					{Name: "Windows update IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/update.txt"},
-					{Name: "Windows update IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/update_v6.txt"},
-					{Name: "Windows extra IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/extra.txt"},
-					{Name: "Windows extra IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/extra_v6.txt"}
+			{Author: "Peter Lowe", Source: "Peter Lowe’s Ad and tracking server list", Items:[
+					{Name: "pgl.yoyo.org/adservers", Link: "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=1&mimetype=plaintext"}
 				]
 			},
+			{Author: "Dan Pollock", Source: "Dan Pollock’s hosts file", Items:[
+					{Name: "someonewhocares.org", Link: "https://someonewhocares.org/hosts/hosts"}
+				]
+			},		
 			{Author: "StevenBlack", Source: "github.com/StevenBlack/hosts", Items:[
 					{Name: "All block lists", Link: "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social/hosts"},
 					{Name: "Adware + Malware", Link: "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"},
@@ -68,6 +67,15 @@ BtnHostsEdit_Click(g, NavIndex) {
 					{Name: "Gambling + Porn + Social", Link: "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/gambling-porn-social-only/hosts"},
 					{Name: "Fakenews + Gambling + Porn + Social", Link: "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn-social-only/hosts"},
 				]
+			},
+			{Author: "crazy-max", Source: "github.com/crazy-max/WindowsSpyBlocker", Items:[
+					{Name: "Windows spying and tracking IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt"},
+					{Name: "Windows spying and tracking IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy_v6.txt"},
+					{Name: "Windows update IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/update.txt"},
+					{Name: "Windows update IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/update_v6.txt"},
+					{Name: "Windows extra IPv4", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/extra.txt"},
+					{Name: "Windows extra IPv6", Link: "https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/extra_v6.txt"}
+				]
 			}
 		]
 		
@@ -90,7 +98,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 		TreeViewSelectLink_Click(GuiCtrlObj, Info) {
 			sID:=TV.GetSelection()
-			If ObjectF.HasOwnProp(sID) {
+			if ObjectF.HasOwnProp(sID) {
 				SourceID:=ObjectF.%sID%.SourceID
 				ItemID:=ObjectF.%sID%.ItemID
 				EditLink.Value:=HostListData[SourceID].Items[ItemID].Link
@@ -107,18 +115,18 @@ BtnHostsEdit_Click(g, NavIndex) {
 		BtnImportFromLink.OnEvent("Click",(*)=>BtnImportFromLink_Click(g))
 		BtnImportFromLink_Click(g) {
 			CreateWaitDlg(g)
-			Try {
+			try {
 				spy:=WinHttpResponseText(g["HostsEdit_EditLink"].Value,,,, &Status, &StatusText)
-				If Status==200 {
-					g["HostsEdit"].Value.="`n" spy "`n"
+				if Status==200 {
+					g["HostsEdit"].Value.="`r`n" spy "`r`n"
 					g["HostsEdit_EditLink"].Value:=""
 					g["HostsEdit_BtnImportFromLink"].Enabled:=False
 					g["HostsEdit_BtnSave"].Enabled:=True
 					ControlSend "^{End}", g["HostsEdit"]
-				} Else {
+				} else {
 					Msg(StatusText,"Hosts Edit","Icon!")
 				}
-			} Catch as err {
+			} catch as err {
 				Msg(err.Message,"Hosts Edit","Icon!")
 			} Finally {
 				DestroyDlg()
@@ -137,10 +145,10 @@ BtnHostsEdit_Click(g, NavIndex) {
 			files := FileSelect("M3", A_WorkingDir, "Select block list to hosts file")
 			Loop files.Length {
 				Hosts:=FileRead(files[A_Index])
-				g["HostsEdit"].Value.="`n`n### " files[A_Index] "`n" Hosts
+				g["HostsEdit"].Value.="`r`n`r`n### " files[A_Index] "`r`n" Hosts
 				ControlSend "^{End}", g["HostsEdit"]
 			}
-			If files.Length {
+			if files.Length {
 				g["HostsEdit_BtnSave"].Enabled:=True
 			}
 		}
@@ -149,9 +157,8 @@ BtnHostsEdit_Click(g, NavIndex) {
 		BtnSaveAs.OnEvent("Click",BtnSaveAs_Click)
 		BtnSaveAs_Click(*) {
 			sfile := FileSelect("S16", "hosts_" A_Now, "Save As")
-			If sfile {
-				try FileDelete sfile
-				FileAppend g["HostsEdit"].Value, sfile
+			if sfile {
+				SaveHostsFile(g["HostsEdit"].Text, sfile)
 			}
 		}
 		
@@ -199,7 +206,7 @@ BtnHostsEdit_Click(g, NavIndex) {
 		BtnSave.SetFont("s" App.MainFontSize+2)
 		
 		BtnSave_Click(*) {
-			SaveHostsFile(HostsEdit.Value)
+			SaveHostsFile(HostsEdit.Text)
 			BtnSave.Enabled:=False
 		}
 		
@@ -208,13 +215,13 @@ BtnHostsEdit_Click(g, NavIndex) {
 		}
 	}
 
-	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
+	if !App.TabLangLoaded.HasOwnProp(NavID) || !App.TabLangLoaded.%NavID% {
 		Loop CurrentTabCtrls.Length {
 			tCtrlID:=CurrentTabCtrls[A_Index]
-			If tCtrlID!="HostsEdit_BtnImportFromLink" && (g[tCtrlID].Type="Button" || g[tCtrlID].Type="Text")
+			if tCtrlID!="HostsEdit_BtnImportFromLink" && (g[tCtrlID].Type="Button" || g[tCtrlID].Type="Text")
 				g[tCtrlID].Text:=GetLangName(tCtrlID)
 		}
-		App.TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavID%:=1
 	}
 	
 	g["BtnSys_SaveOptimizeConfigTab"].Visible:=True

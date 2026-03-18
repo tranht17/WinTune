@@ -26,7 +26,7 @@ class JSON {
 			if !Q {
 				if (t := Trim(A_LoopField, " `t`r`n")) = "," || (t = ":" && V := 1)
 					continue
-				else if t && (InStr("{[]},:", SubStr(t, 1, 1)) || A && RegExMatch(t, "m)^(null|false|true|-?\d+(\.\d*(e[-+]\d+)?)?)\s*[,}\]\r\n]")) {
+				else if t && (InStr("{[]},:", SubStr(t, 1, 1)) || A && RegExMatch(t, "mi)^(null|false|true|-?\d+(\.\d*(e[-+]\d+)?)?)\s*[,}\]\r\n]")) {
 					Loop Parse t {
 						if N && N--
 							continue
@@ -44,7 +44,7 @@ class JSON {
 								throw Error("Malformed JSON - to many closing brackets.", 0, t)
 							else C := --L = 0 ? "" : D[L], A := Type(C) = "Array"
 						} else if !(InStr(" `t`r,", A_LoopField) || (A_LoopField = ":" && V := 1)) {
-							if RegExMatch(SubStr(t, A_Index), "m)^(null|false|true|-?\d+(\.\d*(e[-+]\d+)?)?)\s*[,}\]\r\n]", &R) && (N := R.Len(0) - 2, R := R.1, 1) {
+							if RegExMatch(SubStr(t, A_Index), "mi)^(null|false|true|-?\d+(\.\d*(e[-+]\d+)?)?)\s*[,}\]\r\n]", &R) && (N := R.Len(0) - 2, R := R.1, 1) {
 								if A
 									C.Push(R = "null" ? _null : R = "true" ? _true : R = "false" ? _false : IsNumber(R) ? R + 0 : R)
 								else if V

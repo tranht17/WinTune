@@ -1,6 +1,6 @@
 CreatePopupUser(Ctr, *) {
-	If UserCount()=1
-		Return
+	if UserCount()=1
+		return
 	g:=Ctr.Gui
 	g2:=CreateDlg(g, 0)
 
@@ -14,10 +14,10 @@ CreatePopupUser(Ctr, *) {
 	SpaceName:="            "
 	y:=0
 	Loop Reg, "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList", "K" {
-		If InStr(A_LoopRegName, "S-1-5-21-")!=1 || (App.UserSID=A_LoopRegName)
+		if InStr(A_LoopRegName, "S-1-5-21-")!=1 || (App.UserSID=A_LoopRegName)
 			Continue
 		tUser:=LookupAccountSid(A_LoopRegName)
-		If !tUser.HasOwnProp("Name") || !tUser.Name
+		if !tUser.HasOwnProp("Name") || !tUser.Name
 			Continue
 		a:=g2.AddPic("BackgroundTrans w22 h22 xm8 ym" y+8)
 		SetUserPic(a, A_LoopRegName)
@@ -42,6 +42,6 @@ CreatePopupUser(Ctr, *) {
 		NavItem_Click(g)
     }
     ShowDlg(g, g2, 4, Ctr)
-	If WinWaitNotActive(g2)
+	if WinWaitNotActive(g2)
 		DestroyDlg(0)	
 }

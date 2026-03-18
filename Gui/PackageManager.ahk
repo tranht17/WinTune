@@ -1,4 +1,4 @@
-BtnPackageManager_Click(g, NavIndex) {
+BtnPackageManager_Click(g, NavID) {
 	static LVWidth
 	CurrentTabCtrls:=[	"PackageManager_BtnDisable" ,
 						"PackageManager_BtnUninstallChecked",
@@ -11,11 +11,11 @@ BtnPackageManager_Click(g, NavIndex) {
 						"PackageManager_LV"]
 	try {
 		Loop CurrentTabCtrls.Length {
-			If InStr(CurrentTabCtrls[A_Index], "PackageManager_Btn")
+			if InStr(CurrentTabCtrls[A_Index], "PackageManager_Btn")
 				g[CurrentTabCtrls[A_Index]].Enabled:=False
 			g[CurrentTabCtrls[A_Index]].Visible:=True
 		}	
-	} Catch {
+	} catch {
 		g["BGPanel"].GetPos(&sXCBT, &sYCBT, &PanelW, &PanelH)
 		
 		xTop:=sXCBT+8
@@ -58,7 +58,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		}
 	}
 	
-	If !App.TabLangLoaded.HasOwnProp(NavIndex) || !App.TabLangLoaded.%NavIndex% {
+	if !App.TabLangLoaded.HasOwnProp(NavID) || !App.TabLangLoaded.%NavID% {
 		LVPackageManager:=g["PackageManager_LV"]
 		
 		g["PackageManager_Mode"].Delete()
@@ -75,7 +75,7 @@ BtnPackageManager_Click(g, NavIndex) {
 			   "PackageManager_BtnDisable", "Text_Disable" ,
 			   "PackageManager_BtnDetails", "Text_Details" ,
 			   "PackageManager_BtnSearchOnline", "Text_SearchOnline")
-		For k, v in m {
+		for k, v in m {
 			g[k].Text:=GetLangTextWithIcon(v)
 		}
 		
@@ -86,7 +86,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		LVPackageManager.ModifyCol(5, , GetLangText("Text_PublisherDisplayName"))
 		LVPackageManager.ModifyCol(7, , GetLangText("Text_FamilyName"))
 		
-		App.TabLangLoaded.%NavIndex%:=1
+		App.TabLangLoaded.%NavID%:=1
 	}
 	
 	LoadLV()	
@@ -113,27 +113,27 @@ BtnPackageManager_Click(g, NavIndex) {
 		rList:=PackageManager.FindPackages(IsAllUsers?"All":App.UserSID)
 		PackagesList(rList)
 		Loop rList.Length {
-			If (Mode==1 && PackageManager.CheckInstallUser(rList[A_Index].FullName, App.UserSID)
+			if (Mode==1 && PackageManager.CheckInstallUser(rList[A_Index].FullName, App.UserSID)
 					&& !RegKeyExist("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\EndOfLife\" App.UserSID "\" rList[A_Index].FullName))
 				|| (Mode==2 && (PackageManager.CheckInstallUser(rList[A_Index].FullName, "S-1-5-18", 1) 
 					|| !PackageManager.CheckInstallUser(rList[A_Index].FullName, App.UserSID))) {
-				Try {
+				try {
 					IconIndex := IL_Add(ImageListID, rList[A_Index].Logo, 1)
 					aDisplay:=DisplayArchitecture(rList[A_Index].Architecture)
 					sDisplay:=DisplayStatus(rList[A_Index])
 					LVPackageManager.Add("Icon" IconIndex, rList[A_Index].DisplayName, sDisplay, rList[A_Index].Version, aDisplay, rList[A_Index].PublisherDisplayName, A_Index, rList[A_Index].FamilyName)
-				} Catch Error as err {
+				} catch Error as err {
 					Debug(err, "FullName :" rList[A_Index].FullName)
 				}
 			}
 		}
 	}
 	SwichInstalled(Ctr, *) {
-		If Ctr.Name="PackageManager_Mode" {
-			If Ctr.Value==1 {
+		if Ctr.Name="PackageManager_Mode" {
+			if Ctr.Value==1 {
 				g["PackageManager_InstalledAllUsers"].Value:=0
 				g["PackageManager_InstalledAllUsers"].Enabled:=1
-			} Else If Ctr.Value==2 {
+			} else if Ctr.Value==2 {
 				g["PackageManager_InstalledAllUsers"].Value:=1
 				g["PackageManager_InstalledAllUsers"].Enabled:=0
 			}
@@ -147,13 +147,13 @@ BtnPackageManager_Click(g, NavIndex) {
 		Reload_BtnCountChecked()
 	}
 	LVPackageManager_Click(GuiCtrlObj, Item) {
-		If Item {
+		if Item {
 			LVPackageManager.Modify(Item, "Select")
 			id := LVPackageManager.GetText(Item,6)
 			aList:=PackagesList()
-			If aList[id].Disabled {
+			if aList[id].Disabled {
 				bStatusText:=GetLangTextWithIcon("Text_Enable")
-			} Else {
+			} else {
 				bStatusText:=GetLangTextWithIcon("Text_Disable")
 			}
 			g["PackageManager_BtnDisable"].Text:=bStatusText
@@ -161,27 +161,27 @@ BtnPackageManager_Click(g, NavIndex) {
 		SwichAllBtn(!!Item)
 	}
 	LVPackageManager_DoubleClick(GuiCtrlObj, Item) {
-		If Item {
+		if Item {
 			CreateDetailDlg(Item)
 		}
 	}
 	LVPackageManager_ContextMenu(GuiCtrlObj, Item, IsRightClick, X, Y) {
 		iSelected:=g["PackageManager_LV"].GetNext()
-		If iSelected {
+		if iSelected {
 			MyMenu := Menu()
 			
 			iCount:=LVCheckedCount()
 			MyMenu.Add(GetLangText("Text_Uninstall") " (" iCount ")", RunItem)
-			If !iCount
+			if !iCount
 				MyMenu.Disable("1&")
 				
 			MyMenu.Add(GetLangText("Text_Uninstall"), RunItem)
 			
 			id := LVPackageManager.GetText(iSelected,6)
 			aList:=PackagesList()
-			If aList[id].Disabled {
+			if aList[id].Disabled {
 				iStatusText:="Text_Enable"
-			} Else {
+			} else {
 				iStatusText:="Text_Disable"
 			}
 			g["PackageManager_BtnDisable"].Text:=GetLangTextWithIcon(iStatusText)
@@ -193,9 +193,9 @@ BtnPackageManager_Click(g, NavIndex) {
 			MyMenu.Add(GetLangText("Text_DeselectAll"), (*)=> LVPackageManager.Modify(0, "-Check") Reload_BtnCountChecked())
 			
 			Mode:=g["PackageManager_Mode"].Value
-			If Mode=2 && App.User=A_Username {
+			if Mode=2 && App.User=A_Username {
 				MyMenu.Add(GetLangText("Text_Install") " (" iCount ")", RunItem)
-				If !iCount
+				if !iCount
 					MyMenu.Disable("8&")
 				MyMenu.Add(GetLangText("Text_Install"), RunItem)
 			}			
@@ -212,7 +212,7 @@ BtnPackageManager_Click(g, NavIndex) {
 		iSelected:=LVPackageManager.GetNext()
 		id := LVPackageManager.GetText(iSelected,6)
 		aList:=PackagesList()
-		If ItemPos=1 {
+		if ItemPos=1 {
 			g2:=CreateWaitDlg(g)
 			IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
 			RowNumber := 0
@@ -223,7 +223,7 @@ BtnPackageManager_Click(g, NavIndex) {
 					break
 				cid := LVPackageManager.GetText(RowNumber,6)
 				r:=UninstallPackage(aList[cid], IsAllUsers, g["PackageManager_DeprovisionPackage"].Value)
-				If r {
+				if r {
 					LVPackageManager.Delete(RowNumber)
 					RowNumber--
 					Reload_BtnCountChecked()
@@ -231,38 +231,38 @@ BtnPackageManager_Click(g, NavIndex) {
 			}
 			SwichAllBtn(0)
 			DestroyDlg()
-		} Else If ItemPos=2 {
+		} else if ItemPos=2 {
 			g2:=CreateWaitDlg(g)
 			IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
 			r:=UninstallPackage(aList[id], IsAllUsers, g["PackageManager_DeprovisionPackage"].Value)
-			If r {
+			if r {
 				LVPackageManager.Delete(iSelected)
 				Reload_BtnCountChecked()
 			}
 			SwichAllBtn(0)
 			DestroyDlg()
-		} Else If ItemPos=3 {
+		} else if ItemPos=3 {
 			iDisabled:=aList[id].Disabled
-			If iDisabled {
+			if iDisabled {
 				PackageManager.ClearPackageStatus(aList[id].FullName, 8)
 				iStatusText:="Text_Enabled"
 				bStatusText:="Text_Disable"
-			} Else {
+			} else {
 				PackageManager.SetPackageStatus(aList[id].FullName, 8)
 				iStatusText:="Text_Disabled"
 				bStatusText:="Text_Enable"
 			}
 			LVPackageManager.Modify(iSelected, , , GetLangText(iStatusText))
 			g["PackageManager_BtnDisable"].Text:=GetLangTextWithIcon(bStatusText)
-		} Else If ItemPos=4 {
-			If aList[id].SignatureKind=3
+		} else if ItemPos=4 {
+			if aList[id].SignatureKind=3
 				runAsParam:="https://apps.microsoft.com/search?query=" aList[id].DisplayName
-			Else 
+			else 
 				runAsParam:="https://www.google.com/search?q=" aList[id].DisplayName
 			try Run(runAsParam)
-		} Else If ItemPos=5 {
+		} else if ItemPos=5 {
 			CreateDetailDlg(iSelected)
-		} Else If ItemPos=8 {
+		} else if ItemPos=8 {
 			g2:=CreateWaitDlg(g)
 			IsAllUsers:=g["PackageManager_InstalledAllUsers"].Value
 			RowNumber := 0
@@ -273,7 +273,7 @@ BtnPackageManager_Click(g, NavIndex) {
 					break
 				cid := LVPackageManager.GetText(RowNumber,6)
 				
-				If PackageManager.RegisterPackageByFullName(aList[cid].FullName)=1 {
+				if PackageManager.RegisterPackageByFullName(aList[cid].FullName)=1 {
 					LVPackageManager.Delete(RowNumber)
 					RowNumber--
 					Reload_BtnCountChecked()
@@ -281,9 +281,9 @@ BtnPackageManager_Click(g, NavIndex) {
 			}
 			SwichAllBtn(0)
 			DestroyDlg()
-		} Else If ItemPos=9 {
+		} else if ItemPos=9 {
 			g2:=CreateWaitDlg(g)
-			If PackageManager.RegisterPackageByFullName(aList[id].FullName)=1 {
+			if PackageManager.RegisterPackageByFullName(aList[id].FullName)=1 {
 				LVPackageManager.Delete(iSelected)
 				Reload_BtnCountChecked()
 			}
@@ -306,7 +306,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				break
 			iCount++
 		}
-		Return iCount
+		return iCount
 	}
 	SwichAllBtn(s) {
 		g["PackageManager_BtnUninstall"].Enabled:=s
@@ -327,12 +327,7 @@ BtnPackageManager_Click(g, NavIndex) {
 				, "SignatureKind"
 				, "Status"
 				, "InstalledPath"
-				; , "MutablePath"
 				, "EffectivePath"
-				; , "Logo"
-				; , "EffectiveExternalPath"
-				; , "MachineExternalPath"
-				; , "UserExternalPath"	
 				]
 		id := LVPackageManager.GetText(Item,6)
 		aList:=PackagesList()
@@ -340,13 +335,13 @@ BtnPackageManager_Click(g, NavIndex) {
 		Loop aShowList.Length {
 			tID:=aShowList[A_Index]
 			a:=g2.AddText("w100 h16 xm0", GetLangText("Text_" tID))
-			If tID="Status"
+			if tID="Status"
 				s:=DisplayStatus(aList[id])
-			Else If tID="Architecture" || tID="SignatureKind"
+			else if tID="Architecture" || tID="SignatureKind"
 				s:=Display%tID%(aList[id].%tID%)
-			Else If tID="InstalledDate" {
+			else if tID="InstalledDate" {
 				try s:=FormatTime(aList[id].%tID%, "ShortDate")
-			} Else
+			} else
 				s:=aList[id].%tID%
 			b:=g2.AddEdit("-vscroll -E0x200 ReadOnly w400 yp Background"  Themes.%App.ThemeSelected%.BackColor, s)
 		}
@@ -357,25 +352,25 @@ BtnPackageManager_Click(g, NavIndex) {
 		ShowDlg(g, g2, 3)
 	}
 	PackagesList(iArray?) {
-		Static pl:=Array()
-		If IsSet(iArray)
+		static pl:=Array()
+		if IsSet(iArray)
 			pl:=iArray
-		Return pl
+		return pl
 	}
 	DisplayStatus(item) {
 		s:=""
-		If item.VerifyIsOK {
+		if item.VerifyIsOK {
 			s:=GetLangText("Text_Enabled")
-		} Else If item.Disabled {
+		} else if item.Disabled {
 			s:=GetLangText("Text_Disabled")
 		}
-		Return s
+		return s
 	}
 	DisplayArchitecture(ArchitectureID) {
-		Return (ArchitectureID=9)?"x64":(ArchitectureID=11)?"Neutral":(ArchitectureID=0)?"x86":ArchitectureID
+		return (ArchitectureID=9)?"x64":(ArchitectureID=11)?"Neutral":(ArchitectureID=0)?"x86":ArchitectureID
 	}
 	DisplaySignatureKind(SignatureKindID) {
-		Return (SignatureKindID=0)?"None":(SignatureKindID=1)?"Developer":(SignatureKindID=2)?"Enterprise":(SignatureKindID=3)?"Store":(SignatureKindID=4)?"System":SignatureKindID
+		return (SignatureKindID=0)?"None":(SignatureKindID=1)?"Developer":(SignatureKindID=2)?"Enterprise":(SignatureKindID=3)?"Store":(SignatureKindID=4)?"System":SignatureKindID
 	}
 }
 CreatePackageManagerPreSaveDlg(g) {
@@ -409,18 +404,18 @@ CreatePackageManagerPreSaveDlg(g) {
 	Save_Click(*) {
 		g2.Opt("+OwnDialogs")
 		SelectedFile := FileSelect("S16", App.Name "_OptimizeTabConfig_" A_Now ".json", "Save a file")
-		If SelectedFile {
+		if SelectedFile {
 			Config:={}
 			ObjPackageManager:={}
 			ObjPackageManager.Act:=PreSaveAct.Text
-			If CB_InstalledAllUsers.Enabled && CB_InstalledAllUsers.Value
+			if CB_InstalledAllUsers.Enabled && CB_InstalledAllUsers.Value
 				ObjPackageManager.AllUsers:=1
-			If CB_DeprovisionPackage.Enabled && CB_DeprovisionPackage.Value
+			if CB_DeprovisionPackage.Enabled && CB_DeprovisionPackage.Value
 				ObjPackageManager.Deprovision:=1
 			Items:=Array()
 			Loop Parse, Edit_PreSave.Value, "`n" {
 				t:=Trim(A_LoopField)
-				If t
+				if t
 					Items.Push t
 			}
 			ObjPackageManager.FamilyNames := Items

@@ -1,44 +1,44 @@
 CheckUninstallOneDrive() {
 	OneDriveSetup:=A_WinDir "\System32\OneDriveSetup.exe"
-	If !FileExist(OneDriveSetup) {	
+	if !FileExist(OneDriveSetup) {	
 		OneDriveSetup:=A_WinDir "\SysWOW64\OneDriveSetup.exe"
-		If !FileExist(OneDriveSetup) {
+		if !FileExist(OneDriveSetup) {
 			OneDriveSetup:=A_WinDir "\Sysnative\OneDriveSetup.exe"
-			If !FileExist(OneDriveSetup)
-				Return -1
+			if !FileExist(OneDriveSetup)
+				return -1
 		}
 	}
 	OneDriveSetupRun:=RegRead(App.HKCU "\Software\Microsoft\Windows\CurrentVersion\RunOnce", "OneDriveSetup", "")
 	PreInstall:=!InStr(OneDriveSetupRun, "/uninstall")
-	If !(OneDriveExist:=FileExist(EnvGet2("Local AppData") "\Microsoft\OneDrive\onedrive.exe")) {
-		If !(OneDriveExist:=FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
+	if !(OneDriveExist:=FileExist(EnvGet2("Local AppData") "\Microsoft\OneDrive\onedrive.exe")) {
+		if !(OneDriveExist:=FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
 				OneDriveExist:=FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft OneDrive\OneDrive.exe")
 		}
 	}
 	r:=0
-	If (!OneDriveExist && !OneDriveSetupRun) || (OneDriveExist && OneDriveSetupRun && !PreInstall)
+	if (!OneDriveExist && !OneDriveSetupRun) || (OneDriveExist && OneDriveSetupRun && !PreInstall)
 		r:=1
-	Return r
+	return r
 }
 UninstallOneDrive(s,d,silent) {
 	OneDriveSetup:=A_WinDir "\System32\OneDriveSetup.exe"
-	If !FileExist(OneDriveSetup) {	
+	if !FileExist(OneDriveSetup) {	
 		OneDriveSetup:=A_WinDir "\SysWOW64\OneDriveSetup.exe"
-		If !FileExist(OneDriveSetup) {
+		if !FileExist(OneDriveSetup) {
 			OneDriveSetup:=A_WinDir "\Sysnative\OneDriveSetup.exe"
-			If !FileExist(OneDriveSetup)
-				Return -1
+			if !FileExist(OneDriveSetup)
+				return -1
 		}
 	}
-	If !(IsPerMachine:=!!FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
+	if !(IsPerMachine:=!!FileExist(A_ProgramFiles "\Microsoft OneDrive\OneDrive.exe")) && A_Is64bitOS {
 		IsPerMachine:=!!FileExist(EnvGet("ProgramFiles(x86)") "\Microsoft OneDrive\OneDrive.exe")
 	}
 	OneDriveSetupCMD:=OneDriveSetup (IsPerMachine?' /allusers':'') (s?' /uninstall':'') ' /silent'
-	If App.User=GetActiveUser() {
-		If s
+	if App.User=GetActiveUser() {
+		if s
 			ProcessClose "OneDrive.exe"
 		RunWait OneDriveSetupCMD
-	} Else {
+	} else {
 		try
 			RegDelete App.HKCU "\Software\Microsoft\Windows\CurrentVersion\Run", "OneDriveSetup"
 		try
@@ -48,10 +48,10 @@ UninstallOneDrive(s,d,silent) {
 }
 
 CheckDisableVisualStudioTelemetry() {
-	If FileExist(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe")	
-		Return RegRead(App.HKCU "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
-	Else {
-		Return -1
+	if FileExist(A_Is64bitOS?EnvGet("ProgramFiles(x86)"):A_ProgramFiles "\Microsoft Visual Studio\Installer\vswhere.exe")	
+		return RegRead(App.HKCU "\Software\Microsoft\VisualStudio\Telemetry", "TurnOffSwitch",0)
+	else {
+		return -1
 	}
 }
 DisableVisualStudioTelemetry(s,d,silent) {
@@ -62,59 +62,61 @@ DisableVisualStudioTelemetry(s,d,silent) {
 }
 
 CheckDisableSystemRestore() {
-	Return !RegRead("HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore", "RPSessionInterval",0)
+	return !RegRead("HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore", "RPSessionInterval",0)
 }
 DisableSystemRestore(s,d,silent) {
-	If s {
+	if s {
 		RegWrite '0', "REG_DWORD", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore", "RPSessionInterval"
 		RegDelete "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SPP\Clients", "{09F7EDC5-294E-4180-AF6A-FB0E6A0E9513}"
 		RunTerminal(A_Comspec ' /c vssadmin delete shadows /all /quiet')
-	} Else {
+	} else {
 		RegWrite '1', "REG_DWORD", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore", "RPSessionInterval"
+		DriveLetter:=SubStr(A_WinDir, 1, 2)
 		DeviceID:=""
-		For CS in ComObjGet("winmgmts:").ExecQuery("SELECT DeviceID FROM Win32_Volume WHERE DriveLetter='" SubStr(A_WinDir, 1, 2) "'") {
+		for CS in ComObjGet("winmgmts:").ExecQuery("SELECT DeviceID FROM Win32_Volume WHERE DriveLetter='" DriveLetter "'") {
 			DeviceID:=CS.DeviceID
 		}
 		RegExMatch(DeviceID, "\\?\\(.*)", &SubPat)
-		RegWrite Trim(SubPat[0]) ":" DriveGetLabel(SubStr(A_WinDir, 1, 2)) "(" SubStr(A_WinDir, 1, 1) "%3A)", "REG_MULTI_SZ", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SPP\Clients", "{09F7EDC5-294E-4180-AF6A-FB0E6A0E9513}"
+		RegWrite Trim(SubPat[0]) ":" DriveGetLabel(DriveLetter) "(" SubStr(DriveLetter, 1, 1) "%3A)", "REG_MULTI_SZ", "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SPP\Clients", "{09F7EDC5-294E-4180-AF6A-FB0E6A0E9513}"
+		
 	}
 }
 
 CheckDisableMSDefender(*) {
 	; SafeBootMode:=SysGet(67)
-	If !SysGet(67) {
+	if !SysGet(67) {
 		try {
 			service:= ComObject("Schedule.Service")
 			service.Connect()
 			location:=service.GetFolder("\Microsoft\Windows\Windows Defender")		
-			If location.GetTask("Windows Defender Cache Maintenance").Enabled
-				Return 0
-			If location.GetTask("Windows Defender Cleanup").Enabled
-				Return 0
-			If location.GetTask("Windows Defender Scheduled Scan").Enabled
-				Return 0
-			If location.GetTask("Windows Defender Verification").Enabled
-				Return 0
-		} Catch {
-			Return -1
+			if location.GetTask("Windows Defender Cache Maintenance").Enabled
+				return 0
+			if location.GetTask("Windows Defender Cleanup").Enabled
+				return 0
+			if location.GetTask("Windows Defender Scheduled Scan").Enabled
+				return 0
+			if location.GetTask("Windows Defender Verification").Enabled
+				return 0
+		} catch {
+			return -1
 		}
 	}
 	try {
-		If (SS:=Service_State("Sense")) && SS = 4
-			Return 0
-		If (SS:=Service_State("WdBoot")) && SS = 4
-			Return 0
-		If (SS:=Service_State("WdFilter")) && SS = 4
-			Return 0
-		If (SS:=Service_State("WdNisDrv")) && SS = 4
-			Return 0
-		If (SS:=Service_State("WdNisSvc")) && SS = 4
-			Return 0
-		If (SS:=Service_State("WinDefend")) && SS = 4
-			Return 0
-		Return 1
-	} Catch {
-		Return -1
+		if (SS:=Service_State("Sense")) && SS = 4
+			return 0
+		if (SS:=Service_State("WdBoot")) && SS = 4
+			return 0
+		if (SS:=Service_State("WdFilter")) && SS = 4
+			return 0
+		if (SS:=Service_State("WdNisDrv")) && SS = 4
+			return 0
+		if (SS:=Service_State("WdNisSvc")) && SS = 4
+			return 0
+		if (SS:=Service_State("WinDefend")) && SS = 4
+			return 0
+		return 1
+	} catch {
+		return -1
 	}
 }
 DisableMSDefenderScheduleTask(s) {
@@ -128,7 +130,7 @@ DisableMSDefenderScheduleTask(s) {
 }
 DisableMSDefenderService(s) {
 	regpath:='HKLM\SYSTEM\CurrentControlSet\Services\'
-	If s {
+	if s {
 		try {
 			RegRead(regpath "Sense", "Start")
 			RegWrite '4', "REG_DWORD", regpath "Sense", "Start"
@@ -138,7 +140,7 @@ DisableMSDefenderService(s) {
 		RegWrite '4', "REG_DWORD", regpath "WdNisDrv", "Start"
 		RegWrite '4', "REG_DWORD", regpath "WdNisSvc", "Start"
 		RegWrite '4', "REG_DWORD", regpath "WinDefend", "Start"
-	} Else {
+	} else {
 		try {
 			RegRead(regpath "Sense", "Start")
 			RegWrite '3', "REG_DWORD", regpath "Sense", "Start"
@@ -166,15 +168,15 @@ RunDisableMSDefenderSafeMode(s) {
 DisableMSDefender(s,d,silent){
 	SafeBootMode:=SysGet(67)
 	n:=SafeBootMode?"SafeMode":""
-	If silent {
+	if silent {
 		RunDisableMSDefender%n%(s)
-	} Else {
+	} else {
 		HideToolTip()
 		Result := MsgBox(GetLangText("Text_DisableMSDefender" s), App.Name, "YesNo Icon?")
 		if Result = "Yes" {
 			RunDisableMSDefender%n%(s)
-		} Else {
-			Return !s
+		} else {
+			return !s
 		}
 	}
 }
